@@ -1,0 +1,83 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Firma de release: se toma de variables de entorno (GitHub Actions). Sin ellas, el APK de release
+// queda sin firmar (así lo necesita F-Droid, que firma con su propia clave).
+def ksPath = System.getenv('STRADAOS_KEYSTORE')
+
+android {
+    namespace 'com.stradaos.launcher'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.stradaos.launcher'
+        // Android 4.1+: el objetivo del proyecto es revivir pantallas de carro antiguas.
+        minSdk 16
+        // 28 a propósito: mantiene el comportamiento probado en pantallas viejas y nuevas.
+        targetSdk 28
+        versionCode 28
+        versionName '2.8.0'
+    }
+
+    signingConfigs {
+        if (ksPath) {
+            release {
+                storeFile file(ksPath)
+                storePassword System.getenv('STRADAOS_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('STRADAOS_KEY_ALIAS')
+                keyPassword System.getenv('STRADAOS_KEY_PASSWORD')
+                enableV1Signing true   // Android 4.x solo entiende la firma v1
+                enableV2Signing true
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (ksPath) signingConfig signingConfigs.release
+        }
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+    // F-Droid: sin el bloque binario de metadatos de dependencias.
+    dependenciesInfo {
+        includeInApk false
+        includeInBundle false
+    }
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
+            outputFileName = "StradaOS-${variant.versionName}.apk"
+        }
+    }
+}
+
+// API oculta de Android 4.0–4.3 (IRemoteControlDisplay) para leer la pista en reproducción.
+// Se compila aparte y solo se usa para compilar: no entra en el APK, en el equipo se usa la real.
+def hiddenApiStubs = tasks.register('compileHiddenApiStubs', JavaCompile) {
+    source = fileTree('src/hiddenapi/java')
+    classpath = files({ android.bootClasspath })
+    destinationDirectory = layout.buildDirectory.dir('intermediates/hiddenapi-stubs')
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+    options.compilerArgs += ['-Xlint:-options']
+}
+
+dependencies {
+    compileOnly files(hiddenApiStubs.flatMap { it.destinationDirectory })
+}
