@@ -1,16 +1,14 @@
 name: Publicar versión
 
-# Se ejecuta al subir una etiqueta vX.Y.Z (ej. v2.9.0). Compila el APK firmado,
-# crea el Release en GitHub con las notas de changelogs/X.Y.Z.md y actualiza update.json,
-# que es lo que StradaOS consulta para avisar de versiones nuevas.
+# Se ejecuta cuando cambia versionName en app/build.gradle (rama main) o al subir una etiqueta vX.Y.Z.
+# Si esa versión aún no tiene Release: compila el APK firmado, crea la etiqueta y el Release con las
+# notas de changelogs/X.Y.Z.md y actualiza update.json (lo que StradaOS consulta para avisar).
 on:
   push:
+    branches: [ main ]
+    paths: [ 'app/build.gradle', '.github/workflows/release.yml' ]
     tags: [ 'v*' ]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Etiqueta existente a publicar (ej. v2.9.0)'
-        required: true
 
 permissions:
   contents: write
@@ -18,21 +16,34 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
           fetch-depth: 0
 
+      - name: ¿Hay versión nueva por publicar?
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VN=$(grep -oP "versionName '\K[^']+" app/build.gradle)
+          echo "VERSION=$VN" >> "$GITHUB_ENV"
+          echo "TAG=v$VN" >> "$GITHUB_ENV"
+          if gh release view "v$VN" >/dev/null 2>&1; then
+            echo "La versión v$VN ya está publicada; no hay nada que hacer."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-java@v4
+        if: steps.check.outputs.skip != 'true'
         with:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+        if: steps.check.outputs.skip != 'true'
 
       - name: Preparar la clave de firma
+        if: steps.check.outputs.skip != 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
@@ -43,12 +54,14 @@ jobs:
           echo "STRADAOS_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
       - name: Comprobar que la versión coincide con la etiqueta
+        if: steps.check.outputs.skip != 'true'
         run: |
-          VN=$(grep -oP "versionName '\K[^']+" app/build.gradle)
-          echo "VERSION=$VN" >> "$GITHUB_ENV"
-          if [ "v$VN" != "$TAG" ]; then echo "::error::versionName ($VN) no coincide con la etiqueta ($TAG)"; exit 1; fi
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "$TAG" ]; then
+            echo "::error::versionName ($VERSION) no coincide con la etiqueta (${GITHUB_REF_NAME})"; exit 1
+          fi
 
       - name: Compilar APK firmado
+        if: steps.check.outputs.skip != 'true'
         env:
           STRADAOS_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           STRADAOS_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -56,6 +69,7 @@ jobs:
         run: ./gradlew --no-daemon assembleRelease
 
       - name: Notas de la versión
+        if: steps.check.outputs.skip != 'true'
         run: |
           F="changelogs/$VERSION.md"
           if [ -f "$F" ]; then cp "$F" "$RUNNER_TEMP/notes.md"; else echo "Mejoras y correcciones." > "$RUNNER_TEMP/notes.md"; fi
@@ -66,14 +80,17 @@ jobs:
           } >> "$RUNNER_TEMP/notes.md"
 
       - name: Crear el Release
+        if: steps.check.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
           name: StradaOS ${{ env.VERSION }}
           body_path: ${{ runner.temp }}/notes.md
           files: app/build/outputs/apk/release/StradaOS-*.apk
 
       - name: Actualizar update.json (aviso dentro de la app)
+        if: steps.check.outputs.skip != 'true'
         run: |
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           jq -n --arg v "$VERSION" --rawfile n "changelogs/$VERSION.md" \
@@ -84,7 +101,7 @@ jobs:
             || jq -n --arg v "$VERSION" --arg url "$REPO_URL/releases/tag/$TAG" --arg apk "$REPO_URL/releases/download/$TAG/StradaOS-$VERSION.apk" \
                 '{version:$v, notes:"", url:$url, apk:$apk}' > "$RUNNER_TEMP/update.json"
           git fetch origin main
-          git checkout main
+          git checkout -B main origin/main
           cp "$RUNNER_TEMP/update.json" update.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

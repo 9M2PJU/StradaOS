@@ -44,5 +44,5 @@ app/src/legacy/      RcDisplay: única clase que extiende la API oculta (se carg
 ## Publicar una versión (mantenedores)
 1. Sube `versionCode` y `versionName` en `app/build.gradle`.
 2. Escribe `changelogs/X.Y.Z.md` y `fastlane/metadata/android/*/changelogs/<versionCode>.txt`.
-3. Haz commit, crea la etiqueta `vX.Y.Z` y súbela: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+3. Haz commit y súbelo a `main` (o sube una etiqueta `vX.Y.Z`).
 4. GitHub Actions compila y firma el APK, crea el Release y actualiza `update.json`, el archivo que la app usa para avisar a los usuarios.
