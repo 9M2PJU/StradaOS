@@ -107,8 +107,10 @@ Los reportes, ideas y pull requests son bienvenidos. Lee [CONTRIBUTING.md](CONTR
 StradaOS es y seguirá siendo **gratis**. Si revivió tu pantalla, puedes apoyar su desarrollo:
 
 - ⭐ **Dale una estrella** a este repositorio. Es gratis y ayuda a que más gente lo encuentre.
-- 💖 **GitHub Sponsors:** *próximamente*
-- ☕ **Ko-fi:** *próximamente*
+- ☕ **Ko-fi:** invítame un café en **[ko-fi.com/stradaos](https://ko-fi.com/stradaos)** (tarjeta o PayPal, sin crear cuenta).
+- 💖 **GitHub Sponsors:** *próximamente* (en revisión por GitHub).
+
+<a href="https://ko-fi.com/stradaos"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Apóyame en Ko-fi"></a>
 
 ## 📈 Historial de estrellas
 
