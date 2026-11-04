@@ -69,15 +69,17 @@ android {
 
 // API oculta de Android 4.0–4.3 (IRemoteControlDisplay) para leer la pista en reproducción.
 // Se compila aparte y solo se usa para compilar: no entra en el APK, en el equipo se usa la real.
+def hiddenApiStubsDir = layout.buildDirectory.dir('intermediates/hiddenapi-stubs')
 def hiddenApiStubs = tasks.register('compileHiddenApiStubs', JavaCompile) {
     source = fileTree('src/hiddenapi/java')
     classpath = files({ android.bootClasspath })
-    destinationDirectory = layout.buildDirectory.dir('intermediates/hiddenapi-stubs')
+    destinationDirectory = hiddenApiStubsDir
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     options.compilerArgs += ['-Xlint:-options']
 }
+tasks.named('preBuild') { dependsOn hiddenApiStubs }
 
 dependencies {
-    compileOnly files(hiddenApiStubs.flatMap { it.destinationDirectory })
+    compileOnly files(hiddenApiStubsDir).builtBy(hiddenApiStubs)
 }
