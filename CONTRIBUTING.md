@@ -37,7 +37,8 @@ app/src/main/java/com/stradaos/launcher/
   Updates.java       avisos de versiones nuevas (GitHub Releases)
   CarPhoto.java      quitar fondo y ajustar la foto del vehículo
   Net.java           HTTPS con TLS 1.2 y certificados actuales en Android 4.x
-app/src/hiddenapi/   stub de API oculta de Android 4.x (solo para compilar)
+app/src/hiddenapi/   stub de API oculta de Android 4.x (solo para compilar, no entra al APK)
+app/src/legacy/      RcDisplay: única clase que extiende la API oculta (se carga por reflexión)
 ```
 
 ## Publicar una versión (mantenedores)

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
-import android.media.IRemoteControlDisplay;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -238,16 +237,17 @@ public class NowPlaying {
     private void registerDisplay() {
         if (android.os.Build.VERSION.SDK_INT < 14 || android.os.Build.VERSION.SDK_INT > 18) return;
         try {
-            display = new Display();
+            Class<?> rcd = Class.forName("android.media.IRemoteControlDisplay");
+            display = Class.forName("com.stradaos.launcher.RcDisplay").getConstructor(RcCallback.class).newInstance(new Display());
             AudioManager am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
             try {
-                AudioManager.class.getMethod("registerRemoteControlDisplay", IRemoteControlDisplay.class).invoke(am, display);
+                AudioManager.class.getMethod("registerRemoteControlDisplay", rcd).invoke(am, display);
             } catch (NoSuchMethodException e) {
-                AudioManager.class.getMethod("registerRemoteControlDisplay", IRemoteControlDisplay.class, int.class, int.class)
+                AudioManager.class.getMethod("registerRemoteControlDisplay", rcd, int.class, int.class)
                     .invoke(am, display, 300, 300);
             }
             try { // pedir carátula (Android 4.0–4.2)
-                AudioManager.class.getMethod("remoteControlDisplayUsesBitmapSize", IRemoteControlDisplay.class, int.class, int.class)
+                AudioManager.class.getMethod("remoteControlDisplayUsesBitmapSize", rcd, int.class, int.class)
                     .invoke(am, display, 300, 300);
             } catch (Throwable ignored) { }
         } catch (Throwable e) {
@@ -259,7 +259,7 @@ public class NowPlaying {
         if (display == null) return;
         try {
             AudioManager am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
-            AudioManager.class.getMethod("unregisterRemoteControlDisplay", IRemoteControlDisplay.class).invoke(am, display);
+            AudioManager.class.getMethod("unregisterRemoteControlDisplay", Class.forName("android.media.IRemoteControlDisplay")).invoke(am, display);
         } catch (Throwable ignored) { }
         display = null;
     }
@@ -288,8 +288,8 @@ public class NowPlaying {
         return t;
     }
 
-    private class Display extends IRemoteControlDisplay.Stub {
-        public void setCurrentClientId(int gen, PendingIntent pi, boolean clearing) {
+    private class Display implements RcCallback {
+        public void clientId(PendingIntent pi, boolean clearing) {
             try {
                 if (clearing) {
                     lastSource = null;
@@ -304,18 +304,18 @@ public class NowPlaying {
                 }
             } catch (Throwable ignored) { }
         }
-        public void setPlaybackState(int gen, int state, long t) {
+        public void playbackState(int state, long pos) {
             try {
                 Track tr = fromMeta(lastMeta);
                 tr.playing = state == 3 || state == 4 || state == 5 || state == 8;
+                if (pos >= 0) tr.positionMs = pos;
                 emit(tr);
             } catch (Throwable ignored) { }
         }
-        public void setTransportControlFlags(int gen, int flags) { }
-        public void setMetadata(int gen, Bundle m) {
+        public void metadata(Bundle m) {
             try { lastMeta = m; emit(fromMeta(m)); } catch (Throwable ignored) { }
         }
-        public void setArtwork(int gen, Bitmap b) {
+        public void artwork(Bitmap b) {
             try {
                 Track t = fromMeta(lastMeta);
                 t.art = b == null ? null : b.copy(Bitmap.Config.ARGB_8888, false);
@@ -323,24 +323,13 @@ public class NowPlaying {
                 emit(t);
             } catch (Throwable ignored) { }
         }
-        public void setAllMetadata(int gen, Bundle m, Bitmap b) {
+        public void allMetadata(Bundle m, Bitmap b) {
             try {
                 lastMeta = m;
                 Track t = fromMeta(m);
                 t.art = b == null ? null : b.copy(Bitmap.Config.ARGB_8888, false);
                 t.artSet = true;
                 emit(t);
-            } catch (Throwable ignored) { }
-        }
-        // variantes de otras versiones de Android 4.x
-        public void setEnabled(boolean e) { }
-        public void setCurrentClientId(int gen, PendingIntent pi, boolean clearing, boolean x) { setCurrentClientId(gen, pi, clearing); }
-        public void setPlaybackState(int gen, int state, long t, long pos, float speed) {
-            try {
-                Track tr = fromMeta(lastMeta);
-                tr.playing = state == 3 || state == 4 || state == 5 || state == 8;
-                if (pos >= 0) tr.positionMs = pos;
-                emit(tr);
             } catch (Throwable ignored) { }
         }
     }
