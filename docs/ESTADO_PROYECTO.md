@@ -23,5 +23,5 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
-- 2026-11-04: v2.9.0 — audio Bluetooth automático (Clinkway) y opción para otras marcas; aviso en la página para navegadores internos.
+- 2026-11-04: v2.9.0 (16c468a) — audio Bluetooth automático (Clinkway) y opción para otras marcas; aviso en la página para navegadores internos.
 - 2026-11-04: v2.8.0 publicada; Ko-fi activado; página web en GitHub Pages; ajuste de espacios de la página.
