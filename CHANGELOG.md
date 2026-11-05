@@ -2,6 +2,11 @@
 
 Las notas detalladas de cada versión están en [`changelogs/`](changelogs) y en [Releases](../../releases).
 
+## 2.9.3 — El inicio vuelve a ser lo primero que ves
+- «Audio Bluetooth» ya no se abre solo al arrancar.
+- Cambio automático a Bluetooth: en prueba y apagado por defecto; ▶ en el inicio pasa el sonido a Bluetooth.
+- Revisar qué app abre cada botón (asistente y Accesos y apps).
+
 ## 2.9.2 — Actualizaciones confiables y compatibilidad
 - Consulta todas las fuentes de actualización y usa la más nueva; muestra el resultado de cada una.
 - Audio Bluetooth automático también al venir de la radio.

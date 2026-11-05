@@ -225,8 +225,10 @@ public class Main extends Activity {
 
     /** Pantallas Clinkway: StradaOS pasa el sonido a Bluetooth cuando el celular empieza a sonar. */
     private boolean btAutoOn() {
-        return clwBt && prefs.getBoolean("bt_auto2", true);
+        return clwBt && prefs.getBoolean("bt_auto3", false);
     }
+
+    private final long startedAt = SystemClock.elapsedRealtime();
 
     /** Paquete de la app que está al frente (Android 4.x; en versiones nuevas puede venir vacío). */
     private String topPackage() {
@@ -249,6 +251,7 @@ public class Main extends Activity {
     /** El celular empezó a sonar por Bluetooth. */
     private void onPhoneStartedBt() {
         if (!btAutoOn()) return;
+        if (SystemClock.elapsedRealtime() - startedAt < 60000) { BtBridge.log("no se cambió: StradaOS acaba de arrancar"); return; }
         String top = topPackage();
         if (top != null && (top.contains("btphone") || top.contains("dialer") || top.contains("incallui"))) { BtBridge.log("no se cambió: llamada en curso"); return; }
         trackSource();
@@ -1350,7 +1353,7 @@ public class Main extends Activity {
                     chooseAccent(new Runnable() { public void run() {
                         prefs.edit().putBoolean("setup_done", true).apply();
                         rebuild();
-                        pickPhoto();
+                        reviewShortcuts(new Runnable() { public void run() { pickPhoto(); } });
                     }});
                     }});
                     }});
@@ -1359,6 +1362,46 @@ public class Main extends Activity {
             })
             .setNegativeButton("Después", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int w) { prefs.edit().putBoolean("setup_done", true).apply(); }
+            })
+            .show();
+    }
+
+    // ── asistente: revisar qué app abre cada botón ──
+
+    static final String[][] REVIEW = {{"radio", "Radio"}, {"bt", "Bluetooth"}, {"btaudio", "Música Bluetooth"}, {"cam", "Cámara"}, {"files", "Archivos"}, {"aa", "Android Auto"}};
+
+    /** Qué app abre cada botón en esta pantalla: la elegida o la que StradaOS detectó. */
+    private String shortcutLabel(String key) {
+        String c = prefs.getString(key, null);
+        if (c != null) return labelOf(c);
+        if ("btaudio".equals(key)) { ComponentName cn = btMusicApp(); return cn != null ? "Automático · " + labelOf(cn.flattenToString()) : "No encontrada"; }
+        if ("aa".equals(key)) {
+            String p = prefs.getString("conn_app", null);
+            if (p != null) return labelOf(p);
+            List<String> cand = connCandidates();
+            return cand.isEmpty() ? "No encontrada" : "Automático · " + labelOf(cand.get(0));
+        }
+        for (String[] sl : SLOTS) if (sl[0].equals(key)) {
+            ResolveInfo r = find(sl[2], sl[3]);
+            return r != null ? "Automático · " + r.loadLabel(getPackageManager()) : "No encontrada";
+        }
+        return "Automático";
+    }
+
+    /** Lista de botones con su app; tocar uno deja elegir otra. Funciona igual en cualquier versión de Android. */
+    private void reviewShortcuts(final Runnable next) {
+        final String[] items = new String[REVIEW.length];
+        for (int i = 0; i < REVIEW.length; i++) items[i] = REVIEW[i][1] + "\n    → " + shortcutLabel(REVIEW[i][0]);
+        new AlertDialog.Builder(this, dlg())
+            .setTitle("¿Qué app abre cada botón?")
+            .setItems(items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface d, final int w) {
+                    pickFor(REVIEW[w][0], REVIEW[w][1], new Runnable() { public void run() { reviewShortcuts(next); } });
+                }
+            })
+            .setCancelable(false)
+            .setPositiveButton("Están bien", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface d, int w) { refreshStates(); if (next != null) next.run(); }
             })
             .show();
     }
@@ -1960,8 +2003,12 @@ public class Main extends Activity {
         LinearLayout c = section(body, "Accesos de la barra inferior");
         String[][] items = {{"radio", "Radio"}, {"bt", "Bluetooth"}, {"cam", "Cámara"}, {"web", "Navegador"}, {"files", "Archivos"}};
         for (final String[] it : items) {
-            row(c, it[1], null, appLabel(it[0], "Automático"), new Runnable() { public void run() { pickFor(it[0], it[1]); } });
+            row(c, it[1], null, "web".equals(it[0]) ? appLabel(it[0], "Automático") : shortcutLabel(it[0]), new Runnable() { public void run() { pickFor(it[0], it[1]); } });
         }
+        row(c, "Música Bluetooth", "La app que hace sonar el Bluetooth (se usa para pasar el sonido)", shortcutLabel("btaudio"), new Runnable() { public void run() { pickFor("btaudio", "Música Bluetooth"); } });
+        row(c, "Revisar todos los botones", "Lista rápida de qué abre cada uno, como en el asistente", null, new Runnable() { public void run() {
+            reviewShortcuts(new Runnable() { public void run() { if (settingsView != null) showSettings(4); } });
+        }});
         LinearLayout r = section(body, "Restablecer");
         row(r, "Restablecer accesos", "Vuelve a buscar las apps de fábrica automáticamente", null, new Runnable() { public void run() {
             SharedPreferences.Editor e = prefs.edit();
@@ -2008,9 +2055,10 @@ public class Main extends Activity {
         row(c, "Diagnóstico del reproductor", "Fuente activa, lector de notificaciones y Bluetooth", null, new Runnable() { public void run() { showPlayerDiag(); } });
         LinearLayout b = section(body, "Audio Bluetooth");
         if (clwBt) {
-            toggle(b, "Pasar el sonido a Bluetooth automáticamente", "Cuando el celular empieza a sonar, abre un instante «Audio Bluetooth» y vuelve a donde estabas",
-                prefs.getBoolean("bt_auto2", true), new IntCb() { public void on(int i) {
-                    prefs.edit().putBoolean("bt_auto2", i == 1).apply(); showSettings(6);
+            row(b, "Escuchar el Bluetooth", "En esta pantalla, toca ▶ en el inicio: StradaOS pasa el sonido a Bluetooth (por ejemplo, si venías de la radio)", null, null);
+            toggle(b, "Pasar a Bluetooth al dar play en el celular (en prueba)", "Abre un instante «Audio Bluetooth» y vuelve. En algunas pantallas no detecta el play del celular",
+                prefs.getBoolean("bt_auto3", false), new IntCb() { public void on(int i) {
+                    prefs.edit().putBoolean("bt_auto3", i == 1).apply(); showSettings(6);
                 }});
             row(b, "Probar ahora", "Abre «Audio Bluetooth» un instante y vuelve al inicio", null,
                 new Runnable() { public void run() { closeSettings(); openBtAudioApp(true); } });
@@ -2057,7 +2105,8 @@ public class Main extends Activity {
         b.append("\n");
         compatLine(b, "Inicio, mapa, clima, velocímetro", "Android 4.1+", true, null);
         compatLine(b, "Pista y carátula por Bluetooth", "Android 4.1+", true, clwBt ? "app Bluetooth de fábrica detectada" : "depende de la marca");
-        compatLine(b, "Pasar el sonido a Bluetooth automáticamente", "Pantallas Clinkway / Autochips", clwBt, clwBt ? (btAutoOn() ? "activado" : "desactivado") : "en otras marcas: «Abrir la app de música Bluetooth al conectar»");
+        compatLine(b, "Botón ▶ del inicio pasa el sonido a Bluetooth", "Pantallas Clinkway / Autochips", clwBt, clwBt ? "funciona aunque vengas de la radio" : "en otras marcas: «Abrir la app de música Bluetooth al conectar»");
+        compatLine(b, "Pasar a Bluetooth al dar play en el celular (en prueba)", "Pantallas Clinkway / Autochips", clwBt, clwBt ? (btAutoOn() ? "activado" : "desactivado; en algunas pantallas no detecta el play del celular") : null);
         compatLine(b, "Carátula de Android Auto (Open Headunit)", "Android 4.1+ · accesibilidad", true, NotifArt.running ? "activada" : "falta activar la accesibilidad");
         compatLine(b, "Música de cualquier app (Spotify, YouTube…)", "Android 5+", SDK >= 21, SDK >= 21 ? (MediaListener.connected ? "activada" : "falta dar acceso a notificaciones") : "no disponible en Android " + androidName(SDK));
         compatLine(b, "Android Auto con Open Headunit", "Android 4.1+ · cable USB", true, installed(PKG_HUR) ? "Open Headunit instalado" : "falta instalar Open Headunit");
@@ -2438,7 +2487,9 @@ public class Main extends Activity {
         }
     }
 
-    private void pickFor(final String key, String name) {
+    private void pickFor(final String key, String name) { pickFor(key, name, null); }
+
+    private void pickFor(final String key, String name, final Runnable after) {
         final PackageManager pm = getPackageManager();
         final List<String> labels = new ArrayList<String>();
         labels.add("↺  Automático (por defecto)");
@@ -2457,10 +2508,13 @@ public class Main extends Activity {
                         toast("Guardado: " + labels.get(which));
                     }
                     refreshStates();
-                    if (settingsView != null) showSettings(settingsCat);
+                    if (after != null) after.run();
+                    else if (settingsView != null) showSettings(settingsCat);
                 }
             })
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton("Cancelar", after == null ? null : new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface d, int w) { after.run(); }
+            })
             .show();
     }
 

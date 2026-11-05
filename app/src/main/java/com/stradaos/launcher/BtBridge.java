@@ -38,7 +38,9 @@ public class BtBridge {
     private final Handler ui = new Handler(Looper.getMainLooper());
     private IBinder binder;
     private boolean bound, boundAuto, autoCreate, pendingActivate;
-    private volatile boolean wasPlaying, polling;
+    /** null = aún no se ha visto el estado: el primer dato no cuenta como «empezó a sonar» (abría la app al arrancar). */
+    private volatile Boolean wasPlaying;
+    private volatile boolean polling;
     private long lastActivate, pauseAutoUntil;
     private final long[] drops = new long[3];
     private int dropIdx;
@@ -73,6 +75,7 @@ public class BtBridge {
         }
         public void onServiceDisconnected(ComponentName n) {
             binder = null;
+            wasPlaying = null;
             log("la app Bluetooth se cerró");
             if (onLost != null) ui.post(onLost);
             if (!boundAuto) return;
@@ -126,6 +129,7 @@ public class BtBridge {
         bound = false;
         boundAuto = false;
         binder = null;
+        wasPlaying = null;
     }
 
     /**
@@ -176,9 +180,9 @@ public class BtBridge {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    if (!bool(b, T_A2DP)) { wasPlaying = false; return; }
+                    if (!bool(b, T_A2DP)) { wasPlaying = null; return; }
                     boolean playing = bool(b, T_IS_PLAYING);
-                    boolean rising = playing && !wasPlaying;
+                    boolean rising = playing && Boolean.FALSE.equals(wasPlaying);
                     wasPlaying = playing;
                     if (!auto || !rising) return;
                     // isAudioTmpLose() es true justo cuando la radio tiene el sonido: no se usa para descartar (bug de 2.9.0)
