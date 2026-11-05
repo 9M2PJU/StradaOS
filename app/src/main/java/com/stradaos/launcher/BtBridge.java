@@ -13,10 +13,11 @@ import android.os.SystemClock;
 /**
  * Consulta directa a la app Bluetooth de fábrica (com.clw.btmusic / IBTPlaybackService).
  *
- * En estas pantallas el audio A2DP solo sale por los parlantes cuando la app de fábrica pide el
- * «modo Bluetooth» (foco de audio en su canal propio). Su pantalla lo hace al abrirse, llamando a
- * setBTMusicMode(). Con el audio automático activado, StradaOS mantiene vivo el servicio y hace esa
- * misma llamada cuando el celular empieza a sonar, sin abrir la app.
+ * En estas pantallas el audio A2DP solo sale por los parlantes cuando la pantalla de «Audio Bluetooth»
+ * pasa al frente: el sistema cambia la fuente de audio según la app de fuente que se abrió por última vez
+ * (probado en 2.9.0: llamar solo a setBTMusicMode() desde el servicio no basta). StradaOS mantiene vivo
+ * el servicio para saber cuándo el celular empieza a sonar y avisa a Main, que abre esa pantalla un
+ * instante y vuelve a donde estaba el usuario.
  */
 public class BtBridge {
     private static final String DESCRIPTOR = "com.clw.btmusic.IBTPlaybackService";
@@ -26,6 +27,11 @@ public class BtBridge {
     static final String PKG = "com.clw.btmusic";
 
     public interface Listener { void onBtState(NowPlaying.Track t); }
+
+    /** Main: el celular empezó a sonar (flanco pausa → sonando). */
+    public Runnable onPhoneStarted;
+    /** Main: el servicio de fábrica se cerró (suele pasar cuando otra fuente toma el audio). */
+    public Runnable onLost;
 
     private final Context ctx;
     private final Listener listener;
@@ -68,6 +74,7 @@ public class BtBridge {
         public void onServiceDisconnected(ComponentName n) {
             binder = null;
             log("la app Bluetooth se cerró");
+            if (onLost != null) ui.post(onLost);
             if (!boundAuto) return;
             // si el servicio se cierra una y otra vez, deja de mantenerlo vivo un rato
             long now = SystemClock.elapsedRealtime();
@@ -146,6 +153,8 @@ public class BtBridge {
             public void run() {
                 try {
                     if (!bool(b, T_A2DP)) { log("activar audio: el celular no está conectado por Bluetooth"); return; }
+                    // con el celular en pausa, setBTMusicMode() no envía play (rompía el botón play en 2.9.0)
+                    if (!bool(b, T_IS_PLAYING)) { log("activar audio: el celular está en pausa"); return; }
                     call(b, T_BT_MODE);
                     lastActivate = SystemClock.elapsedRealtime();
                     activations++;
@@ -174,11 +183,10 @@ public class BtBridge {
                     if (!auto || !rising) return;
                     if (bool(b, T_TMP_LOSE)) { log("el celular suena, pero hay otra fuente temporal (llamada o voz)"); return; }
                     if (SystemClock.elapsedRealtime() - lastActivate < 8000) return;
-                    log("el celular empezó a sonar");
-                    call(b, T_BT_MODE);
                     lastActivate = SystemClock.elapsedRealtime();
-                    activations++;
-                    log("modo de audio Bluetooth solicitado");
+                    log("el celular empezó a sonar");
+                    // no se llama a setBTMusicMode() aquí: en 2.9.0 no pasaba el sonido y dañaba el play/pausa
+                    if (onPhoneStarted != null) ui.post(onPhoneStarted);
                 } catch (Throwable e) {
                     log("revisión falló: " + e);
                 } finally {

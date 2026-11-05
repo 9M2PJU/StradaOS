@@ -2,6 +2,10 @@
 
 Las notas detalladas de cada versión están en [`changelogs/`](changelogs) y en [Releases](../../releases).
 
+## 2.9.1 — Arreglo del audio Bluetooth
+- Play después de pausar funciona de nuevo con el audio automático.
+- Si el sonido no es Bluetooth cuando el celular empieza a sonar, abre «Audio Bluetooth» un instante y vuelve a donde estabas.
+
 ## 2.9.0 — Audio Bluetooth sin abrir la app de fábrica
 - La música del celular suena al darle play, sin abrir la app «Audio Bluetooth» (automático en Clinkway/Autochips).
 - Otras marcas: opción para abrir la app de música Bluetooth un momento al conectar el celular.
