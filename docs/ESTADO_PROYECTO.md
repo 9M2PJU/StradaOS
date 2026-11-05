@@ -29,6 +29,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-05: confirmado en la pantalla de Andrés (Android 4.2): el aviso dentro de la app detecta la 2.9.2 (pasando de 2.9.1).
 - 2026-11-04: v2.9.2 — actualizaciones confiables (todas las fuentes + purga de jsDelivr), BT desde la radio, tabla de compatibilidad.
 - 2026-11-04: v2.9.1 — corrige play tras pausa y cambia el método: abre «Audio Bluetooth» un instante y vuelve.
 - 2026-11-04: v2.9.0 (16c468a) — audio Bluetooth automático (Clinkway) y opción para otras marcas; aviso en la página para navegadores internos.
