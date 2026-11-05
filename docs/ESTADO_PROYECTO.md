@@ -10,7 +10,7 @@
 
 ## Pendientes, en orden
 1. **GitHub Sponsors:** el perfil está listo y espera que soporte de GitHub corrija el nombre de facturación (ticket #4952223). Cuando lo aprueben y Andrés publique, activar `github: lordnordic-debug` en `.github/FUNDING.yml` y en la sección «Apoya el proyecto» del README.
-2. **Confirmar 2.9.5 con Android Auto:** con el celular en Open Headunit, la etiqueta debe quedarse en «ANDROID AUTO» (sin titilar a «BLUETOOTH»), el tiempo debe avanzar sin saltos y, al cambiar de canción, no debe pasar a Bluetooth. Probar ⏮ ⏯ ⏭ del inicio con Android Auto (van por tecla multimedia, no por la app Bluetooth) y revisar en *Diagnóstico del reproductor* «Open Headunit corriendo: sí». Al desconectar el cable, la siguiente canción debe mostrarse como Bluetooth.
+2. **Terminar de confirmar 2.9.5 con Android Auto:** confirmado en el Picanto (2026-11-05) que la etiqueta ya no titila. Falta: ⏮ ⏯ ⏭ del inicio con Android Auto (van por tecla multimedia, no por la app Bluetooth); al cambiar de canción no debe pasar a Bluetooth; *Diagnóstico del reproductor* debe decir «Open Headunit corriendo: sí»; al desconectar el cable, la siguiente canción debe mostrarse como Bluetooth.
 3. **Confirmar 2.9.3 en la pantalla de Andrés:** al encender, debe verse el inicio (no «Audio Bluetooth»); ▶ del inicio pasa de radio a Bluetooth; revisar el nuevo paso «¿Qué app abre cada botón?». Pendiente de investigar: detectar el play del celular cuando la radio tiene el sonido (ver notas técnicas); con la opción en prueba activada, mirar *Música → Diagnóstico del reproductor* para ver si llega el evento «el celular empezó a sonar».
 4. **Bluetooth en otras marcas:** la 2.9.0 trae una opción en prueba (abrir la app BT al conectar y volver). Para soporte nativo de cada marca, pedir `StradaDiag` exportado **con el celular sonando** (incluye `bluetooth.txt` con los servicios activos) y su app BT (apk/odex).
 5. **App de música preferida:** opción en *Ajustes → Música* para elegir una app (Musicolet, Spotify…). Si no suena nada y se toca ▶ en el inicio, StradaOS abre o arranca esa app (primero con tecla multimedia dirigida a su receptor; si no responde, abriéndola). Origen: comentario de Oscar Pizarro (Sonic 2015) en Facebook: Musicolet solo se controla después de abrirla; Moodmax no se controla desde el inicio (revisar si publica MediaSession; pedirle API y *Diagnóstico del reproductor*).
@@ -35,6 +35,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-05: confirmado en el Picanto: con 2.9.5 la fuente ya no titila entre Android Auto y Bluetooth.
 - 2026-11-05: merge request a F-Droid abierto (!55924).
 - 2026-11-05: IzzyOnDroid rechazó StradaOS por su política de IA (escaneo y metadatos aprobados); siguiente: F-Droid.
 - 2026-11-05: v2.9.5 — la fuente del reproductor ya no titila entre Android Auto y Bluetooth.
