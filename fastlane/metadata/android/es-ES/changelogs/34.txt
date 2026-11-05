@@ -1,0 +1,1 @@
+Con Android Auto conectado, la fuente del reproductor ya no titila entre Android Auto y Bluetooth; los botones se quedan en Android Auto.

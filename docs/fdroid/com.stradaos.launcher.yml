@@ -20,14 +20,14 @@ RepoType: git
 Repo: https://github.com/lordnordic-debug/StradaOS.git
 
 Builds:
-  - versionName: 2.9.4
-    versionCode: 33
-    commit: v2.9.4
+  - versionName: 2.9.5
+    versionCode: 34
+    commit: v2.9.5
     subdir: app
     gradle:
       - yes
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 2.9.4
-CurrentVersionCode: 33
+CurrentVersion: 2.9.5
+CurrentVersionCode: 34

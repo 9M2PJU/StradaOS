@@ -1,0 +1,1 @@
+With Android Auto connected, the player source no longer flickers between Android Auto and Bluetooth; controls stay on Android Auto.

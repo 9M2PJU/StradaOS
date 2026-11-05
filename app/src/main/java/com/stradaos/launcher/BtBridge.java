@@ -212,6 +212,7 @@ public class BtBridge {
                     final NowPlaying.Track t = new NowPlaying.Track();
                     t.origin = "bt";
                     t.source = "Bluetooth";
+                    t.polled = true;
                     if (!bool(b, T_A2DP)) {
                         t.clear = true;
                     } else {

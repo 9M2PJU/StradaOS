@@ -254,6 +254,7 @@ public class Main extends Activity {
         if (SystemClock.elapsedRealtime() - startedAt < 60000) { BtBridge.log("no se cambió: StradaOS acaba de arrancar"); return; }
         String top = topPackage();
         if (top != null && (top.contains("btphone") || top.contains("dialer") || top.contains("incallui"))) { BtBridge.log("no se cambió: llamada en curso"); return; }
+        if ("Android Auto".equals(curSource) && aaRunning()) { BtBridge.log("no se cambió: Android Auto tiene el sonido"); return; }
         trackSource();
         if (btRouted) { BtBridge.log("el sonido ya es Bluetooth"); return; }
         openBtAudioApp(false);
@@ -354,6 +355,7 @@ public class Main extends Activity {
         try { bt.disconnect(); } catch (Throwable ignored) { }
         try { unregisterReceiver(btConnReceiver); } catch (Throwable ignored) { }
         h.removeCallbacks(btTicker);
+        h.removeCallbacks(aaWait);
         try { if (mediaWatcher != null) mediaWatcher.stop(); } catch (Throwable ignored) { }
         super.onDestroy();
     }
@@ -1065,14 +1067,29 @@ public class Main extends Activity {
         // Un aviso sin pista de otra fuente (p. ej. el sistema cuando entra la cámara de reversa)
         // no debe borrar ni pausar lo que muestra la fuente actual.
         if (curOrigin != null && !curOrigin.equals(t.origin) && !hasContent) return;
-        // Con Android Auto conectado el celular suele mandar la misma canción también por Bluetooth:
-        // si es la misma pista, se queda Android Auto como fuente (trae carátula) y Bluetooth solo aporta tiempo/estado.
-        boolean sameAsAA = ("rcc".equals(curOrigin) || "Android Auto".equals(curSource))
-                && "bt".equals(t.origin) && t.title != null && t.title.equals(curTitle);
-        if (sameAsAA) {
-            t.source = null;
-            t.artist = null;
-        } else if (hasContent && !t.clear) curOrigin = t.origin;
+        // Con Android Auto conectado el celular manda la misma canción también por Bluetooth (AVRCP), a cada segundo
+        // y a veces sin título (solo tiempo o estado). Mientras Android Auto sea la fuente, Bluetooth solo aporta
+        // tiempo y estado: nunca cambia la etiqueta ni borra la pista. Antes esos avisos sin título ponían
+        // «Bluetooth» y la notificación de Open Headunit volvía a poner «Android Auto»: la etiqueta titilaba.
+        boolean aaOwns = "rcc".equals(curOrigin) || ("Android Auto".equals(curSource) && aaRunning());
+        if (aaOwns && "bt".equals(t.origin)) {
+            if (t.clear) return;
+            if (t.polled && Boolean.FALSE.equals(t.playing)) t.playing = null; // estado local del servicio, no el real
+            if (t.title == null || sameTitle(t.title, curTitle)) {
+                t.title = null;
+                t.source = null;
+                t.artist = null;
+                hasContent = false;
+            } else if ("Android Auto".equals(curSource)) {
+                // Canción nueva: la notificación de Open Headunit suele llegar un instante después.
+                // Se mantiene «Android Auto» unos segundos; si no llega, pasa a Bluetooth.
+                t.source = null;
+                aaWaitTitle = t.title;
+                h.removeCallbacks(aaWait);
+                h.postDelayed(aaWait, 5000);
+            }
+        }
+        if (hasContent && !t.clear) curOrigin = t.origin;
         if (t.clear) {
             curOrigin = null;
             curTitle = curArtist = curSource = null;
@@ -1094,6 +1111,8 @@ public class Main extends Activity {
             if (!t.artSet && NotifArt.lastArt != null && textsMatch(NotifArt.lastTexts, t.title)) {
                 curArt = NotifArt.lastArt;
                 t.source = "Android Auto";
+                aaWaitTitle = null;
+                h.removeCallbacks(aaWait);
             }
         }
         if (t.title != null) curTitle = t.title;
@@ -1111,6 +1130,39 @@ public class Main extends Activity {
         renderTrack();
     }
 
+    /** Misma canción aunque una fuente la mande recortada o con otras mayúsculas. */
+    private static boolean sameTitle(String a, String b) {
+        if (a == null || b == null) return false;
+        String x = a.trim().toLowerCase(ES), y = b.trim().toLowerCase(ES);
+        if (x.equals(y)) return true;
+        return Math.min(x.length(), y.length()) > 8 && (x.startsWith(y) || y.startsWith(x));
+    }
+
+    /** Open Headunit está corriendo (Android Auto conectado o recién usado). Se revisa cada 3 s como máximo. */
+    private boolean aaRunning() {
+        long now = SystemClock.elapsedRealtime();
+        if (now - aaCheckedAt > 3000) {
+            aaCheckedAt = now;
+            aaRunningCached = processRunning(PKG_HUR);
+        }
+        return aaRunningCached;
+    }
+    private long aaCheckedAt;
+    private boolean aaRunningCached;
+    private String aaWaitTitle;
+
+    /** Si la canción nueva no llegó por la notificación de Android Auto, la fuente pasa a Bluetooth. */
+    private final Runnable aaWait = new Runnable() {
+        public void run() {
+            String w = aaWaitTitle;
+            aaWaitTitle = null;
+            if (w == null || !"Android Auto".equals(curSource) || !sameTitle(w, curTitle)) return;
+            curSource = "Bluetooth";
+            curArt = null;
+            renderTrack();
+        }
+    };
+
     private static boolean textsMatch(java.util.List<String> texts, String title) {
         if (texts == null || title == null) return false;
         String tt = title.trim().toLowerCase(ES);
@@ -1126,6 +1178,7 @@ public class Main extends Activity {
     private void applyAaNotif(Bitmap art, java.util.List<String> texts) {
         if (art == null || curTitle == null) return;
         if (!textsMatch(texts, curTitle)) return;
+        if (aaWaitTitle != null && sameTitle(aaWaitTitle, curTitle)) { aaWaitTitle = null; h.removeCallbacks(aaWait); }
         curArt = art;
         curSource = "Android Auto";
         renderTrack();
@@ -1139,6 +1192,7 @@ public class Main extends Activity {
                 + "\nÚltima notificación de Open Headunit: " + (NotifArt.lastAt == 0 ? "ninguna"
                     : ((SystemClock.elapsedRealtime() - NotifArt.lastAt) / 1000) + " s, carátula "
                     + (NotifArt.lastArt != null ? "sí" : "no") + ", textos " + NotifArt.lastTexts)
+                + "\nOpen Headunit corriendo: " + (processRunning(PKG_HUR) ? "sí" : "no")
                 + "\nApp Bluetooth conectada: " + (bt != null && bt.isConnected() ? "sí" : "no")
                 + "\nAudio Bluetooth automático: " + (clwBt ? (btAutoOn() ? "activado" : "desactivado") : "no aplica (otra marca)")
                 + (clwBt ? "" : "\nApp de música Bluetooth: " + (btMusicApp() != null ? btMusicApp().getPackageName() : "no encontrada")

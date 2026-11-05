@@ -27,6 +27,7 @@ public class NowPlaying {
         public boolean artSet;           // true si este aviso trae carátula (o la borra)
         public boolean clear;            // no hay nada sonando
         public String origin = "bc";     // rcc = control remoto del sistema, bt = Bluetooth, unit = apps del equipo, bc = reproductores
+        public boolean polled;           // leído al servicio Bluetooth (no aviso del celular): su play/pausa es local, no del A2DP real
     }
 
     public interface Listener { void onTrack(Track t); }
