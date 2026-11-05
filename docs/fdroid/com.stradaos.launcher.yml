@@ -1,5 +1,3 @@
-# Plantilla para solicitar la inclusión en F-Droid (merge request a gitlab.com/fdroid/fdroiddata,
-# archivo metadata/com.stradaos.launcher.yml). Revisar con los mantenedores de F-Droid.
 Categories:
   - Navigation
   - System
@@ -8,13 +6,14 @@ AuthorName: Andrés (lordnordic-debug)
 SourceCode: https://github.com/lordnordic-debug/StradaOS
 IssueTracker: https://github.com/lordnordic-debug/StradaOS/issues
 Changelog: https://github.com/lordnordic-debug/StradaOS/releases
+Donate: https://ko-fi.com/stradaos
 
 AutoName: StradaOS
 
 AntiFeatures:
   NonFreeNet:
-    es: Puede usar mapas de Esri y BigDataCloud (nombre de la ciudad) cuando los servidores libres no responden.
     en-US: May use Esri map tiles and BigDataCloud (city name) when free servers do not respond.
+    es: Puede usar mapas de Esri y BigDataCloud (nombre de la ciudad) cuando los servidores libres no responden.
 
 RepoType: git
 Repo: https://github.com/lordnordic-debug/StradaOS.git
