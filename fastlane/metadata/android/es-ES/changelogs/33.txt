@@ -1,0 +1,1 @@
+Preparada para IzzyOnDroid y F-Droid: si la instalas desde esas tiendas, se actualiza por ahí y los avisos de GitHub son opcionales. Corrige un texto en Compatibilidad.

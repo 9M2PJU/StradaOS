@@ -1,0 +1,1 @@
+Ready for IzzyOnDroid and F-Droid: when installed from those stores, updates come through the store and GitHub update notices are opt-in. Fixes a label in Compatibility.

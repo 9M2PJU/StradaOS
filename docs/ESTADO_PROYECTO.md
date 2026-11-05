@@ -1,6 +1,6 @@
 # Estado del proyecto StradaOS
 
-Última actualización: 2026-11-04 · Versión publicada: **2.9.3** (versionCode 32)
+Última actualización: 2026-11-04 · Versión publicada: **2.9.4** (versionCode 33)
 
 ## Publicado
 - Release v2.8.0 en GitHub, firmado con la llave de publicación (secretos de GitHub). La firma coincide con las versiones instaladas a mano, así que se instala encima sin perder la configuración.
@@ -15,7 +15,8 @@
 4. **App de música preferida:** opción en *Ajustes → Música* para elegir una app (Musicolet, Spotify…). Si no suena nada y se toca ▶ en el inicio, StradaOS abre o arranca esa app (primero con tecla multimedia dirigida a su receptor; si no responde, abriéndola). Origen: comentario de Oscar Pizarro (Sonic 2015) en Facebook: Musicolet solo se controla después de abrirla; Moodmax no se controla desde el inicio (revisar si publica MediaSession; pedirle API y *Diagnóstico del reproductor*).
 5. **Accesos a pantallas internas:** en *Accesos y apps*, además de apps completas, permitir «Elegir pantalla interna…» (lista de actividades exportadas de una app, por ejemplo la Radio o la Música Bluetooth que viven dentro del launcher de fábrica). Origen: comentario de Giancarlo Maya en Facebook: su pantalla tiene radio y música Bluetooth dentro del launcher de fábrica. Pedirle modelo, API y `StradaDiag`.
 6. **Capturas reales:** reemplazar los mockups de `fastlane/.../phoneScreenshots` y `site/img` por fotos de la pantalla de Andrés.
-7. **Publicar en IzzyOnDroid** y luego en F-Droid (plantilla en `docs/fdroid/`).
+7. **IzzyOnDroid:** solicitud lista en `docs/izzyondroid/SOLICITUD.md` (Codeberg, IzzyOnDroid/repodata). Andrés la envía con su cuenta de Codeberg; seguir las preguntas de Izzy en el issue. Requisitos verificados en 2.9.4: GPL-3, APK ~0,5 MB en Releases con tags vX.Y.Z, sin bloque Dependency Info (solo v2 + padding), fastlane es-ES/en-US, actualizador de GitHub opt-in cuando la instala una tienda F-Droid.
+8. **F-Droid (después de IzzyOnDroid):** plantilla `docs/fdroid/com.stradaos.launcher.yml` actualizada a 2.9.4. Abrir un RFP en gitlab.com/fdroid/rfp o un merge request en fdroiddata. Ojo: F-Droid firma con su propia llave; quien venga de GitHub tendría que desinstalar para pasarse (a menos que se configure build reproducible).
 
 ## Ideas sin compromiso
 - Mapa con vista inclinada (3D) como opción en Ajustes. Antes hay que medir el rendimiento en pantallas lentas.
@@ -30,6 +31,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-05: v2.9.4 — actualizador opt-in en instalaciones de tiendas F-Droid; solicitud de IzzyOnDroid preparada.
 - 2026-11-05: v2.9.3 — no abrir «Audio Bluetooth» al arrancar; automático en prueba y apagado; revisar qué app abre cada botón.
 - 2026-11-05: confirmado en la pantalla de Andrés (Android 4.2): el aviso dentro de la app detecta la 2.9.2 (pasando de 2.9.1).
 - 2026-11-04: v2.9.2 — actualizaciones confiables (todas las fuentes + purga de jsDelivr), BT desde la radio, tabla de compatibilidad.

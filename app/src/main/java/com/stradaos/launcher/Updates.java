@@ -59,12 +59,29 @@ public class Updates {
         catch (Throwable e) { return "0"; }
     }
 
-    /** true si la app vino de F-Droid: allí las actualizaciones las entrega F-Droid. */
+    /**
+     * true si la app se instaló desde una tienda tipo F-Droid (F-Droid, IzzyOnDroid con Droid-ify, Neo Store…).
+     * En ese caso las actualizaciones las entrega esa tienda, y bajarlas de GitHub es opcional (opt-in),
+     * como piden las reglas de IzzyOnDroid y F-Droid.
+     */
     public static boolean fromFdroid(Context c) {
-        try {
-            String i = c.getPackageManager().getInstallerPackageName(c.getPackageName());
-            return i != null && (i.startsWith("org.fdroid") || i.contains("droidify") || i.contains("neostore") || i.contains("foxydroid"));
-        } catch (Throwable e) { return false; }
+        String i = installer(c);
+        if (i == null) return false;
+        i = i.toLowerCase(java.util.Locale.US);
+        return i.contains("fdroid") || i.contains("droidify") || i.contains("neostore") || i.contains("foxydroid") || i.contains("izzy");
+    }
+
+    static String installer(Context c) {
+        try { return c.getPackageManager().getInstallerPackageName(c.getPackageName()); } catch (Throwable e) { return null; }
+    }
+
+    /** Nombre de la tienda para mostrarlo (por ejemplo «F-Droid / IzzyOnDroid»). */
+    public static String storeName(Context c) {
+        String i = installer(c);
+        if (i == null) return "tu tienda de apps";
+        if (i.contains("droidify")) return "Droid-ify";
+        if (i.contains("neostore") || i.contains("machiav3lli")) return "Neo Store";
+        return "F-Droid / IzzyOnDroid";
     }
 
     /** Busca en segundo plano. newer = null si ya está al día. */

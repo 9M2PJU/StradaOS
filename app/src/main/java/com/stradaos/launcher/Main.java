@@ -2108,7 +2108,7 @@ public class Main extends Activity {
         compatLine(b, "Botón ▶ del inicio pasa el sonido a Bluetooth", "Pantallas Clinkway / Autochips", clwBt, clwBt ? "funciona aunque vengas de la radio" : "en otras marcas: «Abrir la app de música Bluetooth al conectar»");
         compatLine(b, "Pasar a Bluetooth al dar play en el celular (en prueba)", "Pantallas Clinkway / Autochips", clwBt, clwBt ? (btAutoOn() ? "activado" : "desactivado; en algunas pantallas no detecta el play del celular") : null);
         compatLine(b, "Carátula de Android Auto (Open Headunit)", "Android 4.1+ · accesibilidad", true, NotifArt.running ? "activada" : "falta activar la accesibilidad");
-        compatLine(b, "Música de cualquier app (Spotify, YouTube…)", "Android 5+", SDK >= 21, SDK >= 21 ? (MediaListener.connected ? "activada" : "falta dar acceso a notificaciones") : "no disponible en Android " + androidName(SDK));
+        compatLine(b, "Música de cualquier app (Spotify, YouTube…)", "Android 5+", SDK >= 21, SDK >= 21 ? (MediaListener.connected ? "activada" : "falta dar acceso a notificaciones") : "no disponible en " + androidName(SDK));
         compatLine(b, "Android Auto con Open Headunit", "Android 4.1+ · cable USB", true, installed(PKG_HUR) ? "Open Headunit instalado" : "falta instalar Open Headunit");
         compatLine(b, "Android Auto / CarPlay de la pantalla", "Si la pantalla lo trae", nativeProjectionApp() != null, nativeProjectionApp() != null ? labelOf(nativeProjectionApp()) : "no detectado");
         compatLine(b, "CarPlay", "Pantalla con CarPlay o adaptador USB", carPlayApp() != null, carPlayApp() != null ? labelOf(carPlayApp()) : "no detectado");
@@ -2141,12 +2141,22 @@ public class Main extends Activity {
 
         LinearLayout u = section(body, "Actualizaciones");
         final boolean fd = Updates.fromFdroid(this);
-        if (fd) row(u, "Instalado desde F-Droid", "Las actualizaciones llegan por la app de F-Droid", null, null);
-        toggle(u, "Comprobar actualizaciones automáticamente", "Al abrir StradaOS con internet, una vez al día",
-            prefs.getBoolean("auto_update", !fd), new IntCb() { public void on(int i) {
+        if (fd) row(u, "Instalado desde " + Updates.storeName(this), "Las actualizaciones llegan por esa app", null, null);
+        toggle(u, fd ? "Avisar también de versiones en GitHub" : "Comprobar actualizaciones automáticamente",
+            fd ? "Opcional: las descargas de GitHub no pasan por la revisión de la tienda" : "Al abrir StradaOS con internet, una vez al día",
+            prefs.getBoolean("auto_update", !fd), new IntCb() { public void on(final int i) {
+                if (i == 1 && fd) {
+                    new AlertDialog.Builder(Main.this, dlg()).setTitle("Actualizaciones desde GitHub")
+                        .setMessage("Instalaste StradaOS desde " + Updates.storeName(Main.this) + ". Si activas esto, StradaOS revisará una vez al día las versiones publicadas en github.com/" + Updates.OWNER + "/" + Updates.REPO + " y te ofrecerá descargarlas desde ahí.\n\nEsas descargas no pasan por la revisión de la tienda. Puede que GitHub tenga una versión un poco antes que la tienda.")
+                        .setPositiveButton("Activar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                            prefs.edit().putBoolean("auto_update", true).apply(); showSettings(8); } })
+                        .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) { showSettings(8); } })
+                        .show();
+                    return;
+                }
                 prefs.edit().putBoolean("auto_update", i == 1).apply(); showSettings(8);
             }});
-        row(u, "Canal de actualizaciones", null, "GitHub Releases", null);
+        row(u, "Canal de actualizaciones", null, fd ? Updates.storeName(this) : "GitHub Releases", null);
         long last = prefs.getLong("upd_last", 0);
         row(u, "Buscar actualizaciones", last == 0 ? "Aún no se ha comprobado"
                 : "Última comprobación: " + new SimpleDateFormat("yyyy-MM-dd HH:mm", ES).format(new Date(last)), null,
@@ -2238,7 +2248,18 @@ public class Main extends Activity {
         box.addView(sc, new LinearLayout.LayoutParams(-1, (int) (200 * s)));
         AlertDialog.Builder b = new AlertDialog.Builder(this, dlg())
             .setTitle("Nueva versión de StradaOS")
-            .setView(box)
+            .setView(box);
+        if (Updates.fromFdroid(this) && !prefs.getBoolean("auto_update", false)) {
+            // instalada desde una tienda: se actualiza por ahí; GitHub queda como opción explícita
+            v.setText("Tienes la " + Updates.currentVersion(this) + " · en GitHub: " + r.version
+                + "\nActualiza desde " + Updates.storeName(this) + " cuando llegue. Descargar de GitHub omite la revisión de la tienda.");
+            b.setPositiveButton("Entendido", null)
+             .setNeutralButton("Ver en GitHub", new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface d, int w) { linkDialog("StradaOS " + r.version, "Descarga desde GitHub:", r.pageUrl); } })
+             .show();
+            return;
+        }
+        b
             .setPositiveButton(r.apkUrl != null ? "Descargar e instalar" : "Ver en GitHub", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int w) {
                     if (r.apkUrl != null) downloadUpdate(r); else linkDialog("StradaOS " + r.version, "Descarga la nueva versión desde:", r.pageUrl);

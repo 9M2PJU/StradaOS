@@ -2,6 +2,9 @@
 
 Las notas detalladas de cada versión están en [`changelogs/`](changelogs) y en [Releases](../../releases).
 
+## 2.9.4 — Lista para tiendas F-Droid
+- Instalada desde F-Droid/IzzyOnDroid: se actualiza por la tienda; los avisos de GitHub son opcionales y explicados.
+
 ## 2.9.3 — El inicio vuelve a ser lo primero que ves
 - «Audio Bluetooth» ya no se abre solo al arrancar.
 - Cambio automático a Bluetooth: en prueba y apagado por defecto; ▶ en el inicio pasa el sonido a Bluetooth.

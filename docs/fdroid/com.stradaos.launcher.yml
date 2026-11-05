@@ -13,21 +13,21 @@ AutoName: StradaOS
 
 AntiFeatures:
   NonFreeNet:
-    es: Usa servicios de mapas de Esri y BigDataCloud (nombre de la ciudad) como opción.
-    en-US: Optionally uses Esri map tiles and BigDataCloud (city name).
+    es: Puede usar mapas de Esri y BigDataCloud (nombre de la ciudad) cuando los servidores libres no responden.
+    en-US: May use Esri map tiles and BigDataCloud (city name) when free servers do not respond.
 
 RepoType: git
 Repo: https://github.com/lordnordic-debug/StradaOS.git
 
 Builds:
-  - versionName: 2.8.0
-    versionCode: 28
-    commit: v2.8.0
+  - versionName: 2.9.4
+    versionCode: 33
+    commit: v2.9.4
     subdir: app
     gradle:
       - yes
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 2.8.0
-CurrentVersionCode: 28
+CurrentVersion: 2.9.4
+CurrentVersionCode: 33
