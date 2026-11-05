@@ -19,7 +19,7 @@
 8. **Bluetooth que se corta al volver al inicio (otras marcas):** Lucas Cacciola: abre su app BT, da play, vuelve a StradaOS y la música se corta. Pedirle modelo, API, versión de StradaOS, si pasa igual con el launcher de fábrica, y `StradaDiag` exportado con la música sonando.
 9. **Capturas reales:** reemplazar los mockups de `fastlane/.../phoneScreenshots` y `site/img` por fotos de la pantalla de Andrés.
 10. **IzzyOnDroid: rechazada (2026-11-05).** FatalGlow cerró el #832 por su política de IA (no aceptan apps hechas total o parcialmente con IA). El escaneo del APK 2.9.5 y los metadatos pasaron (etiquetas passed/scan, passed/metadata, llm substantial). Sugirió probar en F-Droid. No volver a enviar mientras el desarrollo siga con IA.
-11. **F-Droid (siguiente paso):** F-Droid aún no tiene política de IA (hay una propuesta interina neutral, gitlab.com/fdroid/admin work item 699, con miembros en contra): declarar el uso de IA con honestidad, igual que en Izzy. Plantilla `docs/fdroid/com.stradaos.launcher.yml` actualizada a 2.9.5. Abrir un RFP en gitlab.com/fdroid/rfp o un merge request en fdroiddata. Ojo: F-Droid firma con su propia llave; quien venga de GitHub tendría que desinstalar para pasarse (a menos que se configure build reproducible).
+11. **F-Droid: merge request abierto (2026-11-05):** https://gitlab.com/fdroid/fdroiddata/-/merge_requests/55924 («New app: StradaOS», fork gitlab.com/lordnordic-debug/fdroiddata, rama `com.stradaos.launcher`, commit con hash completo db70cbe). El pipeline del fork falla porque GitLab pide verificar la cuenta (teléfono/tarjeta); según la plantilla no se verifica: se pidió en un comentario que un mantenedor lance el CI. Esperar revisión y responder en inglés. Antes: F-Droid aún no tiene política de IA (hay una propuesta interina neutral, gitlab.com/fdroid/admin work item 699, con miembros en contra): declarar el uso de IA con honestidad, igual que en Izzy. Plantilla `docs/fdroid/com.stradaos.launcher.yml` actualizada a 2.9.5. Abrir un RFP en gitlab.com/fdroid/rfp o un merge request en fdroiddata. Ojo: F-Droid firma con su propia llave; quien venga de GitHub tendría que desinstalar para pasarse (a menos que se configure build reproducible).
 
 ## Ideas sin compromiso
 - Mapa con vista inclinada (3D) como opción en Ajustes. Antes hay que medir el rendimiento en pantallas lentas.
@@ -35,6 +35,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-05: merge request a F-Droid abierto (!55924).
 - 2026-11-05: IzzyOnDroid rechazó StradaOS por su política de IA (escaneo y metadatos aprobados); siguiente: F-Droid.
 - 2026-11-05: v2.9.5 — la fuente del reproductor ya no titila entre Android Auto y Bluetooth.
 - 2026-11-05: v2.9.4 — actualizador opt-in en instalaciones de tiendas F-Droid; solicitud de IzzyOnDroid preparada.
