@@ -18,8 +18,8 @@
 7. **Accesos personalizables (ícono y nombre):** al cambiar la app de un botón de la barra inferior, mostrar el ícono real de esa app, o dejar elegir ícono y nombre. Origen: Lucas Cacciola (Facebook): cambió la app pero el ícono sigue igual.
 8. **Bluetooth que se corta al volver al inicio (otras marcas):** Lucas Cacciola: abre su app BT, da play, vuelve a StradaOS y la música se corta. Pedirle modelo, API, versión de StradaOS, si pasa igual con el launcher de fábrica, y `StradaDiag` exportado con la música sonando.
 9. **Capturas reales:** reemplazar los mockups de `fastlane/.../phoneScreenshots` y `site/img` por fotos de la pantalla de Andrés.
-10. **IzzyOnDroid:** solicitud enviada el 2026-11-05: https://codeberg.org/IzzyOnDroid/repodata/issues/832 (cuenta Codeberg lordnordic-debug, vinculada a GitHub). Esperar el escaneo del APK y las preguntas de Izzy en ese hilo; responder en inglés. Se declaró uso dominante de IA (Claude) y pruebas manuales en el Picanto. Requisitos verificados en 2.9.4: GPL-3, APK ~0,5 MB en Releases con tags vX.Y.Z, sin bloque Dependency Info (solo v2 + padding), fastlane es-ES/en-US, actualizador de GitHub opt-in cuando la instala una tienda F-Droid.
-11. **F-Droid (después de IzzyOnDroid):** plantilla `docs/fdroid/com.stradaos.launcher.yml` actualizada a 2.9.5. Abrir un RFP en gitlab.com/fdroid/rfp o un merge request en fdroiddata. Ojo: F-Droid firma con su propia llave; quien venga de GitHub tendría que desinstalar para pasarse (a menos que se configure build reproducible).
+10. **IzzyOnDroid: rechazada (2026-11-05).** FatalGlow cerró el #832 por su política de IA (no aceptan apps hechas total o parcialmente con IA). El escaneo del APK 2.9.5 y los metadatos pasaron (etiquetas passed/scan, passed/metadata, llm substantial). Sugirió probar en F-Droid. No volver a enviar mientras el desarrollo siga con IA.
+11. **F-Droid (siguiente paso):** F-Droid aún no tiene política de IA (hay una propuesta interina neutral, gitlab.com/fdroid/admin work item 699, con miembros en contra): declarar el uso de IA con honestidad, igual que en Izzy. Plantilla `docs/fdroid/com.stradaos.launcher.yml` actualizada a 2.9.5. Abrir un RFP en gitlab.com/fdroid/rfp o un merge request en fdroiddata. Ojo: F-Droid firma con su propia llave; quien venga de GitHub tendría que desinstalar para pasarse (a menos que se configure build reproducible).
 
 ## Ideas sin compromiso
 - Mapa con vista inclinada (3D) como opción en Ajustes. Antes hay que medir el rendimiento en pantallas lentas.
@@ -35,6 +35,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-05: IzzyOnDroid rechazó StradaOS por su política de IA (escaneo y metadatos aprobados); siguiente: F-Droid.
 - 2026-11-05: v2.9.5 — la fuente del reproductor ya no titila entre Android Auto y Bluetooth.
 - 2026-11-05: v2.9.4 — actualizador opt-in en instalaciones de tiendas F-Droid; solicitud de IzzyOnDroid preparada.
 - 2026-11-05: v2.9.3 — no abrir «Audio Bluetooth» al arrancar; automático en prueba y apagado; revisar qué app abre cada botón.
