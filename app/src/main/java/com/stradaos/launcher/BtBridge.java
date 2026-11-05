@@ -181,7 +181,7 @@ public class BtBridge {
                     boolean rising = playing && !wasPlaying;
                     wasPlaying = playing;
                     if (!auto || !rising) return;
-                    if (bool(b, T_TMP_LOSE)) { log("el celular suena, pero hay otra fuente temporal (llamada o voz)"); return; }
+                    // isAudioTmpLose() es true justo cuando la radio tiene el sonido: no se usa para descartar (bug de 2.9.0)
                     if (SystemClock.elapsedRealtime() - lastActivate < 8000) return;
                     lastActivate = SystemClock.elapsedRealtime();
                     log("el celular empezó a sonar");

@@ -249,6 +249,8 @@ public class Main extends Activity {
     /** El celular empezó a sonar por Bluetooth. */
     private void onPhoneStartedBt() {
         if (!btAutoOn()) return;
+        String top = topPackage();
+        if (top != null && (top.contains("btphone") || top.contains("dialer") || top.contains("incallui"))) { BtBridge.log("no se cambió: llamada en curso"); return; }
         trackSource();
         if (btRouted) { BtBridge.log("el sonido ya es Bluetooth"); return; }
         openBtAudioApp(false);
@@ -2039,8 +2041,43 @@ public class Main extends Activity {
             startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }});
         row(c, "Asistente de configuración inicial", "Nombre, vehículo, color y foto", null, new Runnable() { public void run() { closeSettings(); wizard(); } });
+        LinearLayout k = section(body, "Compatibilidad");
+        row(k, "Qué funciona en esta pantalla", "Cada función, desde qué Android sirve y su estado aquí", null, new Runnable() { public void run() { showCompat(); } });
         LinearLayout d = section(body, "Soporte");
         row(d, "Exportar diagnóstico", "Guarda información de las apps de audio en la memoria interna", null, new Runnable() { public void run() { runDiag(); } });
+    }
+
+    /** Tabla de compatibilidad: qué función sirve desde qué Android o marca de pantalla, y cómo está aquí. */
+    private void showCompat() {
+        StringBuilder b = new StringBuilder();
+        b.append("Esta pantalla: Android ").append(android.os.Build.VERSION.RELEASE).append(" (API ").append(SDK).append(")")
+         .append(" · ").append(android.os.Build.MANUFACTURER).append(" ").append(android.os.Build.MODEL).append("\n");
+        if (!android.os.Build.VERSION.RELEASE.startsWith(androidName(SDK).split(" ")[0]))
+            b.append("Ojo: la pantalla dice Android ").append(android.os.Build.VERSION.RELEASE).append(", pero por dentro es ").append(androidName(SDK)).append(".\n");
+        b.append("\n");
+        compatLine(b, "Inicio, mapa, clima, velocímetro", "Android 4.1+", true, null);
+        compatLine(b, "Pista y carátula por Bluetooth", "Android 4.1+", true, clwBt ? "app Bluetooth de fábrica detectada" : "depende de la marca");
+        compatLine(b, "Pasar el sonido a Bluetooth automáticamente", "Pantallas Clinkway / Autochips", clwBt, clwBt ? (btAutoOn() ? "activado" : "desactivado") : "en otras marcas: «Abrir la app de música Bluetooth al conectar»");
+        compatLine(b, "Carátula de Android Auto (Open Headunit)", "Android 4.1+ · accesibilidad", true, NotifArt.running ? "activada" : "falta activar la accesibilidad");
+        compatLine(b, "Música de cualquier app (Spotify, YouTube…)", "Android 5+", SDK >= 21, SDK >= 21 ? (MediaListener.connected ? "activada" : "falta dar acceso a notificaciones") : "no disponible en Android " + androidName(SDK));
+        compatLine(b, "Android Auto con Open Headunit", "Android 4.1+ · cable USB", true, installed(PKG_HUR) ? "Open Headunit instalado" : "falta instalar Open Headunit");
+        compatLine(b, "Android Auto / CarPlay de la pantalla", "Si la pantalla lo trae", nativeProjectionApp() != null, nativeProjectionApp() != null ? labelOf(nativeProjectionApp()) : "no detectado");
+        compatLine(b, "CarPlay", "Pantalla con CarPlay o adaptador USB", carPlayApp() != null, carPlayApp() != null ? labelOf(carPlayApp()) : "no detectado");
+        compatLine(b, "Mapa con internet seguro (TLS 1.2)", "Android 4.1+ (StradaOS lo activa)", true, SDK < 20 ? "en Android 4.x solo algunos servidores de mapas responden" : null);
+        compatLine(b, "Instalar actualizaciones desde la app", "Android 4.1+", true, SDK >= 26 ? "pide permiso «Instalar apps desconocidas»" : null);
+        new AlertDialog.Builder(this, dlg()).setTitle("Compatibilidad").setMessage(b.toString().trim()).setPositiveButton("OK", null).show();
+    }
+
+    private static void compatLine(StringBuilder b, String name, String needs, boolean ok, String note) {
+        b.append(ok ? "✓ " : "✗ ").append(name).append("\n     Requiere: ").append(needs);
+        if (note != null) b.append("\n     Aquí: ").append(note);
+        b.append("\n\n");
+    }
+
+    static String androidName(int api) {
+        String[] n = {"4.1", "4.2", "4.3", "4.4", "4.4W", "5.0", "5.1", "6.0", "7.0", "7.1", "8.0", "8.1", "9", "10", "11", "12", "12L", "13", "14", "15", "16"};
+        int i = api - 16;
+        return i >= 0 && i < n.length ? "Android " + n[i] : "API " + api;
     }
 
     private void catAbout(LinearLayout body) {
@@ -2051,7 +2088,7 @@ public class Main extends Activity {
         r.addView(logo, 0, new LinearLayout.LayoutParams((int) (56 * s), (int) (56 * s)));
         ((LinearLayout.LayoutParams) r.getChildAt(1).getLayoutParams()).leftMargin = (int) (14 * s);
         row(c, "Versión", null, Updates.currentVersion(this), null);
-        row(c, "Android de la pantalla", null, android.os.Build.VERSION.RELEASE + " (API " + SDK + ")", null);
+        row(c, "Android de la pantalla", "Real: " + androidName(SDK) + " · ver qué funciona aquí", android.os.Build.VERSION.RELEASE + " (API " + SDK + ")", new Runnable() { public void run() { showCompat(); } });
 
         LinearLayout u = section(body, "Actualizaciones");
         final boolean fd = Updates.fromFdroid(this);
@@ -2122,7 +2159,8 @@ public class Main extends Activity {
                         if (manual || !r.version.equals(prefs.getString("upd_skip", ""))) updateDialog(r);
                     } else if (manual) {
                         if (err != null) linkDialog("No se pudo comprobar", "Esta pantalla no logró conectarse con GitHub (" + shortNetErr(err) + "). Puedes revisar las versiones desde tu celular:", Updates.RELEASES_URL);
-                        else toast("Tienes la última versión (" + Updates.currentVersion(Main.this) + ")");
+                        else new AlertDialog.Builder(Main.this, dlg()).setTitle("Tienes la última versión (" + Updates.currentVersion(Main.this) + ")")
+                            .setMessage("Fuentes consultadas:\n" + Updates.lastReport).setPositiveButton("OK", null).show();
                     }
                 }});
             }

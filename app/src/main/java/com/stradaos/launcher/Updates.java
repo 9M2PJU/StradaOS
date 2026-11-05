@@ -27,6 +27,7 @@ public class Updates {
     };
 
     public static class Release {
+        public String source;
         public String version;   // "2.8.0"
         public String notes = "";
         public String pageUrl = RELEASES_URL;
@@ -36,6 +37,17 @@ public class Updates {
     public interface Listener { void onResult(Release newer, String error); }
 
     static String lastError = "";
+    /** Resultado de cada fuente en la última búsqueda (para mostrarlo en Acerca de). */
+    static String lastReport = "";
+
+    static String shortErr(Throwable e) {
+        String m = String.valueOf(e);
+        if (m.contains("SSL") || m.contains("andshake")) return "cifrado no compatible";
+        if (m.contains("UnknownHost")) return "sin internet";
+        if (m.contains("imeout")) return "tiempo agotado";
+        if (m.contains("HTTP ")) return m.substring(m.indexOf("HTTP "));
+        return "error de red";
+    }
 
     public static String donateUrl(Context c) {
         String u = c.getSharedPreferences("launcher", 0).getString("donate_url", "");
@@ -59,11 +71,21 @@ public class Updates {
     public static void check(final Context ctx, final Listener l) {
         new Thread(new Runnable() {
             public void run() {
+                // Se consultan todas las fuentes y gana la versión más alta: una copia en caché (jsDelivr)
+                // puede estar atrasada horas, y en Android 4.x algunas fuentes fallan por el cifrado.
                 Release r = null;
-                try { r = fromApi(); } catch (Throwable e) { lastError = "GitHub: " + e; }
-                for (int i = 0; r == null && i < JSON_URLS.length; i++) {
-                    try { r = fromJson(ctx, JSON_URLS[i]); } catch (Throwable e) { lastError = "update.json: " + e; }
+                StringBuilder rep = new StringBuilder();
+                String[] names = {"GitHub", "GitHub (raw)", "jsDelivr", "jsDelivr (http)"};
+                for (int i = 0; i <= JSON_URLS.length; i++) {
+                    Release c = null;
+                    try { c = i == 0 ? fromApi() : fromJson(ctx, JSON_URLS[i - 1]); }
+                    catch (Throwable e) { lastError = names[i] + ": " + e; rep.append(names[i]).append(": ").append(shortErr(e)).append('\n'); }
+                    if (c == null) continue;
+                    rep.append(names[i]).append(": ").append(c.version).append('\n');
+                    if (r == null || compare(c.version, r.version) > 0) { r = c; r.source = names[i]; }
+                    if (i == 0) break; // la API de GitHub siempre está al día
                 }
+                lastReport = rep.toString().trim();
                 SharedPreferences p = ctx.getSharedPreferences("launcher", 0);
                 if (r == null) { l.onResult(null, lastError); return; }
                 p.edit().putLong("upd_last", System.currentTimeMillis()).putString("upd_latest", r.version).apply();

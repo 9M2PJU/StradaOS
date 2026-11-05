@@ -2,6 +2,11 @@
 
 Las notas detalladas de cada versión están en [`changelogs/`](changelogs) y en [Releases](../../releases).
 
+## 2.9.2 — Actualizaciones confiables y compatibilidad
+- Consulta todas las fuentes de actualización y usa la más nueva; muestra el resultado de cada una.
+- Audio Bluetooth automático también al venir de la radio.
+- Tabla de compatibilidad por versión de Android y marca (Ajustes → Sistema).
+
 ## 2.9.1 — Arreglo del audio Bluetooth
 - Play después de pausar funciona de nuevo con el audio automático.
 - Si el sonido no es Bluetooth cuando el celular empieza a sonar, abre «Audio Bluetooth» un instante y vuelve a donde estabas.
