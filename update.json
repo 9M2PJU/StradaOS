@@ -1,6 +1,6 @@
 {
-  "version": "2.9.4",
-  "notes": "## StradaOS 2.9.4 — Lista para tiendas F-Droid\n\n### Novedades\n- **Preparada para IzzyOnDroid y F-Droid.** Si instalas StradaOS desde una de esas tiendas (F-Droid, Droid-ify, Neo Store…), las actualizaciones llegan por la tienda. Los avisos de versiones en GitHub quedan apagados y son opcionales: antes de activarlos, StradaOS explica de dónde se descargan.\n- Si la instalaste desde GitHub o la página, todo sigue igual: te avisa y se actualiza desde la app.\n\n### Corregido\n- Compatibilidad: decía «Android Android 4.2».\n",
-  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.4",
-  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.4/StradaOS-2.9.4.apk"
+  "version": "2.9.5",
+  "notes": "## StradaOS 2.9.5 — Reproductor estable con Android Auto\n\n### Corregido\n- **La fuente ya no titila entre «Android Auto» y «Bluetooth».** Con Android Auto conectado, el celular manda la misma canción también por Bluetooth cada segundo. Ahora, mientras Android Auto tiene la canción, Bluetooth solo actualiza el tiempo y el estado: la etiqueta, la carátula y los botones ⏮ ⏯ ⏭ se quedan en Android Auto.\n- Al cambiar de canción en Android Auto, la etiqueta espera unos segundos a la notificación de Open Headunit en vez de saltar a «Bluetooth».\n- Con Android Auto conectado, el audio Bluetooth automático (opción en prueba) ya no intenta pasar el sonido a Bluetooth.\n\n### Diagnóstico\n- *Música → Diagnóstico del reproductor* muestra si Open Headunit está corriendo.\n",
+  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.5",
+  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.5/StradaOS-2.9.5.apk"
 }
