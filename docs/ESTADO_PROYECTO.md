@@ -12,8 +12,10 @@
 1. **GitHub Sponsors:** el perfil está listo y espera que soporte de GitHub corrija el nombre de facturación (ticket #4952223). Cuando lo aprueben y Andrés publique, activar `github: lordnordic-debug` en `.github/FUNDING.yml` y en la sección «Apoya el proyecto» del README.
 2. **Confirmar en la pantalla de Andrés el audio Bluetooth automático (2.9.2; la 2.9.1 no le llegó por el aviso atrasado):** de radio → play en el celular → debe abrirse «Audio Bluetooth» un instante, volver y sonar; play/pausa desde el inicio sin problemas. Revisar *Música → Diagnóstico del reproductor*.
 3. **Bluetooth en otras marcas:** la 2.9.0 trae una opción en prueba (abrir la app BT al conectar y volver). Para soporte nativo de cada marca, pedir `StradaDiag` exportado **con el celular sonando** (incluye `bluetooth.txt` con los servicios activos) y su app BT (apk/odex).
-4. **Capturas reales:** reemplazar los mockups de `fastlane/.../phoneScreenshots` y `site/img` por fotos de la pantalla de Andrés.
-5. **Publicar en IzzyOnDroid** y luego en F-Droid (plantilla en `docs/fdroid/`).
+4. **App de música preferida:** opción en *Ajustes → Música* para elegir una app (Musicolet, Spotify…). Si no suena nada y se toca ▶ en el inicio, StradaOS abre o arranca esa app (primero con tecla multimedia dirigida a su receptor; si no responde, abriéndola). Origen: comentario de Oscar Pizarro (Sonic 2015) en Facebook: Musicolet solo se controla después de abrirla; Moodmax no se controla desde el inicio (revisar si publica MediaSession; pedirle API y *Diagnóstico del reproductor*).
+5. **Accesos a pantallas internas:** en *Accesos y apps*, además de apps completas, permitir «Elegir pantalla interna…» (lista de actividades exportadas de una app, por ejemplo la Radio o la Música Bluetooth que viven dentro del launcher de fábrica). Origen: comentario de Giancarlo Maya en Facebook: su pantalla tiene radio y música Bluetooth dentro del launcher de fábrica. Pedirle modelo, API y `StradaDiag`.
+6. **Capturas reales:** reemplazar los mockups de `fastlane/.../phoneScreenshots` y `site/img` por fotos de la pantalla de Andrés.
+7. **Publicar en IzzyOnDroid** y luego en F-Droid (plantilla en `docs/fdroid/`).
 
 ## Ideas sin compromiso
 - Mapa con vista inclinada (3D) como opción en Ajustes. Antes hay que medir el rendimiento en pantallas lentas.
