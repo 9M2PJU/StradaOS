@@ -2,6 +2,11 @@
 
 Las notas detalladas de cada versión están en [`changelogs/`](changelogs) y en [Releases](../../releases).
 
+## 2.9.0 — Audio Bluetooth sin abrir la app de fábrica
+- La música del celular suena al darle play, sin abrir la app «Audio Bluetooth» (automático en Clinkway/Autochips).
+- Otras marcas: opción para abrir la app de música Bluetooth un momento al conectar el celular.
+- El botón ▶ del inicio activa el audio Bluetooth. Diagnóstico Bluetooth.
+
 ## 2.8.0 — Primera versión pública
 - Proyecto abierto en GitHub (GPL-3.0).
 - Avisos de actualización desde GitHub, con descarga directa o código QR.

@@ -202,6 +202,78 @@ public class Main extends Activity {
         bt = new BtBridge(this, new BtBridge.Listener() {
             public void onBtState(NowPlaying.Track t) { showTrack(t); }
         });
+        clwBt = BtBridge.available(this);
+        h.postDelayed(btTicker, 3000);
+        try {
+            IntentFilter bf = new IntentFilter("android.bluetooth.device.action.ACL_CONNECTED");
+            bf.addAction("android.bluetooth.a2dp-sink.profile.action.CONNECTION_STATE_CHANGED");
+            registerReceiver(btConnReceiver, bf);
+        } catch (Throwable ignored) { }
+    }
+
+    // ───────────────────────── audio Bluetooth ─────────────────────────
+
+    private boolean clwBt;
+    private long lastBtConnect;
+
+    /** Pantallas Clinkway: StradaOS activa el audio Bluetooth sin abrir la app de fábrica. */
+    private boolean btAutoOn() {
+        return clwBt && prefs.getBoolean("bt_auto", true);
+    }
+
+    /** Otras pantallas: al conectar el celular, abre un momento la app de música Bluetooth y vuelve. */
+    private final BroadcastReceiver btConnReceiver = new BroadcastReceiver() {
+        public void onReceive(Context c, Intent i) {
+            String a = i.getAction();
+            if (a != null && a.contains("CONNECTION_STATE_CHANGED")) {
+                int st = -1;
+                try { st = i.getIntExtra("android.bluetooth.profile.extra.STATE", -1); } catch (Throwable ignored) { }
+                if (st != 2) return; // 2 = conectado
+            }
+            BtBridge.log("celular conectado por Bluetooth");
+            if (clwBt) { if (bt != null && btAutoOn()) bt.connect(); return; }
+            if (!prefs.getBoolean("bt_open_connect", false)) return;
+            long now = SystemClock.elapsedRealtime();
+            if (now - lastBtConnect < 20000) return;
+            lastBtConnect = now;
+            h.postDelayed(new Runnable() { public void run() { openBtAudioApp(false); } }, 4000);
+        }
+    };
+
+    /** App de música Bluetooth de esta pantalla (la elegida o la que se detecta por el nombre). */
+    private ComponentName btMusicApp() {
+        String c = prefs.getString("btaudio", null);
+        if (c != null) return ComponentName.unflattenFromString(c);
+        ResolveInfo r = find("audio bluetooth|música bluetooth|musica bluetooth|bt music|bluetooth music|música bt|musica bt|a2dp",
+                "btmusic|bt.music|bt_music|btaudio|a2dp|bluetoothmusic|music.bt");
+        return r == null ? null : new ComponentName(r.activityInfo.packageName, r.activityInfo.name);
+    }
+
+    /** Abre la app de música Bluetooth un instante (para que tome el audio) y regresa al inicio. */
+    private void openBtAudioApp(boolean manual) {
+        if (!manual && (!hasWindowFocus() || settingsView != null)) { BtBridge.log("no se abrió la app BT: StradaOS no estaba al frente"); return; }
+        ComponentName cn = btMusicApp();
+        if (cn == null) {
+            if (manual) { toast("Elige primero la app de música Bluetooth"); pickFor("btaudio", "Música Bluetooth"); }
+            return;
+        }
+        try {
+            Intent i = new Intent(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            i.setComponent(cn);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            startActivity(i);
+            BtBridge.log("abierta la app BT " + cn.getPackageName() + " para tomar el audio");
+        } catch (Throwable e) {
+            if (manual) toast("No se pudo abrir la app");
+            return;
+        }
+        h.postDelayed(new Runnable() { public void run() {
+            try {
+                startActivity(new Intent(Main.this, Main.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+            } catch (Throwable ignored) { }
+        }}, prefs.getInt("bt_return_ms", 2500));
     }
 
     @Override
@@ -211,6 +283,8 @@ public class Main extends Activity {
         try { nowPlaying.stop(); } catch (Throwable ignored) { }
         try { unregisterReceiver(usbReceiver); } catch (Throwable ignored) { }
         try { bt.disconnect(); } catch (Throwable ignored) { }
+        try { unregisterReceiver(btConnReceiver); } catch (Throwable ignored) { }
+        h.removeCallbacks(btTicker);
         try { if (mediaWatcher != null) mediaWatcher.stop(); } catch (Throwable ignored) { }
         super.onDestroy();
     }
@@ -321,14 +395,23 @@ public class Main extends Activity {
         }
     }
 
+    /** Bluetooth: sigue revisando aunque StradaOS esté detrás de otra app (Waze, Maps…). */
+    private final Runnable btTicker = new Runnable() {
+        public void run() {
+            if (bt != null) {
+                bt.setAutoCreate(btAutoOn());
+                bt.connect();
+                if (bt.isConnected()) bt.poll(btAutoOn());
+            }
+            h.postDelayed(this, 2000);
+        }
+    };
+
     private final Runnable ticker = new Runnable() {
         public void run() {
             if (lastFix > 0 && SystemClock.elapsedRealtime() - lastFix > 6000) setGps(false, 0);
             if (++usbTick % 5 == 0) guardUsb();
-            if (bt != null) {
-                if (!bt.isConnected()) bt.connect();
-                else if (++btPoll % 3 == 0 || curTitle == null) bt.refresh();
-            }
+            if (bt != null && bt.isConnected() && (++btPoll % 3 == 0 || curTitle == null)) bt.refresh();
             updatePlayIcon();
             if (++themeTick % 30 == 0) {
                 boolean was = LIGHT;
@@ -850,6 +933,12 @@ public class Main extends Activity {
             public void onClick(View v) {
                 int which = code == KeyEvent.KEYCODE_MEDIA_NEXT ? 1 : code == KeyEvent.KEYCODE_MEDIA_PREVIOUS ? -1 : 0;
                 boolean done = false;
+                // Bluetooth en pausa: pedir el modo de audio Bluetooth (la app de fábrica además envía «play»)
+                if (which == 0 && clwBt && bt != null && "Bluetooth".equals(curSource) && !Boolean.TRUE.equals(playingState)) {
+                    bt.activateAudio();
+                    h.postDelayed(new Runnable() { public void run() { if (bt != null) bt.refresh(); updatePlayIcon(); } }, 1200);
+                    return;
+                }
                 if (mediaWatcher != null && "ms".equals(curOrigin)) {
                     try { done = mediaWatcher.command(which); } catch (Throwable ignored) { }
                 }
@@ -985,7 +1074,12 @@ public class Main extends Activity {
                 + "\nÚltima notificación de Open Headunit: " + (NotifArt.lastAt == 0 ? "ninguna"
                     : ((SystemClock.elapsedRealtime() - NotifArt.lastAt) / 1000) + " s, carátula "
                     + (NotifArt.lastArt != null ? "sí" : "no") + ", textos " + NotifArt.lastTexts)
-                + "\nApp Bluetooth conectada: " + (bt != null && bt.isConnected() ? "sí" : "no");
+                + "\nApp Bluetooth conectada: " + (bt != null && bt.isConnected() ? "sí" : "no")
+                + "\nAudio Bluetooth automático: " + (clwBt ? (btAutoOn() ? "activado" : "desactivado") : "no aplica (otra marca)")
+                + (clwBt ? "" : "\nApp de música Bluetooth: " + (btMusicApp() != null ? btMusicApp().getPackageName() : "no encontrada")
+                    + " · abrir al conectar: " + (prefs.getBoolean("bt_open_connect", false) ? "sí" : "no"))
+                + "\nActivaciones: " + BtBridge.activations
+                + "\n\nEventos Bluetooth:\n" + BtBridge.logText();
         new AlertDialog.Builder(this, dlg())
             .setTitle("Diagnóstico del reproductor")
             .setMessage(msg)
@@ -1848,7 +1942,31 @@ public class Main extends Activity {
                 try { startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
                 catch (Throwable e) { toast("No se pudo abrir el ajuste"); }
             }});
-        row(c, "Diagnóstico del reproductor", "Fuente activa y lector de notificaciones", null, new Runnable() { public void run() { showPlayerDiag(); } });
+        row(c, "Diagnóstico del reproductor", "Fuente activa, lector de notificaciones y Bluetooth", null, new Runnable() { public void run() { showPlayerDiag(); } });
+        LinearLayout b = section(body, "Audio Bluetooth");
+        if (clwBt) {
+            toggle(b, "Activar el audio Bluetooth automáticamente", "Cuando el celular empieza a sonar, la pantalla pasa a Bluetooth sin abrir la app de fábrica",
+                prefs.getBoolean("bt_auto", true), new IntCb() { public void on(int i) {
+                    prefs.edit().putBoolean("bt_auto", i == 1).apply(); showSettings(6);
+                }});
+            row(b, "Activar ahora", "Pasa el audio a Bluetooth (si está pausado, envía «play» al celular)", null,
+                new Runnable() { public void run() { if (bt != null) { bt.activateAudio(); toast("Audio Bluetooth solicitado"); } } });
+        } else {
+            toggle(b, "Abrir la app de música Bluetooth al conectar el celular", "Para pantallas que solo dejan sonar el Bluetooth con su app abierta: la abre un momento y vuelve al inicio",
+                prefs.getBoolean("bt_open_connect", false), new IntCb() { public void on(int i) {
+                    prefs.edit().putBoolean("bt_open_connect", i == 1).apply(); showSettings(6);
+                }});
+            ComponentName cn = btMusicApp();
+            row(b, "App de música Bluetooth", "La que hace sonar el Bluetooth en esta pantalla",
+                cn != null ? labelOf(cn.flattenToString()) : "No encontrada",
+                new Runnable() { public void run() { pickFor("btaudio", "Música Bluetooth"); } });
+            segmented(b, "Tiempo antes de volver al inicio", "Súbelo si el audio se corta al volver", new String[]{"1,5 s", "2,5 s", "4 s"},
+                prefs.getInt("bt_return_ms", 2500) <= 1500 ? 0 : prefs.getInt("bt_return_ms", 2500) >= 4000 ? 2 : 1, new IntCb() { public void on(int i) {
+                    prefs.edit().putInt("bt_return_ms", i == 0 ? 1500 : i == 2 ? 4000 : 2500).apply(); showSettings(6);
+                }});
+            row(b, "Probar ahora", "Abre la app de música Bluetooth y vuelve al inicio", null,
+                new Runnable() { public void run() { closeSettings(); openBtAudioApp(true); } });
+        }
         LinearLayout a = section(body, "Avanzado");
         row(a, "Avisos extra de música", "Nombres de avisos (broadcast) de otros equipos", prefs.getString("extra_actions", "").length() > 0 ? "Configurados" : "Ninguno",
             edit("extra_actions", "Acciones de aviso extra (separadas por coma)", ""));

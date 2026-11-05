@@ -84,6 +84,10 @@ No. Google dejó de dar soporte a esas versiones de Android. Con Android Auto, l
 Lo causa la app de espejo de fábrica (EasyConnection/CarbitLink), que toma el USB antes que Open Headunit. Ve a Ajustes → Aplicaciones → EasyConnection → <b>Borrar datos</b>, apaga y enciende el carro, y elige Open Headunit → Usar siempre. También está explicado en <b>StradaOS → Ajustes → Conexión</b>.
 </details>
 
+<details><summary><b>La música Bluetooth no suena hasta que abro la app de Bluetooth</b></summary>
+Desde la versión 2.9 StradaOS lo resuelve: en pantallas Clinkway/Autochips cambia el audio a Bluetooth solo cuando el celular empieza a sonar (<b>Ajustes → Música → Audio Bluetooth</b>). En otras marcas activa en ese mismo lugar <b>«Abrir la app de música Bluetooth al conectar el celular»</b>. Si no te funciona, exporta el diagnóstico con el celular sonando (<b>Sistema → Exportar diagnóstico</b>) y compártelo en un issue.
+</details>
+
 <details><summary><b>¿Puedo tener CarPlay sin adaptador?</b></summary>
 No. Apple exige un chip de autenticación dentro del equipo, así que no se puede activar solo con software. Si tu pantalla trae CarPlay, o usas un adaptador CarPlay USB para pantallas Android, el botón CarPlay abre su app.
 </details>

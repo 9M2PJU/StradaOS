@@ -8,15 +8,22 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Parcel;
+import android.os.SystemClock;
 
 /**
  * Consulta directa a la app Bluetooth de fábrica (com.clw.btmusic / IBTPlaybackService).
- * Se conecta solo si ese servicio ya está corriendo (no lo arranca, para no cambiar la fuente de audio).
+ *
+ * En estas pantallas el audio A2DP solo sale por los parlantes cuando la app de fábrica pide el
+ * «modo Bluetooth» (foco de audio en su canal propio). Su pantalla lo hace al abrirse, llamando a
+ * setBTMusicMode(). Con el audio automático activado, StradaOS mantiene vivo el servicio y hace esa
+ * misma llamada cuando el celular empieza a sonar, sin abrir la app.
  */
 public class BtBridge {
     private static final String DESCRIPTOR = "com.clw.btmusic.IBTPlaybackService";
     private static final int T_TOGGLE = 1, T_PREV = 2, T_NEXT = 3, T_IS_PLAYING = 4, T_A2DP = 5,
-            T_TITLE = 10, T_ARTIST = 11, T_ALBUM = 12, T_TOTAL = 13, T_CURRENT = 14, T_REFRESH = 15;
+            T_TMP_LOSE = 6,
+            T_TITLE = 10, T_ARTIST = 11, T_ALBUM = 12, T_TOTAL = 13, T_CURRENT = 14, T_REFRESH = 15, T_BT_MODE = 16;
+    static final String PKG = "com.clw.btmusic";
 
     public interface Listener { void onBtState(NowPlaying.Track t); }
 
@@ -24,7 +31,27 @@ public class BtBridge {
     private final Listener listener;
     private final Handler ui = new Handler(Looper.getMainLooper());
     private IBinder binder;
-    private boolean bound;
+    private boolean bound, boundAuto, autoCreate, pendingActivate;
+    private volatile boolean wasPlaying, polling;
+    private long lastActivate, pauseAutoUntil;
+    private final long[] drops = new long[3];
+    private int dropIdx;
+    /** Últimos eventos, para el diagnóstico. */
+    static final java.util.LinkedList<String> LOG = new java.util.LinkedList<String>();
+    static volatile long activations;
+
+    static void log(String m) {
+        synchronized (LOG) {
+            LOG.addLast(new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date()) + " " + m);
+            while (LOG.size() > 30) LOG.removeFirst();
+        }
+    }
+
+    static String logText() {
+        StringBuilder b = new StringBuilder();
+        synchronized (LOG) { for (String l : LOG) b.append(l).append('\n'); }
+        return b.length() == 0 ? "(sin eventos)" : b.toString();
+    }
 
     public BtBridge(Context c, Listener l) {
         ctx = c.getApplicationContext();
@@ -34,20 +61,53 @@ public class BtBridge {
     private final ServiceConnection conn = new ServiceConnection() {
         public void onServiceConnected(ComponentName n, IBinder b) {
             binder = b;
+            log("conectado a la app Bluetooth");
+            if (pendingActivate) { pendingActivate = false; activateAudio(); }
             refresh();
         }
         public void onServiceDisconnected(ComponentName n) {
             binder = null;
+            log("la app Bluetooth se cerró");
+            if (!boundAuto) return;
+            // si el servicio se cierra una y otra vez, deja de mantenerlo vivo un rato
+            long now = SystemClock.elapsedRealtime();
+            drops[dropIdx++ % drops.length] = now;
+            boolean loop = true;
+            for (long d : drops) if (d == 0 || now - d > 90000) loop = false;
+            if (loop) {
+                pauseAutoUntil = now + 15 * 60000;
+                log("se reinicia muy seguido: pausa de 15 min");
+                ui.post(new Runnable() { public void run() { disconnect(); } });
+            }
         }
     };
 
-    /** Intenta conectarse (sin arrancar el servicio). */
+    public static boolean available(Context c) {
+        try { c.getPackageManager().getPackageInfo(PKG, 0); return true; } catch (Throwable e) { return false; }
+    }
+
+    /**
+     * true: mantiene vivo el servicio Bluetooth de fábrica (lo arranca si hace falta).
+     * false: solo se conecta si ya está corriendo, sin cambiar nada.
+     */
+    public void setAutoCreate(boolean on) {
+        autoCreate = on;
+    }
+
+    private boolean wantAuto() {
+        return autoCreate && SystemClock.elapsedRealtime() > pauseAutoUntil;
+    }
+
+    /** Intenta conectarse. */
     public void connect() {
-        if (bound) return;
+        boolean auto = wantAuto();
+        if (bound && auto == boundAuto) return;
+        if (bound) disconnect();
         try {
             Intent i = new Intent();
-            i.setClassName("com.clw.btmusic", "com.clw.btmusic.BTPlaybackService");
-            bound = ctx.bindService(i, conn, 0);
+            i.setClassName(PKG, "com.clw.btmusic.BTPlaybackService");
+            bound = ctx.bindService(i, conn, auto ? Context.BIND_AUTO_CREATE : 0);
+            boundAuto = bound && auto;
         } catch (Throwable e) {
             bound = false;
         }
@@ -57,7 +117,75 @@ public class BtBridge {
         if (!bound) return;
         try { ctx.unbindService(conn); } catch (Throwable ignored) { }
         bound = false;
+        boundAuto = false;
         binder = null;
+    }
+
+    /**
+     * Pide a la app de fábrica el modo de audio Bluetooth (lo mismo que hace su pantalla al abrirse).
+     * Si el celular no está sonando, la app además le envía «play».
+     */
+    public void activateAudio() {
+        final IBinder b = binder;
+        if (b == null) {
+            if (available(ctx)) {
+                pendingActivate = true;
+                try {
+                    Intent i = new Intent();
+                    i.setClassName(PKG, "com.clw.btmusic.BTPlaybackService");
+                    if (!bound || !boundAuto) {
+                        if (bound) disconnect();
+                        bound = ctx.bindService(i, conn, Context.BIND_AUTO_CREATE);
+                        boundAuto = bound;
+                    }
+                } catch (Throwable ignored) { }
+            }
+            return;
+        }
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    if (!bool(b, T_A2DP)) { log("activar audio: el celular no está conectado por Bluetooth"); return; }
+                    call(b, T_BT_MODE);
+                    lastActivate = SystemClock.elapsedRealtime();
+                    activations++;
+                    log("modo de audio Bluetooth solicitado");
+                } catch (Throwable e) { log("activar audio falló: " + e); }
+            }
+        }).start();
+    }
+
+    /**
+     * Revisión rápida (cada 2 s): si el celular acaba de empezar a sonar y la app de fábrica no tiene
+     * el audio, se lo pide. Solo actúa en el cambio de «pausado» a «sonando», para no pelear con la
+     * radio u otra fuente que el usuario elija después.
+     */
+    public void poll(final boolean auto) {
+        final IBinder b = binder;
+        if (b == null || polling) return;
+        polling = true;
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    if (!bool(b, T_A2DP)) { wasPlaying = false; return; }
+                    boolean playing = bool(b, T_IS_PLAYING);
+                    boolean rising = playing && !wasPlaying;
+                    wasPlaying = playing;
+                    if (!auto || !rising) return;
+                    if (bool(b, T_TMP_LOSE)) { log("el celular suena, pero hay otra fuente temporal (llamada o voz)"); return; }
+                    if (SystemClock.elapsedRealtime() - lastActivate < 8000) return;
+                    log("el celular empezó a sonar");
+                    call(b, T_BT_MODE);
+                    lastActivate = SystemClock.elapsedRealtime();
+                    activations++;
+                    log("modo de audio Bluetooth solicitado");
+                } catch (Throwable e) {
+                    log("revisión falló: " + e);
+                } finally {
+                    polling = false;
+                }
+            }
+        }).start();
     }
 
     public boolean isConnected() { return binder != null && binder.isBinderAlive(); }

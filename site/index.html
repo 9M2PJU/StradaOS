@@ -270,6 +270,25 @@ footer .legal{margin-top:22px;font-size:12px;color:#646A73;max-width:820px}
  .btn{font-size:15px}
  .demo-ctl{gap:10px 12px}
 }
+
+/* Aviso para navegadores internos (Facebook, Instagram…) */
+.iab{position:fixed;inset:0;z-index:90;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:16px}
+.iab.on{display:flex}
+.iab-card{width:min(460px,100%);background:var(--panel2);border:1px solid var(--line);border-radius:24px;padding:24px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:0 30px 80px rgba(0,0,0,.6);animation:iabUp .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes iabUp{from{transform:translateY(40px);opacity:0}}
+.iab-card h3{font-size:21px;font-weight:900;margin-bottom:8px}
+.iab-card p{color:#B8BDC6;font-size:15px}
+.iab-card ol{margin:16px 0 18px 0;padding-left:0;list-style:none;display:grid;gap:10px}
+.iab-card li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.iab-card li b.n{flex:none;width:26px;height:26px;border-radius:8px;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:14px}
+.iab-card .dots{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:24px;border-radius:7px;background:rgba(255,255,255,.1);font-weight:900;letter-spacing:1px}
+.iab-card .row{display:flex;gap:10px;flex-wrap:wrap}
+.iab-card .row .btn{flex:1 1 160px}
+.iab-card .skip{display:block;margin:14px auto 0;background:none;border:0;color:var(--m);font:14px R,sans-serif;text-decoration:underline;cursor:pointer}
+.iab-bar{position:fixed;left:0;right:0;top:68px;z-index:45;display:none;background:#2A1712;border-bottom:1px solid rgba(254,50,17,.35);color:#FFD2C7;font-size:14px;padding:10px 16px;text-align:center}
+.iab-bar.on{display:block}
+.has-iab .hero{padding-top:170px}
+.iab-bar button{background:none;border:0;color:#fff;font:700 14px R,sans-serif;text-decoration:underline;cursor:pointer;margin-left:6px}
 @media(prefers-reduced-motion:reduce){
  *,*:before,*:after{animation:none!important;transition:none!important}
  .rv{opacity:1;transform:none}
@@ -470,7 +489,7 @@ footer .legal{margin-top:22px;font-size:12px;color:#646A73;max-width:820px}
    <div class="feat big rv"><div class="ico"><span class="mi" style="--i:url(ic/add_photo_alternate.png);--s:26px"></span></div><h3>Tu carro, con tu foto</h3><p>Sube una foto de tu vehículo y StradaOS <b>le quita el fondo automáticamente</b> y la ajusta al recuadro, con vista previa y hasta el reflejo del piso. Ponle nombre, año o lo que quieras.</p></div>
    <div class="feat rv" style="--d:.05s"><div class="ico"><span class="mi" style="--i:url(ic/map.png);--s:26px"></span></div><h3>Mapa en vivo</h3><p>Tu ciudad con tu posición y rumbo (OpenStreetMap). Guarda lo que ya recorriste para verlo aunque te quedes sin señal.</p></div>
    <div class="feat rv"><div class="ico"><span class="mi" style="--i:url(ic/navigation.png);--s:26px"></span></div><h3>Android Auto y CarPlay</h3><p>Un botón para cada uno. Abre el de tu pantalla o, si no trae, Android Auto por cable con Open Headunit.</p></div>
-   <div class="feat rv" style="--d:.05s"><div class="ico"><span class="mi" style="--i:url(ic/music_note.png);--s:26px"></span></div><h3>Música con carátula</h3><p>Título, artista, tiempo y carátula de lo que suena por <b>Bluetooth</b> o <b>Android Auto</b>, con controles grandes.</p></div>
+   <div class="feat rv" style="--d:.05s"><div class="ico"><span class="mi" style="--i:url(ic/music_note.png);--s:26px"></span></div><h3>Música con carátula</h3><p>Título, artista, tiempo y carátula de lo que suena por <b>Bluetooth</b> o <b>Android Auto</b>, con controles grandes. Y el Bluetooth suena apenas le das play, sin abrir la app de fábrica.</p></div>
    <div class="feat rv" style="--d:.1s"><div class="ico"><span class="mi" style="--i:url(ic/speed.png);--s:26px"></span></div><h3>Velocímetro GPS</h3><p>Tu velocidad real en grande, más reloj, fecha y un saludo con tu nombre.</p></div>
    <div class="feat rv"><div class="ico"><span class="mi" style="--i:url(ic/wb_sunny.png);--s:26px"></span></div><h3>Clima de tu ciudad</h3><p>Temperatura y estado del tiempo donde estás, en °C o °F.</p></div>
    <div class="feat rv" style="--d:.05s"><div class="ico"><span class="mi" style="--i:url(ic/photo_camera.png);--s:26px"></span></div><h3>Tu cámara de reversa intacta</h3><p>Radio, Bluetooth, cámara y archivos de fábrica siguen a un toque. Nada deja de funcionar.</p></div>
@@ -583,6 +602,7 @@ footer .legal{margin-top:22px;font-size:12px;color:#646A73;max-width:820px}
    <details class="rv"><summary>Mi pantalla dice Android 6, ¿por qué no instalan las apps?</summary><div class="ans">Muchas pantallas muestran una versión falsa. Instala StradaOS y mira en Ajustes → Acerca de el número de API: la API 17 equivale a Android 4.2.</div></details>
    <details class="rv"><summary>¿Hace que vuelva a funcionar la Play Store?</summary><div class="ans">No, Google dejó de dar soporte a esas versiones. La solución es Android Auto: las apps (Maps, Waze, Spotify, WhatsApp) corren en tu celular y se ven en la pantalla.</div></details>
    <details class="rv"><summary>El celular dice «Ninguna aplic. funciona con este accesorio USB»</summary><div class="ans">Lo causa la app de espejo de fábrica (EasyConnection/CarbitLink), que toma el USB primero. Ve a Ajustes → Aplicaciones → EasyConnection → Borrar datos, apaga y enciende el carro, y elige Open Headunit → Usar siempre. También está explicado dentro de StradaOS → Ajustes → Conexión.</div></details>
+   <details class="rv"><summary>La música Bluetooth no suena hasta que abro la app de Bluetooth</summary><div class="ans">Pasa en muchas pantallas chinas. StradaOS lo arregla: en pantallas Clinkway/Autochips cambia el audio a Bluetooth solo, apenas el celular empieza a sonar. En otras marcas, activa en Ajustes → Música → Audio Bluetooth la opción «Abrir la app de música Bluetooth al conectar el celular».</div></details>
    <details class="rv"><summary>¿Puedo tener CarPlay sin adaptador?</summary><div class="ans">No. Apple exige un chip de autenticación dentro del equipo. Si tu pantalla trae CarPlay o usas un adaptador CarPlay USB, el botón CarPlay abre su app.</div></details>
    <details class="rv"><summary>El mapa no carga</summary><div class="ans">Necesita internet, por ejemplo el punto de acceso de tu celular. En Android 4.x algunos servidores de mapas rechazan la conexión segura y StradaOS prueba varios automáticamente. Deja presionado el mapa para ver el diagnóstico.</div></details>
    <details class="rv"><summary>¿Qué datos recoge?</summary><div class="ans">Ninguno. No hay cuentas, anuncios ni analíticas. Tu ubicación se usa solo dentro de la pantalla para el mapa, el velocímetro y el clima. <a class="acc" href="https://github.com/lordnordic-debug/StradaOS/blob/main/PRIVACY.md" target="_blank" rel="noopener">Lee la política de privacidad</a>.</div></details>
@@ -633,6 +653,25 @@ footer .legal{margin-top:22px;font-size:12px;color:#646A73;max-width:820px}
  </div>
 </footer>
 
+
+<div class="iab-bar" id="iabBar">Estás en el navegador de <span data-iabname>Facebook</span>: para descargar, ábrela en tu navegador.<button id="iabBarBtn">¿Cómo?</button></div>
+<div class="iab" id="iab" role="dialog" aria-modal="true" aria-labelledby="iabT">
+ <div class="iab-card">
+  <h3 id="iabT">Ábrela en tu navegador para descargar</h3>
+  <p>El navegador de <b data-iabname>Facebook</b> bloquea la descarga de apps (APK). Es un segundo:</p>
+  <ol>
+   <li><b class="n">1</b><span>Toca <span class="dots">⋯</span> o <span class="dots">⋮</span> arriba a la derecha.</span></li>
+   <li><b class="n">2</b><span>Elige <b>«Abrir en navegador»</b> o <b>«Abrir en Chrome»</b>.</span></li>
+   <li><b class="n">3</b><span>Toca <b>Descargar</b> otra vez. Si Chrome avisa, elige <b>«Descargar de todos modos»</b>.</span></li>
+  </ol>
+  <div class="row">
+   <a class="btn btn-a" id="iabChrome" href="#">Abrir en Chrome</a>
+   <button class="btn btn-g" id="iabCopy">Copiar enlace</button>
+  </div>
+  <p style="margin-top:14px;font-size:13px">Recuerda: StradaOS es para la <b>pantalla del carro</b>, no para el celular. Descárgala y pásala a una memoria USB.</p>
+  <button class="skip" id="iabSkip">Intentar descargar aquí de todos modos</button>
+ </div>
+</div>
 <div class="fab" id="fab"><a class="btn btn-a" href="https://github.com/lordnordic-debug/StradaOS/releases/latest" data-dl><span class="mi" style="--i:url(ic/download.png);--s:20px"></span>Descargar gratis</a></div>
 
 <script>
@@ -719,6 +758,28 @@ $('#shFb').href='https://www.facebook.com/sharer/sharer.php?u='+encodeURICompone
 $('#shCp').addEventListener('click',function(){var b=this;function ok(){b.textContent='¡Copiado!';setTimeout(function(){b.textContent='Copiar enlace'},1800)}
  if(navigator.clipboard)navigator.clipboard.writeText(SITE).then(ok,ok);else{var t=document.createElement('textarea');t.value=SITE;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(e){}t.remove();ok()}});
 
+
+/* ---- Navegadores internos (Facebook, Instagram, Messenger, TikTok…) ---- */
+(function(){
+ var ua=navigator.userAgent||'',m=ua.match(/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|MessengerLite|musical_ly|BytedanceWebview|TikTok|Snapchat|Line\/|Twitter/i);
+ if(!m&&!/[?&]iab=1/.test(location.search))return;
+ var name=!m?'esta app':/Instagram/i.test(m[0])?'Instagram':/Messenger/i.test(m[0])?'Messenger':/musical_ly|Bytedance|TikTok/i.test(m[0])?'TikTok':/Snapchat/i.test(m[0])?'Snapchat':/Line/i.test(m[0])?'LINE':/Twitter/i.test(m[0])?'X':'Facebook';
+ $$('[data-iabname]').forEach(function(e){e.textContent=name});
+ var box=$('#iab'),bar=$('#iabBar'),pending=null,android=/Android/i.test(ua);
+ bar.classList.add('on');document.body.classList.add('has-iab');
+ var url=location.href.split('#')[0];
+ var chrome=$('#iabChrome');
+ if(android){chrome.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end'}
+ else{chrome.style.display='none'}
+ function open(){box.classList.add('on')}
+ function close(){box.classList.remove('on')}
+ $('#iabBarBtn').addEventListener('click',open);
+ box.addEventListener('click',function(e){if(e.target===box)close()});
+ $('#iabCopy').addEventListener('click',function(){var b=this;function ok(){b.textContent='¡Copiado! Pégalo en Chrome';setTimeout(function(){b.textContent='Copiar enlace'},2500)}
+  if(navigator.clipboard)navigator.clipboard.writeText(url).then(ok,ok);else{var t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(e){}t.remove();ok()}});
+ $('#iabSkip').addEventListener('click',function(){close();if(pending)location.href=pending});
+ $$('[data-dl]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();pending=a.href;open()})});
+})();
 /* ---- Datos en vivo desde GitHub ---- */
 function j(u){return fetch(u,{headers:{Accept:'application/vnd.github+json'}}).then(function(r){if(!r.ok)throw r.status;return r.json()})}
 j('https://api.github.com/repos/'+REPO+'/releases/latest').then(function(r){

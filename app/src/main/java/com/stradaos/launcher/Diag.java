@@ -69,6 +69,26 @@ public class Diag {
         } finally {
             if (w != null) w.close();
         }
+        // Bluetooth: servicios corriendo y eventos recientes (sirve para dar soporte a otras marcas)
+        PrintWriter bw = null;
+        try {
+            bw = new PrintWriter(new FileOutputStream(new File(out, "bluetooth.txt")));
+            bw.println("App Bluetooth Clinkway: " + (BtBridge.available(c) ? "sí" : "no") + " · activaciones: " + BtBridge.activations);
+            bw.println();
+            bw.println("Servicios corriendo ahora (haz el diagnóstico con el celular sonando por Bluetooth):");
+            android.app.ActivityManager am = (android.app.ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
+            List<android.app.ActivityManager.RunningServiceInfo> rs = am.getRunningServices(300);
+            if (rs != null) for (android.app.ActivityManager.RunningServiceInfo r : rs) {
+                bw.println("  " + r.service.flattenToShortString() + (r.foreground ? " [primer plano]" : "") + (r.started ? " [iniciado]" : "") + " clientes=" + r.clientCount);
+            }
+            bw.println();
+            bw.println("Eventos Bluetooth de StradaOS:");
+            bw.println(BtBridge.logText());
+        } catch (Throwable e) {
+            if (bw != null) bw.println("ERROR: " + e);
+        } finally {
+            if (bw != null) bw.close();
+        }
         return out.getAbsolutePath() + "  (" + copied + " apps, " + (bytes / 1024 / 1024) + " MB)";
     }
 
