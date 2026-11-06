@@ -1,6 +1,6 @@
 {
-  "version": "2.9.5",
-  "notes": "## StradaOS 2.9.5 — Reproductor estable con Android Auto\n\n### Corregido\n- **La fuente ya no titila entre «Android Auto» y «Bluetooth».** Con Android Auto conectado, el celular manda la misma canción también por Bluetooth cada segundo. Ahora, mientras Android Auto tiene la canción, Bluetooth solo actualiza el tiempo y el estado: la etiqueta, la carátula y los botones ⏮ ⏯ ⏭ se quedan en Android Auto.\n- Al cambiar de canción en Android Auto, la etiqueta espera unos segundos a la notificación de Open Headunit en vez de saltar a «Bluetooth».\n- Con Android Auto conectado, el audio Bluetooth automático (opción en prueba) ya no intenta pasar el sonido a Bluetooth.\n\n### Diagnóstico\n- *Música → Diagnóstico del reproductor* muestra si Open Headunit está corriendo.\n",
-  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.5",
-  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.5/StradaOS-2.9.5.apk"
+  "version": "2.9.6",
+  "notes": "## StradaOS 2.9.6 — Al quitar el cable de Android Auto, vuelve el Bluetooth\n\n### Corregido\n- **Al desconectar Android Auto, el reproductor ya no se queda en «Android Auto».** Open Headunit sigue abierto después de quitar el cable, así que ahora StradaOS mira si el celular sigue conectado por USB en modo Android Auto. Al quitar el cable, la etiqueta pasa a «Bluetooth» y se quita la carátula de Android Auto.\n- **El sonido vuelve solo al Bluetooth.** Al desconectar Android Auto, StradaOS abre un instante la app de música Bluetooth de la pantalla y regresa, para que el sonido siga por Bluetooth sin abrirla a mano. Se puede apagar en *Ajustes → Música → Volver al Bluetooth al desconectar Android Auto*.\n\n### Diagnóstico\n- *Diagnóstico del reproductor* muestra si el celular está conectado por USB en modo Android Auto y si StradaOS considera conectado Android Auto.\n",
+  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.6",
+  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.6/StradaOS-2.9.6.apk"
 }
