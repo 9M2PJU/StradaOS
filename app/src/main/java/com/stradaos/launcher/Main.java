@@ -144,7 +144,10 @@ public class Main extends Activity {
         getWindow().setBackgroundDrawable(new ColorDrawable(BG));
         prefs = getSharedPreferences("launcher", MODE_PRIVATE);
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (getPackageName().endsWith(".debug") && getIntent() != null && "saltar".equals(getIntent().getStringExtra("prueba")))
+            prefs.edit().putBoolean("setup_done", true).apply();
         migrateOrSetup();
+        testHook(getIntent());
         applyTheme();
         applyAccent();
 
@@ -415,6 +418,41 @@ public class Main extends Activity {
     protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
         closeDrawer();
+        testHook(i);
+    }
+
+    /**
+     * Solo en la versión de prueba (paquete .debug): permite que las pruebas automáticas abran cada pantalla
+     * sin tocar coordenadas. adb shell am start -n com.stradaos.launcher.debug/com.stradaos.launcher.Main --es prueba VALOR
+     * VALOR: saltar (omite el asistente), inicio, ajustes:N, boton:N (menú del botón N), elegir:N (lista de apps del botón N),
+     * cajon (todas las apps), musica (lista de música preferida), asistente, demo-barra (cambia los botones 3 y 4).
+     */
+    private void testHook(Intent i) {
+        if (i == null || !getPackageName().endsWith(".debug")) return;
+        final String v = i.getStringExtra("prueba");
+        if (v == null) return;
+        if ("saltar".equals(v)) { prefs.edit().putBoolean("setup_done", true).apply(); }
+        h.postDelayed(new Runnable() { public void run() {
+            try {
+                if (settingsView != null) closeSettings();
+                closeDrawer();
+                if (v.startsWith("ajustes:")) showSettings(Integer.parseInt(v.substring(8)));
+                else if (v.startsWith("boton:")) dockMenu(Integer.parseInt(v.substring(6)), null);
+                else if (v.startsWith("elegir:")) pickDock(Integer.parseInt(v.substring(7)), null);
+                else if ("cajon".equals(v)) openDrawer();
+                else if ("musica".equals(v)) pickFor("music_app", "Música", null);
+                else if ("asistente".equals(v)) wizard();
+                else if ("demo-barra".equals(v) && !apps.isEmpty()) {
+                    ResolveInfo r = apps.get(0);
+                    prefs.edit().putString("dock_2", "fn:music")
+                        .putString("dock_3", "app:" + new ComponentName(r.activityInfo.packageName, r.activityInfo.name).flattenToString())
+                        .putString("dock_3_name", "Mi app").apply();
+                    rebuild();
+                }
+            } catch (Throwable e) {
+                Guard.log("Prueba «" + v + "» falló: " + e);
+            }
+        }}, 1500);
     }
 
     @Override
@@ -719,6 +757,15 @@ public class Main extends Activity {
         panel.setBackground(round((CARD & 0x00FFFFFF) | 0xEB000000, 16));
         place(card, panel, 12, 284, 396, 84);
 
+        View navBtn = circleIcon("map", 52, 26, (CARD & 0x00FFFFFF) | 0xEB000000);
+        place(card, navBtn, 356, 220, 52, 52);
+        navBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { openNavApp(); }
+        });
+        navBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            public boolean onLongClick(View v) { pickFor("nav_app", "Navegación"); return true; }
+        });
+
         View aa = projButton("navigation", "Android Auto", RED, true);
         aaBtnTv = (TextView) aa.getTag();
         place(panel, aa, 10, 10, 184, 64);
@@ -823,6 +870,9 @@ public class Main extends Activity {
         card.setOnLongClickListener(new View.OnLongClickListener() {
             public boolean onLongClick(View v) { showPlayerDiag(); return true; }
         });
+        card.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { openMusicApp(); }
+        });
         renderTrack();
     }
 
@@ -847,44 +897,285 @@ public class Main extends Activity {
         });
     }
 
+    // ───────────────────────── barra inferior personalizable ─────────────────────────
+    // Cada botón guarda en "dock_N" una app ("app:paquete/Actividad") o una función ("fn:id"), y en "dock_N_name"
+    // un nombre propio opcional. Sin nada guardado, cada botón hace lo de siempre (DOCK_DEFAULT).
+
+    static final String[] DOCK_DEFAULT = {"radio", "bt", "cam", "web", "files", "settings", "apps"};
+    /** Funciones que puede tener un botón: id, nombre, ícono. */
+    static final String[][] DOCK_FNS = {
+        {"radio", "Radio", "radio"}, {"bt", "Bluetooth", "bluetooth"}, {"cam", "Cámara", "photo_camera"},
+        {"music", "Música", "music_note"}, {"nav", "Navegación", "map"}, {"aa", "Android Auto", "navigation"},
+        {"carplay", "CarPlay", "phone_iphone"}, {"web", "Navegador web", "public"}, {"files", "Archivos", "folder"},
+        {"settings", "Ajustes", "settings"}, {"apps", "Apps", "apps"},
+    };
+
+    private String[] dockFn(String id) {
+        for (String[] f : DOCK_FNS) if (f[0].equals(id)) return f;
+        return DOCK_FNS[DOCK_FNS.length - 1];
+    }
+
+    /** Lo que hace el botón N: "app:…" o "fn:…". Si la app elegida ya no está instalada, vuelve a lo de siempre. */
+    private String dockTarget(int i) {
+        String t = prefs.getString("dock_" + i, null);
+        if (t != null && t.startsWith("app:")) {
+            ComponentName cn = ComponentName.unflattenFromString(t.substring(4));
+            if (cn != null && installed(cn.getPackageName())) return t;
+            t = null;
+        }
+        return t != null ? t : "fn:" + DOCK_DEFAULT[i];
+    }
+
+    private String dockName(int i) {
+        String custom = prefs.getString("dock_" + i + "_name", "").trim();
+        if (custom.length() > 0) return custom;
+        String t = dockTarget(i);
+        if (t.startsWith("app:")) return labelOf(t.substring(4));
+        String id = t.substring(3);
+        return "web".equals(id) ? "Navegador" : dockFn(id)[1];
+    }
+
+    private Drawable appIcon(String component) {
+        try {
+            return getPackageManager().getActivityIcon(ComponentName.unflattenFromString(component));
+        } catch (Throwable e) {
+            try { return getPackageManager().getApplicationIcon(ComponentName.unflattenFromString(component).getPackageName()); }
+            catch (Throwable e2) { return null; }
+        }
+    }
+
     private void buildDock() {
-        final String[] icons = {"radio", "bluetooth", "photo_camera", "public", "folder", "settings", "apps"};
-        final String[] names = {"Radio", "Bluetooth", "Cámara", "Navegador", "Archivos", "Ajustes", "Apps"};
         for (int i = 0; i < 7; i++) {
             final int idx = i;
+            String t = dockTarget(i);
             LinearLayout b = new LinearLayout(this);
             b.setOrientation(LinearLayout.VERTICAL);
             b.setGravity(Gravity.CENTER_HORIZONTAL);
-            b.addView(circleIcon(icons[i], 64, 28, CIRCLE), new LinearLayout.LayoutParams((int) (64 * s), (int) (64 * s)));
-            TextView l = tv(names[i], 13, SOFT, false);
+            Drawable appIc = t.startsWith("app:") ? appIcon(t.substring(4)) : null;
+            if (appIc != null) {
+                FrameLayout f = new FrameLayout(this);
+                GradientDrawable g = new GradientDrawable();
+                g.setShape(GradientDrawable.OVAL);
+                g.setColor(CIRCLE);
+                f.setBackground(g);
+                ImageView iv = new ImageView(this);
+                iv.setImageDrawable(appIc);
+                iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams((int) (44 * s), (int) (44 * s));
+                lp.gravity = Gravity.CENTER;
+                f.addView(iv, lp);
+                b.addView(f, new LinearLayout.LayoutParams((int) (64 * s), (int) (64 * s)));
+            } else {
+                String id = t.startsWith("fn:") ? t.substring(3) : DOCK_DEFAULT[i];
+                b.addView(circleIcon(dockFn(id)[2], 64, 28, CIRCLE), new LinearLayout.LayoutParams((int) (64 * s), (int) (64 * s)));
+            }
+            TextView l = tv(dockName(i), 13, SOFT, false);
             l.setGravity(Gravity.CENTER_HORIZONTAL);
             l.setPadding(0, (int) (8 * s), 0, 0);
             b.addView(l, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             place(board, b, 38 + 138 * i, 474, 120, 110);
             b.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    switch (idx) {
-                        case 0: openSlot(0); break;
-                        case 1: openSlot(1); break;
-                        case 2: openSlot(2); break;
-                        case 3: openBrowser(); break;
-                        case 4: openSlot(3); break;
-                        case 5: openSlot(4); break;
-                        default: openDrawer();
-                    }
-                }
+                public void onClick(View v) { runDock(idx); }
             });
             b.setOnLongClickListener(new View.OnLongClickListener() {
-                public boolean onLongClick(View v) {
-                    int[] map = {0, 1, 2, -1, 3, 4, -2};
-                    int m = map[idx];
-                    if (m == -1) { pickFor("web", "Navegador"); return true; }
-                    if (m < 0) return false;
-                    pickFor(SLOTS[m][0], SLOTS[m][1]);
-                    return true;
-                }
+                public boolean onLongClick(View v) { dockMenu(idx, null); return true; }
             });
         }
+    }
+
+    private void runDock(int i) {
+        String t = dockTarget(i);
+        if (t.startsWith("app:")) {
+            try {
+                Intent it = new Intent(Intent.ACTION_MAIN);
+                it.addCategory(Intent.CATEGORY_LAUNCHER);
+                it.setComponent(ComponentName.unflattenFromString(t.substring(4)));
+                it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                startActivity(it);
+            } catch (Throwable e) {
+                toast("No se pudo abrir «" + dockName(i) + "». Déjalo presionado para elegir otra app.");
+            }
+            return;
+        }
+        runFn(t.substring(3));
+    }
+
+    private void runFn(String id) {
+        if ("radio".equals(id)) openSlot(0);
+        else if ("bt".equals(id)) openSlot(1);
+        else if ("cam".equals(id)) openSlot(2);
+        else if ("files".equals(id)) openSlot(3);
+        else if ("settings".equals(id)) openSlot(4);
+        else if ("web".equals(id)) openBrowser();
+        else if ("music".equals(id)) openMusicApp();
+        else if ("nav".equals(id)) openNavApp();
+        else if ("aa".equals(id)) openAndroidAuto();
+        else if ("carplay".equals(id)) openCarPlay();
+        else openDrawer();
+    }
+
+    /** Menú del botón N: cambiar app o función, cambiar nombre, volver a lo de siempre. */
+    private void dockMenu(final int i, final Runnable after) {
+        final String def = dockFn(DOCK_DEFAULT[i])[1];
+        new AlertDialog.Builder(this, dlg())
+            .setTitle("Botón " + (i + 1) + " · " + dockName(i))
+            .setItems(new String[]{"Cambiar app o función", "Cambiar el nombre", "Restablecer (" + ("web".equals(DOCK_DEFAULT[i]) ? "Navegador" : def) + ")"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface d, int w) {
+                        if (w == 0) pickDock(i, after);
+                        else if (w == 1) renameDock(i, after);
+                        else {
+                            prefs.edit().remove("dock_" + i).remove("dock_" + i + "_name").apply();
+                            toast("Botón restablecido");
+                            dockChanged(after);
+                        }
+                    }
+                })
+            .setNegativeButton("Cerrar", null)
+            .show();
+    }
+
+    private void dockChanged(Runnable after) {
+        rebuild();
+        if (after != null) after.run();
+    }
+
+    private void pickDock(final int i, final Runnable after) {
+        final List<String[]> extra = new ArrayList<String[]>();
+        for (String[] f : DOCK_FNS) extra.add(new String[]{"fn:" + f[0], "★ " + f[1], f[2]});
+        pickApp("¿Qué abre el botón " + (i + 1) + "?", extra, null, new TargetCb() { public void on(String target) {
+            prefs.edit().putString("dock_" + i, target).remove("dock_" + i + "_name").apply();
+            toast("Guardado: " + dockName(i));
+            dockChanged(after);
+        }});
+    }
+
+    private void renameDock(final int i, final Runnable after) {
+        final android.widget.EditText et = new android.widget.EditText(this);
+        et.setSingleLine(true);
+        et.setText(dockName(i));
+        et.setSelection(et.getText().length());
+        FrameLayout wrap = new FrameLayout(this);
+        int pad = (int) (20 * s);
+        wrap.setPadding(pad, pad / 2, pad, 0);
+        wrap.addView(et);
+        new AlertDialog.Builder(this, dlg())
+            .setTitle("Nombre del botón " + (i + 1) + " (vacío = el de la app)")
+            .setView(wrap)
+            .setPositiveButton("Guardar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                prefs.edit().putString("dock_" + i + "_name", et.getText().toString().trim()).apply();
+                dockChanged(after);
+            }})
+            .setNegativeButton("Cancelar", null)
+            .show();
+    }
+
+    interface TargetCb { void on(String target); }
+
+    /**
+     * Lista para elegir una app, con su ícono. `extra`: opciones fijas arriba ({valor, texto, ícono}).
+     * `pin`: paquetes que van primero (p. ej. apps de navegación). Devuelve "app:paquete/Actividad" o el valor extra.
+     */
+    private void pickApp(String title, final List<String[]> extra, String[] pin, final TargetCb cb) {
+        final PackageManager pm = getPackageManager();
+        final List<ResolveInfo> list = new ArrayList<ResolveInfo>();
+        if (pin != null) for (String p : pin) for (ResolveInfo r : apps) if (r.activityInfo.packageName.equals(p)) list.add(r);
+        for (ResolveInfo r : apps) if (!list.contains(r)) list.add(r);
+        final int nx = extra == null ? 0 : extra.size();
+        final HashMap<Integer, Drawable> icons = new HashMap<Integer, Drawable>();
+        BaseAdapter ad = new BaseAdapter() {
+            public int getCount() { return nx + list.size(); }
+            public Object getItem(int pos) { return pos; }
+            public long getItemId(int pos) { return pos; }
+            public View getView(int pos, View cv, ViewGroup parent) {
+                LinearLayout row = new LinearLayout(Main.this);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding((int) (20 * s), (int) (10 * s), (int) (20 * s), (int) (10 * s));
+                TextView t;
+                if (pos < nx) {
+                    String[] e = extra.get(pos);
+                    View ic = e[2] != null ? icon(e[2], 28) : new View(Main.this);
+                    row.addView(ic, new LinearLayout.LayoutParams((int) (36 * s), (int) (28 * s)));
+                    t = tv(e[1], 17, LIGHT ? 0xFF1A1A1A : Color.WHITE, true);
+                } else {
+                    ResolveInfo r = list.get(pos - nx);
+                    Drawable d = icons.get(pos);
+                    if (d == null) { try { d = r.loadIcon(pm); } catch (Throwable e) { d = null; } if (d != null) icons.put(pos, d); }
+                    ImageView iv = new ImageView(Main.this);
+                    iv.setImageDrawable(d);
+                    iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    row.addView(iv, new LinearLayout.LayoutParams((int) (36 * s), (int) (36 * s)));
+                    t = tv(String.valueOf(r.loadLabel(pm)), 17, LIGHT ? 0xFF1A1A1A : Color.WHITE, false);
+                }
+                t.setPadding((int) (16 * s), 0, 0, 0);
+                row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+                return row;
+            }
+        };
+        new AlertDialog.Builder(this, dlg())
+            .setTitle(title)
+            .setAdapter(ad, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface d, int which) {
+                    if (which < nx) { cb.on(extra.get(which)[0]); return; }
+                    ResolveInfo r = list.get(which - nx);
+                    cb.on("app:" + new ComponentName(r.activityInfo.packageName, r.activityInfo.name).flattenToString());
+                }
+            })
+            .setNegativeButton("Cancelar", null)
+            .show();
+    }
+
+    // ── apps preferidas ──
+
+    static final String[] MUSIC_PKGS = {"com.spotify.music", "in.krosbits.musicolet", "com.google.android.apps.youtube.music",
+        "com.maxrave.simpmusic", "com.maxmpz.audioplayer", "org.videolan.vlc", "deezer.android.app", "com.amazon.mp3",
+        "com.apple.android.music", "com.soundcloud.android", "com.google.android.youtube", "com.aspiro.tidal", "com.zionhuang.music",
+        "it.vfsfitvnm.vimusic", "app.vitune.android", "com.kapp.youtube.final"};
+    static final String[] NAV_PKGS = {"com.waze", "com.google.android.apps.maps", "com.google.android.apps.mapslite", "com.sygic.aura",
+        "net.osmand", "net.osmand.plus", "app.organicmaps", "com.mapswithme.maps.pro", "com.here.app.maps", "ru.yandex.yandexnavi",
+        "com.huawei.maps.app", "cz.seznam.mapy", "com.tomtom.gplay.navapp", "com.navitel", "com.magicearth.app"};
+
+    private String firstInstalled(String[] pkgs) {
+        for (String p : pkgs) if (getPackageManager().getLaunchIntentForPackage(p) != null) return p;
+        return null;
+    }
+
+    /** Toca el reproductor: la app de música elegida; si no hay, la de la fuente que suena. */
+    private void openMusicApp() {
+        if (launchSaved("music_app")) return;
+        if ("Android Auto".equals(curSource) && launchPkg(PKG_HUR)) return;
+        if ("Bluetooth".equals(curSource)) { ComponentName cn = btMusicApp(); if (cn != null && launchComponent(cn)) return; }
+        String p = firstInstalled(MUSIC_PKGS);
+        if (p != null && launchPkg(p)) return;
+        toast("Elige tu app de música");
+        pickFor("music_app", "Música", null);
+    }
+
+    /** App de navegación elegida; si no hay, la primera conocida que esté instalada (Waze, Maps, OsmAnd…). */
+    private void openNavApp() {
+        if (launchSaved("nav_app")) return;
+        String p = firstInstalled(NAV_PKGS);
+        if (p != null && launchPkg(p)) return;
+        toast("Elige tu app de navegación");
+        pickFor("nav_app", "Navegación", null);
+    }
+
+    private boolean launchComponent(ComponentName cn) {
+        try {
+            Intent i = new Intent(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            i.setComponent(cn);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            startActivity(i);
+            return true;
+        } catch (Throwable e) { return false; }
+    }
+
+    private String autoLabel(String key, String[] pkgs, String none) {
+        String c = prefs.getString(key, null);
+        if (c != null) return labelOf(c);
+        String p = firstInstalled(pkgs);
+        return p != null ? "Automático · " + labelOf(p) : none;
     }
 
     // ───────────────────────── helpers de UI ─────────────────────────
@@ -2139,22 +2430,36 @@ public class Main extends Activity {
     }
 
     private void catApps(LinearLayout body) {
-        LinearLayout c = section(body, "Accesos de la barra inferior");
-        String[][] items = {{"radio", "Radio"}, {"bt", "Bluetooth"}, {"cam", "Cámara"}, {"web", "Navegador"}, {"files", "Archivos"}};
-        for (final String[] it : items) {
-            row(c, it[1], null, "web".equals(it[0]) ? appLabel(it[0], "Automático") : shortcutLabel(it[0]), new Runnable() { public void run() { pickFor(it[0], it[1]); } });
+        LinearLayout c = section(body, "Barra inferior (déjalos presionados en el inicio para cambiarlos)");
+        for (int i = 0; i < 7; i++) {
+            final int idx = i;
+            String t = dockTarget(i);
+            String what = t.startsWith("app:") ? "App: " + labelOf(t.substring(4)) : "Función: " + ("web".equals(t.substring(3)) ? "Navegador web" : dockFn(t.substring(3))[1]);
+            row(c, "Botón " + (i + 1) + " · " + dockName(i), what, null, new Runnable() { public void run() {
+                dockMenu(idx, new Runnable() { public void run() { if (settingsView != null) showSettings(4); } });
+            }});
         }
-        row(c, "Música Bluetooth", "La app que hace sonar el Bluetooth (se usa para pasar el sonido)", shortcutLabel("btaudio"), new Runnable() { public void run() { pickFor("btaudio", "Música Bluetooth"); } });
-        row(c, "Revisar todos los botones", "Lista rápida de qué abre cada uno, como en el asistente", null, new Runnable() { public void run() {
+        LinearLayout pf = section(body, "Apps preferidas");
+        row(pf, "Música", "Se abre al tocar el reproductor", autoLabel("music_app", MUSIC_PKGS, "Toca para elegir"), new Runnable() { public void run() { pickFor("music_app", "Música"); } });
+        row(pf, "Navegación", "Se abre con el botón del mapa", autoLabel("nav_app", NAV_PKGS, "Toca para elegir"), new Runnable() { public void run() { pickFor("nav_app", "Navegación"); } });
+        LinearLayout fa = section(body, "Apps de cada función");
+        String[][] items = {{"radio", "Radio"}, {"bt", "Bluetooth"}, {"cam", "Cámara"}, {"web", "Navegador web"}, {"files", "Archivos"}};
+        for (final String[] it : items) {
+            row(fa, it[1], null, "web".equals(it[0]) ? appLabel(it[0], "Automático") : shortcutLabel(it[0]), new Runnable() { public void run() { pickFor(it[0], it[1]); } });
+        }
+        row(fa, "Música Bluetooth", "La app que hace sonar el Bluetooth (se usa para pasar el sonido)", shortcutLabel("btaudio"), new Runnable() { public void run() { pickFor("btaudio", "Música Bluetooth"); } });
+        row(fa, "Revisar todos los botones", "Lista rápida de qué abre cada uno, como en el asistente", null, new Runnable() { public void run() {
             reviewShortcuts(new Runnable() { public void run() { if (settingsView != null) showSettings(4); } });
         }});
         LinearLayout r = section(body, "Restablecer");
-        row(r, "Restablecer accesos", "Vuelve a buscar las apps de fábrica automáticamente", null, new Runnable() { public void run() {
+        row(r, "Restablecer accesos", "La barra vuelve a lo de siempre y se buscan las apps de fábrica", null, new Runnable() { public void run() {
             SharedPreferences.Editor e = prefs.edit();
-            for (String k : new String[]{"radio", "bt", "cam", "files", "settings", "aa", "web", "carplay"}) e.remove(k);
+            for (String k : new String[]{"radio", "bt", "cam", "files", "settings", "aa", "web", "carplay", "music_app", "nav_app"}) e.remove(k);
+            for (int i = 0; i < 7; i++) e.remove("dock_" + i).remove("dock_" + i + "_name");
             e.apply();
             toast("Accesos restablecidos");
             refreshStates();
+            rebuild();
             showSettings(4);
         }});
     }
@@ -2170,6 +2475,9 @@ public class Main extends Activity {
         String manual = prefs.getString("city_manual", "");
         row(w, "Ciudad", "Vacío = automática por GPS", manual.length() > 0 ? manual : (weatherNow != null && weatherNow.city != null ? weatherNow.city + " (GPS)" : "Automática"),
             edit("city_manual", "Ciudad (vacío = automática por GPS)", ""));
+        LinearLayout nv = section(body, "Navegación");
+        row(nv, "App de navegación preferida", "Se abre con el botón del mapa (Waze, Maps, OsmAnd…)", autoLabel("nav_app", NAV_PKGS, "Toca para elegir"),
+            new Runnable() { public void run() { pickFor("nav_app", "Navegación"); } });
         LinearLayout m = section(body, "Mapa");
         segmented(m, "Brillo del mapa", "Solo en modo oscuro", new String[]{"Bajo", "Medio", "Alto"}, prefs.getInt("map_bright", 1), new IntCb() { public void on(int i) {
             prefs.edit().putInt("map_bright", i).apply(); rebuild();
@@ -2183,6 +2491,9 @@ public class Main extends Activity {
     }
 
     private void catMusic(LinearLayout body) {
+        LinearLayout ma = section(body, "App de música");
+        row(ma, "App de música preferida", "Se abre al tocar el reproductor del inicio", autoLabel("music_app", MUSIC_PKGS, "Toca para elegir"),
+            new Runnable() { public void run() { pickFor("music_app", "Música"); } });
         LinearLayout c = section(body, "Pista en reproducción");
         row(c, "Carátula de Android Auto", "Lee la notificación de Open Headunit (accesibilidad)", NotifArt.running ? "Activada" : "Desactivada",
             new Runnable() { public void run() { openAccessibility(); } });
@@ -2354,6 +2665,7 @@ public class Main extends Activity {
         if (!hasWindowFocus() || settingsView != null || drawer != null) return;
         long now = System.currentTimeMillis();
         boolean auto = prefs.getBoolean("auto_update", !Updates.fromFdroid(this));
+        if (getPackageName().endsWith(".debug")) auto = false;   // la versión de prueba no ofrece actualizar a la normal
         if (auto && now - prefs.getLong("upd_last", 0) > 20L * 3600 * 1000) { checkUpdates(false); return; }
         // recuadro tipo SimpMusic: tras 5 días de uso y 15 aperturas, y luego cada 45 días si eligió «Más tarde»
         int opens = prefs.getInt("opens", 0) + 1;
@@ -2715,35 +3027,23 @@ public class Main extends Activity {
     private void pickFor(final String key, String name) { pickFor(key, name, null); }
 
     private void pickFor(final String key, String name, final Runnable after) {
-        final PackageManager pm = getPackageManager();
-        final List<String> labels = new ArrayList<String>();
-        labels.add("↺  Automático (por defecto)");
-        for (ResolveInfo r : apps) labels.add(String.valueOf(r.loadLabel(pm)));
-        new AlertDialog.Builder(this, dlg())
-            .setTitle("¿Qué app abre «" + name + "»?")
-            .setItems(labels.toArray(new String[0]), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface d, int which) {
-                    if (which == 0) {
-                        prefs.edit().remove(key).apply();
-                        toast("Restablecido");
-                    } else {
-                        ResolveInfo r = apps.get(which - 1);
-                        prefs.edit().putString(key,
-                            new ComponentName(r.activityInfo.packageName, r.activityInfo.name).flattenToString()).apply();
-                        toast("Guardado: " + labels.get(which));
-                    }
-                    refreshStates();
-                    if (after != null) after.run();
-                    else if (settingsView != null) showSettings(settingsCat);
-                }
-            })
-            .setNegativeButton("Cancelar", after == null ? null : new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface d, int w) { after.run(); }
-            })
-            .show();
+        List<String[]> extra = new ArrayList<String[]>();
+        extra.add(new String[]{"auto", "↺  Automático (por defecto)", "restart_alt"});
+        String[] pin = "nav_app".equals(key) ? NAV_PKGS : "music_app".equals(key) ? MUSIC_PKGS : null;
+        pickApp("¿Qué app abre «" + name + "»?", extra, pin, new TargetCb() { public void on(String target) {
+            if ("auto".equals(target)) {
+                prefs.edit().remove(key).apply();
+                toast("Restablecido");
+            } else {
+                String c = target.substring(4);
+                prefs.edit().putString(key, c).apply();
+                toast("Guardado: " + labelOf(c));
+            }
+            refreshStates();
+            if (after != null) after.run();
+            else if (settingsView != null) showSettings(settingsCat);
+        }});
     }
-
-    // ───────────────────────── Android Auto y navegador ─────────────────────────
 
     private void openAndroidAuto() {
         if (launchSaved("aa")) return;

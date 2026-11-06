@@ -1,0 +1,61 @@
+#!/bin/bash
+# Prueba de humo en un emulador: instala la versión de prueba, abre cada pantalla, toma capturas y revisa
+# que no haya cierres. Uso: smoke.sh API APK CARPETA
+API=$1; APK=$2; OUT=$3
+PKG=com.stradaos.launcher.debug
+ACT=$PKG/com.stradaos.launcher.Main
+mkdir -p "$OUT"
+adb wait-for-device
+for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] && break; sleep 3; done
+sleep 10
+adb shell input keyevent 82 || true
+
+# Pantalla de carro: 1024x600, densidad 160
+if [ "$API" -ge 18 ]; then adb shell wm size 1024x600; adb shell wm density 160
+else adb shell am display-size 1024x600; adb shell am display-density 160; fi
+sleep 5
+
+shot() {
+  adb shell screencap -p /sdcard/s.png
+  adb pull /sdcard/s.png "$OUT/$1.png" >/dev/null 2>&1
+}
+go() {  # abre StradaOS con un valor de prueba y espera
+  adb shell am start -n $ACT --es prueba "$1" >/dev/null
+  sleep "${2:-6}"
+}
+back() { adb shell input keyevent 4; sleep 2; }
+
+if [ "$API" -ge 23 ]; then adb install -r -g "$APK"; else adb install -r "$APK"; fi
+adb shell pm grant $PKG android.permission.ACCESS_FINE_LOCATION >/dev/null 2>&1 || true
+adb logcat -c
+
+adb shell am start -n $ACT >/dev/null; sleep 12
+shot 01-asistente
+back
+go saltar 10;      shot 02-inicio
+go boton:3;        shot 03-menu-boton
+back
+go elegir:3;       shot 04-elegir-app
+back
+go ajustes:4;      shot 05-ajustes-accesos
+go ajustes:6;      shot 06-ajustes-musica
+go ajustes:5;      shot 07-ajustes-mapa
+go ajustes:8;      shot 08-ajustes-acerca
+go musica;         shot 09-elegir-musica
+back
+go cajon;          shot 10-todas-las-apps
+go inicio 4
+# botón 3 cambiado a «Música» y botón 4 a una app con nombre propio
+go demo-barra 10;  shot 11-inicio-barra-cambiada
+go inicio 3
+
+
+adb logcat -d > "$OUT/logcat.txt"
+adb shell "run-as $PKG cat files/fallos.txt" > "$OUT/fallos.txt" 2>/dev/null || true
+grep -E "FATAL EXCEPTION|ANR in com.stradaos" -A 30 "$OUT/logcat.txt" > "$OUT/CIERRES.txt"
+if grep -q "com.stradaos" "$OUT/CIERRES.txt"; then
+  echo "::error::API $API: StradaOS se cerró o se trabó (ver CIERRES.txt)"
+  exit 1
+fi
+rm -f "$OUT/CIERRES.txt"
+echo "API $API: sin cierres"

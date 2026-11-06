@@ -15,11 +15,11 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
     <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
-    <application android:label="StradaOS" android:icon="@drawable/ic_launcher"
+    <application android:label="${appLabel}" android:icon="@drawable/ic_launcher"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
         android:hardwareAccelerated="true" android:largeHeap="true"
         android:usesCleartextTraffic="true">
-        <activity android:name="com.stradaos.launcher.Main" android:label="StradaOS"
+        <activity android:name="com.stradaos.launcher.Main" android:label="${appLabel}"
             android:launchMode="singleTask" android:stateNotNeeded="true" android:clearTaskOnLaunch="true"
             android:excludeFromRecents="true" android:screenOrientation="unspecified"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"

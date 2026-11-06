@@ -18,6 +18,7 @@ android {
         targetSdk 28
         versionCode 37
         versionName '2.9.8'
+        manifestPlaceholders = [appLabel: 'StradaOS']
     }
 
     signingConfigs {
@@ -38,9 +39,13 @@ android {
             minifyEnabled false
             if (ksPath) signingConfig signingConfigs.release
         }
+        // Versión de prueba: se instala junto a la normal (otro paquete y otro nombre). En GitHub Actions se firma
+        // con la misma llave que la normal para que cada prueba nueva se instale encima de la anterior.
         debug {
             applicationIdSuffix '.debug'
-            versionNameSuffix '-debug'
+            versionNameSuffix '-prueba'
+            manifestPlaceholders = [appLabel: 'StradaOS Prueba']
+            if (ksPath) signingConfig signingConfigs.release
         }
     }
 
