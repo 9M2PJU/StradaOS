@@ -1,6 +1,6 @@
 {
-  "version": "2.9.7",
-  "notes": "## StradaOS 2.9.7 — Registro de fallos y protección en pantallas nuevas\n\n### Nuevo\n- **Registro de fallos** en *Ajustes → Acerca de*: si StradaOS se cierra de forma inesperada o su pantalla deja de responder más de 8 s, queda anotado qué pasó (también en `StradaDiag/fallos.txt` cuando el equipo lo permite). Sirve para corregir fallos en pantallas que no tenemos para probar.\n\n### Protección\n- Si la ventana cambia de tamaño una y otra vez (barras del sistema que aparecen y desaparecen al pedir pantalla completa), StradaOS deja de pedir pantalla completa en vez de reconstruirse sin parar.\n\n### Ayuda\n- Preguntas frecuentes: qué hacer si la pantalla queda en negro (reiniciar y, si se quiere, desinstalar).\n",
-  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.7",
-  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.7/StradaOS-2.9.7.apk"
+  "version": "2.9.8",
+  "notes": "## StradaOS 2.9.8 — El botón «Ajustes» abre los ajustes de tu pantalla\n\n### Corregido\n- **Pantallas con Android 10 o más nuevo:** el botón «Ajustes» de la barra de abajo (y *Ajustes → Sistema → Ajustes del equipo*) ya no abre los Ajustes de Android ocultos, sino la app de ajustes de la marca, la misma que abre el launcher de fábrica. En una pantalla TS10 con Android 14, abrir esos Ajustes ocultos dejaba todas las apps (y la cámara de reversa) en negro hasta reiniciar.\n- Si la pantalla no tiene una app de ajustes reconocible, StradaOS te pide elegirla en vez de abrir los ocultos.\n- En Android 4 a 9 el botón funciona igual que antes.\n",
+  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.8",
+  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.8/StradaOS-2.9.8.apk"
 }
