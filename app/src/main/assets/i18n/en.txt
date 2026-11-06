@@ -1,0 +1,388 @@
+# StradaOS · traducción en. Formato: español<TAB>traducción. Ver I18n.java.
+Radio	Radio
+Cámara	Camera
+Archivos	Files
+Ajustes	Settings
+Música	Music
+Navegación	Navigation
+Navegador	Browser
+Navegador web	Web browser
+Equipo	Head unit
+Elige primero la app de música Bluetooth	First choose the Bluetooth music app
+Música Bluetooth	Bluetooth music
+No se pudo abrir la app	Couldn't open the app
+Mi app	My app
+Mi vehículo	My vehicle
+Toca para poner la foto de tu vehículo	Tap to add a photo of your vehicle
+Velocidad	Speed
+Diagnóstico del mapa	Map diagnostics
+Buscando GPS…	Searching for GPS…
+Buscando GPS	Searching GPS
+En vivo · sin internet	Live · offline
+Última posición · sin internet	Last position · offline
+Mapa en vivo	Live map
+Última posición conocida	Last known position
+Nada sonando	Nothing playing
+Radio, Bluetooth o USB	Radio, Bluetooth or USB
+Internet desde la pantalla	Internet on the screen
+No se pudo abrir «{}». Déjalo presionado para elegir otra app.	Couldn't open “{}”. Long-press it to choose another app.
+Botón {} · {}	Button {} · {}
+Cambiar app o función	Change app or function
+Cambiar el nombre	Rename
+Restablecer ({})	Reset ({})
+Botón restablecido	Button reset
+Cerrar	Close
+Cerrar  ✕	Close  ✕
+★  Funciones de StradaOS (Música, Navegación, Android Auto…)	★  StradaOS functions (Music, Navigation, Android Auto…)
+¿Qué abre el botón {}?	What does button {} open?
+Función del botón {}	Button {} function
+Nombre del botón {} (vacío = el de la app)	Button {} name (empty = the app's name)
+Guardar	Save
+Cancelar	Cancel
+Guardado: {}	Saved: {}
+Elige tu app de música	Choose your music app
+Elige tu app de navegación	Choose your navigation app
+Automático · {}	Automatic · {}
+{}\n    → {}	{}\n    → {}
+Buenos días	Good morning
+Buenas tardes	Good afternoon
+Buenas noches	Good evening
+Diagnóstico del reproductor	Player diagnostics
+Accesibilidad	Accessibility
+Activa «Carátula de Android Auto» (StradaOS)	Turn on “Android Auto album art” (StradaOS)
+No se pudo abrir Accesibilidad	Couldn't open Accessibility
+Activa «Pista actual de AA» en Open Headunit	Turn on “AA current track” in Open Headunit
+«Ninguna aplic. funciona con este accesorio USB»	“No installed apps work with this USB accessory”
+Ese aviso lo causa una app de espejo de fábrica (EasyConnection/CarbitLink) que toma el USB antes que la app que elegiste.\n\n1. Desconecta el celular.\n2. Ajustes → Aplicaciones → EasyConnection → «Borrar datos».\n3. Apaga y enciende el carro.\n4. En Open Headunit → USB, si tu celular aparece como «Ignorado», tócalo para permitirlo.	That message is caused by a factory mirroring app (EasyConnection/CarbitLink) that grabs the USB before the app you chose.\n\n1. Unplug the phone.\n2. Settings → Apps → EasyConnection → “Clear data”.\n3. Turn the car off and on.\n4. In Open Headunit → USB, if your phone shows as “Ignored”, tap it to allow it.
+Abrir EasyConnection	Open EasyConnection
+No hay apps de espejo instaladas	No mirroring apps installed
+Exportando… puede tardar un minuto	Exporting… this can take a minute
+Diagnóstico listo	Diagnostics ready
+Se guardó en:\n{}\n\nCopia la carpeta StradaDiag a una memoria USB y adjúntala en un «issue» del repositorio de StradaOS en GitHub.	Saved to:\n{}\n\nCopy the StradaDiag folder to a USB drive and attach it to an issue in the StradaOS repository on GitHub.
+12 horas	12 hours
+24 horas	24 hours
+Automático	Automatic
+Automática	Automatic
+Auto	Auto
+12 horas (a.m./p.m.)	12 hours (a.m./p.m.)
+Formato de hora	Time format
+Se aplicará al reiniciar StradaOS	Applies when StradaOS restarts
+Rojo	Red
+Naranja	Orange
+Amarillo	Yellow
+Verde	Green
+Turquesa	Teal
+Azul	Blue
+Morado	Purple
+Rosa	Pink
+Plata	Silver
+Bienvenido a StradaOS	Welcome to StradaOS
+Vamos a dejar el launcher a tu gusto: tu nombre, tu vehículo, el color y la foto. Toma menos de un minuto y lo puedes cambiar después en el engranaje ⚙.	Let's set up the launcher your way: your name, your vehicle, the color and the photo. It takes less than a minute and you can change it later with the gear ⚙.
+Empezar	Start
+¿Cómo te llamas?	What's your name?
+Nombre del vehículo (ej.: Mazda 2, Spark GT)	Vehicle name (e.g. Mazda 2, Spark GT)
+Etiqueta corta (versión o placa). Déjalo vacío si no quieres	Short tag (trim or plate). Leave it empty if you don't want one
+Después	Later
+No encontrada	Not found
+¿Qué app abre cada botón?	Which app does each button open?
+Están bien	Looks good
+Siguiente	Next
+Color de acento	Accent color
+Elegir otra foto	Choose another photo
+Quitar la foto	Remove the photo
+Elegir foto	Choose photo
+Foto del vehículo	Vehicle photo
+¿De dónde sacamos la foto?	Where should we get the photo from?
+Consejo: usa una foto del carro de lado o de frente con fondo liso (blanco, gris o cielo). El fondo se quita solo.	Tip: use a side or front photo of the car on a plain background (white, gray or sky). The background is removed automatically.
+Memoria / USB	Storage / USB
+Galería	Gallery
+Elige la foto	Choose the photo
+Buscando fotos…	Looking for photos…
+No encontré fotos (.jpg/.png). Cópialas a la memoria USB o a Download.	No photos found (.jpg/.png). Copy them to the USB drive or to Download.
+Quitando el fondo…	Removing the background…
+No se pudo abrir la imagen	Couldn't open the image
+No se pudo abrir la imagen: {}	Couldn't open the image: {}
+La foto ya trae fondo transparente	The photo already has a transparent background
+No se detectó un fondo liso (se usará tal cual)	No plain background detected (it will be used as is)
+Vista previa · nivel {} de 4	Preview · level {} of 4
+Vista previa · nivel {} de 4 (también quita el reflejo del piso)	Preview · level {} of 4 (also removes the floor reflection)
+Usar esta	Use this one
+Foto guardada	Photo saved
+No se pudo guardar la foto	Couldn't save the photo
+Quitar más fondo	Remove more background
+Quitando más fondo…	Removing more background…
+No es una imagen válida	Not a valid image
+App elegida	Chosen app
+CarPlay necesita un chip de autenticación de Apple dentro del equipo, así que no se puede activar solo con una app.\n\n• Si tu pantalla trae CarPlay integrado, deja presionado este botón y elige su app (ZLink, CarLink, TLink…).\n• Si no, puedes usar un adaptador CarPlay USB para pantallas Android (tipo Carlinkit/AutoKit): instala su app y este botón la abrirá.	CarPlay needs an Apple authentication chip inside the head unit, so it can't be enabled with an app alone.\n\n• If your screen has built-in CarPlay, long-press this button and choose its app (ZLink, CarLink, TLink…).\n• If not, you can use a USB CarPlay adapter for Android screens (Carlinkit/AutoKit style): install its app and this button will open it.
+Entendido	Got it
+Elegir app	Choose app
+Volver al inicio	Back to home
+Tu vehículo	Your vehicle
+Apariencia	Appearance
+Conexión	Connection
+Accesos y apps	Shortcuts & apps
+Mapa y clima	Map & weather
+Sistema	System
+Acerca de	About
+Datos	Details
+Tu nombre	Your name
+Aparece en el saludo de la pantalla de inicio	Shown in the home screen greeting
+Nombre del vehículo	Vehicle name
+Etiqueta	Tag
+Versión o placa. Déjala vacía para ocultarla	Trim or plate. Leave it empty to hide it
+Etiqueta (vacío para ocultarla)	Tag (empty to hide it)
+Foto	Photo
+Se recorta y se le quita el fondo automáticamente	It's cropped and its background removed automatically
+Configurada	Set
+Sin foto	No photo
+Idioma	Language
+Automático: el del sistema	Automatic: the system's language
+Tema	Theme
+Modo	Mode
+Automático: claro de 6 a.m. a 6 p.m.	Automatic: light from 6 a.m. to 6 p.m.
+Oscuro	Dark
+Claro	Light
+Color	Color
+Botones, anillo del reproductor, ruta y etiquetas	Buttons, player ring, route and tags
+Reloj	Clock
+Celular	Phone
+Cómo conectar el celular	How to connect the phone
+La app que se abre al conectar por USB	The app that opens when connecting via USB
+Preguntar	Ask
+App de Android Auto	Android Auto app
+Botón naranja de la tarjeta central	Orange button on the center card
+App de CarPlay	CarPlay app
+Requiere pantalla con CarPlay o un adaptador	Needs a screen with CarPlay or an adapter
+Ninguna	None
+Ninguno	None
+Ayuda	Help
+El celular dice «Ninguna aplic. funciona…»	The phone says “No installed apps work…”
+Cómo evitar que EasyConnection tome el USB	How to stop EasyConnection from grabbing the USB
+Barra inferior (déjalos presionados en el inicio para cambiarlos)	Bottom bar (long-press them on the home screen to change them)
+App: {}	App: {}
+Función: {}	Function: {}
+Apps preferidas	Preferred apps
+Se abre al tocar el reproductor	Opens when you tap the player
+Toca para elegir	Tap to choose
+Se abre con el botón del mapa	Opens with the map button
+Apps de cada función	App for each function
+La app que hace sonar el Bluetooth (se usa para pasar el sonido)	The app that plays Bluetooth audio (used to switch the sound)
+Revisar todos los botones	Review all buttons
+Lista rápida de qué abre cada uno, como en el asistente	Quick list of what each one opens, like in the setup wizard
+Restablecer	Reset
+Restablecer accesos	Reset shortcuts
+La barra vuelve a lo de siempre y se buscan las apps de fábrica	The bar goes back to default and factory apps are searched again
+Accesos restablecidos	Shortcuts reset
+Clima	Weather
+Mostrar el clima	Show the weather
+Arriba, junto al saludo (necesita internet)	At the top, next to the greeting (needs internet)
+Unidad	Unit
+Ciudad	City
+Vacío = automática por GPS	Empty = automatic via GPS
+{} (GPS)	{} (GPS)
+Ciudad (vacío = automática por GPS)	City (empty = automatic via GPS)
+App de navegación preferida	Preferred navigation app
+Se abre con el botón del mapa (Waze, Maps, OsmAnd…)	Opens with the map button (Waze, Maps, OsmAnd…)
+Mapa	Map
+Brillo del mapa	Map brightness
+Solo en modo oscuro	Dark mode only
+Bajo	Low
+Medio	Medium
+Alto	High
+Fuentes probadas y errores	Sources tried and errors
+Mapa no disponible	Map unavailable
+Fuente del mapa (avanzado)	Map source (advanced)
+URL propia con {z}/{x}/{y}	Custom URL with {z}/{x}/{y}
+Personalizada	Custom
+URL de teselas {z}/{x}/{y} (vacío = automático)	Tile URL {z}/{x}/{y} (empty = automatic)
+© colaboradores de OpenStreetMap	© OpenStreetMap contributors
+App de música	Music app
+App de música preferida	Preferred music app
+Se abre al tocar el reproductor del inicio	Opens when you tap the player on the home screen
+Pista en reproducción	Now playing
+Carátula de Android Auto	Android Auto album art
+Lee la notificación de Open Headunit (accesibilidad)	Reads the Open Headunit notification (accessibility)
+Activada	On
+Desactivada	Off
+Activado	On
+Desactivado	Off
+Música de cualquier app	Music from any app
+Android 5+: acceso a notificaciones	Android 5+: notification access
+No se pudo abrir el ajuste	Couldn't open the setting
+Fuente activa, lector de notificaciones y Bluetooth	Active source, notification reader and Bluetooth
+Audio Bluetooth	Bluetooth audio
+Volver al Bluetooth al desconectar Android Auto	Back to Bluetooth when Android Auto disconnects
+Al quitar el cable, abre un instante la app de música Bluetooth para que el sonido siga por Bluetooth	When the cable is unplugged, briefly opens the Bluetooth music app so the sound keeps playing over Bluetooth
+Escuchar el Bluetooth	Listen to Bluetooth
+En esta pantalla, toca ▶ en el inicio: StradaOS pasa el sonido a Bluetooth (por ejemplo, si venías de la radio)	On this screen, tap ▶ on the home screen: StradaOS switches the sound to Bluetooth (for example, coming from the radio)
+Pasar a Bluetooth al dar play en el celular (en prueba)	Switch to Bluetooth when you press play on the phone (beta)
+Abre un instante «Audio Bluetooth» y vuelve. En algunas pantallas no detecta el play del celular	Briefly opens “Bluetooth audio” and comes back. Some screens don't detect play from the phone
+Probar ahora	Try now
+Abre «Audio Bluetooth» un instante y vuelve al inicio	Briefly opens “Bluetooth audio” and returns home
+Abrir la app de música Bluetooth al conectar el celular	Open the Bluetooth music app when the phone connects
+Para pantallas que solo dejan sonar el Bluetooth con su app abierta: la abre un momento y vuelve al inicio	For screens that only play Bluetooth with their app open: opens it for a moment and returns home
+App de música Bluetooth	Bluetooth music app
+La que hace sonar el Bluetooth en esta pantalla	The one that plays Bluetooth on this screen
+Tiempo antes de volver al inicio	Time before returning home
+Súbelo si el audio se corta al volver	Raise it if the audio cuts out when returning
+Abre la app de música Bluetooth y vuelve al inicio	Opens the Bluetooth music app and returns home
+Avanzado	Advanced
+Avisos extra de música	Extra music broadcasts
+Nombres de avisos (broadcast) de otros equipos	Broadcast names from other head units
+Configurados	Set
+Acciones de aviso extra (separadas por coma)	Extra broadcast actions (comma separated)
+Ajustes del equipo	Head unit settings
+Los ajustes de la pantalla (los de la marca si los tiene)	The screen's settings (the brand's own, if any)
+Asistente de configuración inicial	Setup wizard
+Nombre, vehículo, color y foto	Name, vehicle, color and photo
+Compatibilidad	Compatibility
+Qué funciona en esta pantalla	What works on this screen
+Cada función, desde qué Android sirve y su estado aquí	Each feature, the Android version it needs and its status here
+Soporte	Support
+Exportar diagnóstico	Export diagnostics
+Guarda información de las apps de audio en la memoria interna	Saves information about the audio apps to internal storage
+Esta pantalla:	This screen:
+Ojo: la pantalla dice Android {}, pero por dentro es {}.	Note: the screen says Android {}, but inside it's {}.
+Requiere:	Requires:
+Aquí:	Here:
+Inicio, mapa, clima, velocímetro	Home, map, weather, speedometer
+Pista y carátula por Bluetooth	Track and album art over Bluetooth
+app Bluetooth de fábrica detectada	factory Bluetooth app detected
+depende de la marca	depends on the brand
+Botón ▶ del inicio pasa el sonido a Bluetooth	Home ▶ button switches the sound to Bluetooth
+Pantallas Clinkway / Autochips	Clinkway / Autochips screens
+funciona aunque vengas de la radio	works even coming from the radio
+en otras marcas: «Abrir la app de música Bluetooth al conectar»	on other brands: “Open the Bluetooth music app when the phone connects”
+activado	on
+activada	on
+desactivado; en algunas pantallas no detecta el play del celular	off; some screens don't detect play from the phone
+Carátula de Android Auto (Open Headunit)	Android Auto album art (Open Headunit)
+Android 4.1+ · accesibilidad	Android 4.1+ · accessibility
+falta activar la accesibilidad	accessibility not turned on yet
+Música de cualquier app (Spotify, YouTube…)	Music from any app (Spotify, YouTube…)
+falta dar acceso a notificaciones	notification access not granted yet
+no disponible en {}	not available on {}
+Android Auto con Open Headunit	Android Auto with Open Headunit
+Android 4.1+ · cable USB	Android 4.1+ · USB cable
+Open Headunit instalado	Open Headunit installed
+falta instalar Open Headunit	Open Headunit not installed yet
+Android Auto / CarPlay de la pantalla	Screen's own Android Auto / CarPlay
+Si la pantalla lo trae	If the screen has it
+no detectado	not detected
+Pantalla con CarPlay o adaptador USB	Screen with CarPlay or USB adapter
+Mapa con internet seguro (TLS 1.2)	Map with secure internet (TLS 1.2)
+Android 4.1+ (StradaOS lo activa)	Android 4.1+ (StradaOS enables it)
+en Android 4.x solo algunos servidores de mapas responden	on Android 4.x only some map servers respond
+Instalar actualizaciones desde la app	Install updates from the app
+pide permiso «Instalar apps desconocidas»	asks for “Install unknown apps” permission
+No hay fallos registrados	No crashes logged
+Registro de fallos	Crash log
+Borrar	Clear
+Registro borrado	Log cleared
+Gratis y de código abierto. Una nueva vida para las pantallas Android del carro.	Free and open source. A new life for Android car screens.
+Versión	Version
+Android de la pantalla	Screen's Android
+Real: {} · ver qué funciona aquí	Actual: {} · see what works here
+Cierres inesperados o bloqueos de StradaOS en esta pantalla	Unexpected crashes or freezes of StradaOS on this screen
+Sin fallos	No crashes
+Ver	View
+Actualizaciones	Updates
+Instalado desde {}	Installed from {}
+Las actualizaciones llegan por esa app	Updates arrive through that app
+Avisar también de versiones en GitHub	Also notify about versions on GitHub
+Comprobar actualizaciones automáticamente	Check for updates automatically
+Opcional: las descargas de GitHub no pasan por la revisión de la tienda	Optional: GitHub downloads don't go through the store's review
+Al abrir StradaOS con internet, una vez al día	When StradaOS opens with internet, once a day
+Actualizaciones desde GitHub	Updates from GitHub
+Instalaste StradaOS desde {}. Si activas esto, StradaOS revisará una vez al día las versiones publicadas en github.com/{} y te ofrecerá descargarlas desde ahí.\n\nEsas descargas no pasan por la revisión de la tienda. Puede que GitHub tenga una versión un poco antes que la tienda.	You installed StradaOS from {}. If you turn this on, StradaOS will check the versions published at github.com/{} once a day and offer to download them from there.\n\nThose downloads don't go through the store's review. GitHub may have a version a little before the store.
+Activar	Turn on
+Canal de actualizaciones	Update channel
+Buscar actualizaciones	Check for updates
+Aún no se ha comprobado	Not checked yet
+Última comprobación: {}	Last checked: {}
+Comunidad	Community
+Dar una estrella en GitHub	Star it on GitHub
+Ayuda a que más personas encuentren StradaOS	Helps more people find StradaOS
+Dar una estrella ⭐	Give it a star ⭐
+Abre el repositorio y toca «Star». ¡Gracias!	Open the repository and tap “Star”. Thanks!
+Donar	Donate
+Si StradaOS revivió tu pantalla, invítame un café	If StradaOS brought your screen back to life, buy me a coffee
+Apoya el proyecto ☕	Support the project ☕
+StradaOS es gratis. Las donaciones ayudan a mantenerlo y a probarlo en más pantallas.	StradaOS is free. Donations help maintain it and test it on more screens.
+Reportar un problema o sugerir algo	Report a problem or suggest something
+Crea un «issue» en GitHub (adjunta el diagnóstico)	Create an issue on GitHub (attach the diagnostics)
+Reportar un problema	Report a problem
+Cuenta tu modelo de pantalla y su versión de Android. Puedes adjuntar la carpeta StradaDiag (Sistema → Exportar diagnóstico).	Tell us your screen model and its Android version. You can attach the StradaDiag folder (System → Export diagnostics).
+Código fuente	Source code
+Licencia GPL-3.0	GPL-3.0 license
+Créditos y licencias	Credits & licenses
+Licencia	License
+Mapas	Maps
+© colaboradores de OpenStreetMap, OpenTopoMap, Esri	© OpenStreetMap contributors, OpenTopoMap, Esri
+Open Headunit (GPL-3.0) · Android Auto es marca de Google	Open Headunit (GPL-3.0) · Android Auto is a Google trademark
+Códigos QR	QR codes
+Íconos	Icons
+Certificados raíz	Root certificates
+Buscando actualizaciones…	Checking for updates…
+No se pudo comprobar	Couldn't check
+Esta pantalla no logró conectarse con GitHub ({}). Puedes revisar las versiones desde tu celular:	This screen couldn't connect to GitHub ({}). You can check the versions from your phone:
+Tienes la última versión ({})	You have the latest version ({})
+Fuentes consultadas:\n{}	Sources checked:\n{}
+cifrado no compatible	incompatible encryption
+sin internet	no internet
+sin internet / DNS	no internet / DNS
+tiempo agotado	timed out
+error de red	network error
+tu tienda de apps	your app store
+Tienes la {} · nueva: {}	You have {} · new: {}
+Mejoras y correcciones.	Improvements and fixes.
+Nueva versión de StradaOS	New StradaOS version
+Tienes la {} · en GitHub: {}\nActualiza desde {} cuando llegue. Descargar de GitHub omite la revisión de la tienda.	You have {} · on GitHub: {}\nUpdate from {} when it arrives. Downloading from GitHub skips the store's review.
+Ver en GitHub	View on GitHub
+Descarga desde GitHub:	Download from GitHub:
+Descargar e instalar	Download and install
+Descarga la nueva versión desde:	Download the new version from:
+Omitir esta versión	Skip this version
+Más tarde	Later
+Descargando StradaOS {}…	Downloading StradaOS {}…
+Descárgala desde tu celular	Download it from your phone
+Esta pantalla no pudo descargar el archivo. Escanea el código, descarga el APK y pásalo por USB.	This screen couldn't download the file. Scan the code, download the APK and copy it via USB.
+¿Disfrutando StradaOS?	Enjoying StradaOS?
+Si te gusta usar StradaOS, dale una estrella en GitHub. Y si revivió tu pantalla, considera invitarme un café ☕	If you like using StradaOS, give it a star on GitHub. And if it brought your screen back to life, consider buying me a coffee ☕
+Dar una estrella	Give a star
+StradaOS es gratis. Las donaciones ayudan a mantenerlo.	StradaOS is free. Donations help maintain it.
+Escanéalo con la cámara de tu celular o entra a:	Scan it with your phone's camera or go to:
+Abrir aquí	Open here
+No hay navegador disponible	No browser available
+Open Headunit · USB	Open Headunit · USB
+Toca para instalar	Tap to install
+Pantalla o adaptador	Screen or adapter
+Elige la app de ajustes de tu pantalla	Choose your screen's settings app
+No se pudieron abrir los ajustes	Couldn't open settings
+No encontré la app de {}. Elígela de la lista.	Couldn't find the {} app. Choose it from the list.
+↺  Automático (por defecto)	↺  Automatic (default)
+¿Qué app abre «{}»?	Which app opens “{}”?
+Restablecido	Reset
+Esta pantalla no trae Android Auto integrado.\n\nInstala la app gratuita «Open Headunit» (github.com/andreknieriem/headunit-revived): copia su APK en la memoria USB o en Download y vuelve a tocar el botón. Luego conecta el celular por cable USB.	This screen doesn't have built-in Android Auto.\n\nInstall the free app “Open Headunit” (github.com/andreknieriem/headunit-revived): copy its APK to the USB drive or to Download and tap the button again. Then connect the phone with a USB cable.
+Android Auto por cable USB (necesita la app Android Auto en el celular)	Android Auto via USB cable (needs the Android Auto app on the phone)
+Espejo de pantalla (necesita la app CarbitLink en el celular)	Screen mirroring (needs the CarbitLink app on the phone)
+Android Auto / CarPlay integrados en la pantalla	Android Auto / CarPlay built into the screen
+Otra app…	Another app…
+¿Cómo quieres conectar tu celular?	How do you want to connect your phone?
+Conexión: {}. Cámbiala dejando presionado el botón.	Connection: {}. Change it by long-pressing the button.
+el navegador	the browser
+«{}» necesita un Android más nuevo que el de esta pantalla. Abro el navegador de fábrica.	“{}” needs a newer Android than this screen has. Opening the factory browser.
+No encontré un navegador. Déjalo presionado para elegir uno.	No browser found. Long-press it to choose one.
+Permite «Instalar apps desconocidas» para StradaOS y vuelve a tocar.	Allow “Install unknown apps” for StradaOS and tap again.
+Activa «Orígenes desconocidos» y vuelve a tocar.	Turn on “Unknown sources” and tap again.
+No se pudo preparar {}	Couldn't prepare {}
+No se pudo abrir el instalador para {}	Couldn't open the installer for {}
+Aplicaciones  ·  Android {} (API {})	Apps  ·  Android {} (API {})
+Despejado	Clear
+Parcialmente nublado	Partly cloudy
+Nublado	Cloudy
+Niebla	Fog
+Llovizna	Drizzle
+Lluvia	Rain
+Nieve	Snow
+Tormenta	Storm

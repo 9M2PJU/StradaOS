@@ -65,7 +65,7 @@ public class Weather {
         String name = null;
         try {
             if (Geocoder.isPresent()) {
-                List<Address> a = new Geocoder(c, new Locale("es")).getFromLocation(lat, lon, 1);
+                List<Address> a = new Geocoder(c, new Locale(I18n.lang)).getFromLocation(lat, lon, 1);
                 if (a != null && !a.isEmpty()) {
                     name = a.get(0).getLocality();
                     if (name == null) name = a.get(0).getSubAdminArea();
@@ -74,7 +74,7 @@ public class Weather {
         } catch (Throwable ignored) { }
         if (name == null) {
             String q = String.format(Locale.US,
-                    "api.bigdatacloud.net/data/reverse-geocode-client?latitude=%.4f&longitude=%.4f&localityLanguage=es", lat, lon);
+                    "api.bigdatacloud.net/data/reverse-geocode-client?latitude=%.4f&longitude=%.4f&localityLanguage=%s", lat, lon, I18n.lang);
             for (String scheme : new String[]{"https://", "http://"}) {
                 try {
                     JSONObject o = new JSONObject(new String(Net.get(scheme + q, 8000), "UTF-8"));

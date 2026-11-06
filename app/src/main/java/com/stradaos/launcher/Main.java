@@ -143,6 +143,7 @@ public class Main extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().setBackgroundDrawable(new ColorDrawable(BG));
         prefs = getSharedPreferences("launcher", MODE_PRIVATE);
+        I18n.init(this, prefs);
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (getPackageName().endsWith(".debug") && getIntent() != null && "saltar".equals(getIntent().getStringExtra("prueba")))
             prefs.edit().putBoolean("setup_done", true).apply();
@@ -425,13 +426,16 @@ public class Main extends Activity {
      * Solo en la versión de prueba (paquete .debug): permite que las pruebas automáticas abran cada pantalla
      * sin tocar coordenadas. adb shell am start -n com.stradaos.launcher.debug/com.stradaos.launcher.Main --es prueba VALOR
      * VALOR: saltar (omite el asistente), inicio, ajustes:N, boton:N (menú del botón N), elegir:N (lista de apps del botón N),
-     * cajon (todas las apps), musica (lista de música preferida), asistente, demo-barra (cambia los botones 3 y 4).
+     * cajon (todas las apps), musica (lista de música preferida), asistente, demo-barra (cambia los botones 3 y 4), idioma:es|en|pt|auto.
      */
     private void testHook(Intent i) {
         if (i == null || !getPackageName().endsWith(".debug")) return;
         final String v = i.getStringExtra("prueba");
         if (v == null) return;
-        if ("saltar".equals(v)) { prefs.edit().putBoolean("setup_done", true).apply(); }
+        if ("saltar".equals(v)) {
+            prefs.edit().putBoolean("setup_done", true).apply();
+            try { if (wizardDlg != null) wizardDlg.dismiss(); } catch (Throwable ignored) { }
+        }
         h.postDelayed(new Runnable() { public void run() {
             try {
                 if (settingsView != null) closeSettings();
@@ -442,6 +446,7 @@ public class Main extends Activity {
                 else if ("cajon".equals(v)) openDrawer();
                 else if ("musica".equals(v)) pickFor("music_app", "Música", null);
                 else if ("asistente".equals(v)) wizard();
+                else if (v.startsWith("idioma:")) setLanguage(v.substring(7));
                 else if ("demo-barra".equals(v) && !apps.isEmpty()) {
                     ResolveInfo r = apps.get(0);
                     prefs.edit().putString("dock_2", "fn:music")
@@ -735,7 +740,7 @@ public class Main extends Activity {
         });
         liveMap.setOnLongClickListener(new View.OnLongClickListener() {
             public boolean onLongClick(View v) {
-                new AlertDialog.Builder(Main.this, dlg())
+                new TB(Main.this, dlg())
                     .setTitle("Diagnóstico del mapa").setMessage(liveMap.diag())
                     .setPositiveButton("OK", null).show();
                 return true;
@@ -835,9 +840,9 @@ public class Main extends Activity {
     private void updateMapTag() {
         if (mapTagTv == null) return;
         boolean live = lastFix > 0;
-        if (liveMap == null || !liveMap.hasFix()) mapTagTv.setText("Buscando GPS…");
-        else if (liveMap.offline()) mapTagTv.setText(live ? "En vivo · sin internet" : "Última posición · sin internet");
-        else mapTagTv.setText(live ? "Mapa en vivo" : "Última posición conocida");
+        if (liveMap == null || !liveMap.hasFix()) mapTagTv.setText(I18n.t("Buscando GPS…"));
+        else if (liveMap.offline()) mapTagTv.setText(I18n.t(live ? "En vivo · sin internet" : "Última posición · sin internet"));
+        else mapTagTv.setText(I18n.t(live ? "Mapa en vivo" : "Última posición conocida"));
     }
 
     private void buildAudioCard() {
@@ -1017,7 +1022,7 @@ public class Main extends Activity {
     /** Menú del botón N: cambiar app o función, cambiar nombre, volver a lo de siempre. */
     private void dockMenu(final int i, final Runnable after) {
         final String def = dockFn(DOCK_DEFAULT[i])[1];
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Botón " + (i + 1) + " · " + dockName(i))
             .setItems(new String[]{"Cambiar app o función", "Cambiar el nombre", "Restablecer (" + ("web".equals(DOCK_DEFAULT[i]) ? "Navegador" : def) + ")"},
                 new DialogInterface.OnClickListener() {
@@ -1065,7 +1070,7 @@ public class Main extends Activity {
         int pad = (int) (20 * s);
         wrap.setPadding(pad, pad / 2, pad, 0);
         wrap.addView(et);
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Nombre del botón " + (i + 1) + " (vacío = el de la app)")
             .setView(wrap)
             .setPositiveButton("Guardar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
@@ -1120,7 +1125,7 @@ public class Main extends Activity {
                 return row;
             }
         };
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle(title)
             .setAdapter(ad, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int which) {
@@ -1190,7 +1195,7 @@ public class Main extends Activity {
 
     private TextView tv(String t, float size, int color, boolean medium) {
         TextView v = new TextView(this);
-        v.setText(t);
+        v.setText(I18n.t(t));
         v.setTextColor(color);
         v.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * s);
         v.setIncludeFontPadding(false);
@@ -1267,7 +1272,7 @@ public class Main extends Activity {
     }
 
     private void toast(String m) {
-        Toast.makeText(this, m, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, I18n.t(m), Toast.LENGTH_LONG).show();
     }
 
     // ───────────────────────── reloj, GPS, audio ─────────────────────────
@@ -1277,11 +1282,11 @@ public class Main extends Activity {
         Date now = new Date();
         String fmt = prefs.getString("clock", "auto");
         boolean h24 = "24".equals(fmt) || ("auto".equals(fmt) && android.text.format.DateFormat.is24HourFormat(this));
-        timeTv.setText(new SimpleDateFormat(h24 ? "HH:mm" : "h:mm a", ES).format(now));
-        String d = new SimpleDateFormat("EEEE, d 'de' MMMM", ES).format(now);
-        dateTv.setText(d.substring(0, 1).toUpperCase(ES) + d.substring(1));
+        timeTv.setText(new SimpleDateFormat(h24 ? "HH:mm" : "h:mm a", I18n.loc).format(now));
+        String d = new SimpleDateFormat(I18n.datePattern(), I18n.loc).format(now);
+        dateTv.setText(d.substring(0, 1).toUpperCase(I18n.loc) + d.substring(1));
         int hr = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        String saludo = hr >= 5 && hr < 12 ? "Buenos días" : (hr >= 12 && hr < 19 ? "Buenas tardes" : "Buenas noches");
+        String saludo = I18n.t(hr >= 5 && hr < 12 ? "Buenos días" : (hr >= 12 && hr < 19 ? "Buenas tardes" : "Buenas noches"));
         String nombre = prefs.getString("user_name", "").trim();
         greetTv.setText(nombre.length() > 0 ? saludo + ", " + nombre : saludo);
     }
@@ -1323,7 +1328,7 @@ public class Main extends Activity {
         if (speedTv == null) return;
         if (!ok) lastFix = 0;
         speedTv.setText(ok ? String.valueOf(Math.round(kmh < 2 ? 0 : kmh)) : "--");
-        gpsTv.setText(ok ? "GPS" : "Buscando GPS");
+        gpsTv.setText(ok ? "GPS" : I18n.t("Buscando GPS"));
         gpsDot.setBackground(round(ok ? 0xFF3DDC84 : MUTED, 4));
         updateMapTag();
     }
@@ -1584,7 +1589,7 @@ public class Main extends Activity {
                 + "\nSonido en Bluetooth (estimado): " + (btRouted ? "sí" : "no") + " · app al frente: " + topPackage()
                 + "\nActivaciones: " + BtBridge.activations
                 + "\n\nEventos Bluetooth:\n" + BtBridge.logText();
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Diagnóstico del reproductor")
             .setMessage(msg)
             .setPositiveButton("OK", null)
@@ -1618,8 +1623,8 @@ public class Main extends Activity {
     private void renderTrack() {
         if (trackTv == null) return;
         if (curTitle == null && curArtist == null) {
-            trackTv.setText("Nada sonando");
-            artistTv.setText("Radio, Bluetooth o USB");
+            trackTv.setText(I18n.t("Nada sonando"));
+            artistTv.setText(I18n.t("Radio, Bluetooth o USB"));
             sourceTv.setText("");
             timePosTv.setText("");
             playerArt.setArt(null);
@@ -1627,9 +1632,9 @@ public class Main extends Activity {
         } else {
             boolean aaOff = curSource != null && curSource.toLowerCase(ES).contains("headunit")
                     && ("Conectado".equalsIgnoreCase(curArtist) || "Connected".equalsIgnoreCase(curArtist));
-            trackTv.setText(curTitle != null ? curTitle : (curSource != null ? curSource : ""));
-            artistTv.setText(aaOff ? "Activa «Pista actual de AA» en Open Headunit" : (curArtist != null ? curArtist : ""));
-            sourceTv.setText(curSource != null ? curSource.toUpperCase(ES) : "");
+            trackTv.setText(curTitle != null ? curTitle : (curSource != null ? I18n.t(curSource) : ""));
+            artistTv.setText(aaOff ? I18n.t("Activa «Pista actual de AA» en Open Headunit") : (curArtist != null ? curArtist : ""));
+            sourceTv.setText(curSource != null ? I18n.t(curSource).toUpperCase(I18n.loc) : "");
             playerArt.setArt(curArt);
             updateProgress();
         }
@@ -1667,7 +1672,7 @@ public class Main extends Activity {
     private void openSettings() { showSettings(1); }
 
     private void usbHelp() {
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("«Ninguna aplic. funciona con este accesorio USB»")
             .setMessage("Ese aviso lo causa una app de espejo de fábrica (EasyConnection/CarbitLink) que toma el USB antes que la app que elegiste.\n\n1. Desconecta el celular.\n2. Ajustes → Aplicaciones → EasyConnection → «Borrar datos».\n3. Apaga y enciende el carro.\n4. En Open Headunit → USB, si tu celular aparece como «Ignorado», tócalo para permitirlo.")
             .setPositiveButton("Abrir EasyConnection", new DialogInterface.OnClickListener() {
@@ -1689,7 +1694,7 @@ public class Main extends Activity {
                 final String r = Diag.export(Main.this);
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        new AlertDialog.Builder(Main.this, dlg())
+                        new TB(Main.this, dlg())
                             .setTitle("Diagnóstico listo")
                             .setMessage("Se guardó en:\n" + r + "\n\nCopia la carpeta StradaDiag a una memoria USB y adjúntala en un «issue» del repositorio de StradaOS en GitHub.")
                             .setPositiveButton("OK", null).show();
@@ -1707,7 +1712,7 @@ public class Main extends Activity {
     private void chooseClock() {
         final String[] opts = {"Automático", "12 horas (a.m./p.m.)", "24 horas"};
         final String[] vals = {"auto", "12", "24"};
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Formato de hora")
             .setItems(opts, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int w) {
@@ -1726,7 +1731,7 @@ public class Main extends Activity {
         int pad = (int) (20 * s);
         wrap.setPadding(pad, pad / 2, pad, 0);
         wrap.addView(et);
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle(title)
             .setView(wrap)
             .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
@@ -1779,8 +1784,33 @@ public class Main extends Activity {
         }
     }
 
+    /** Cambia el idioma («auto», «es», «en», «pt») y reconstruye la pantalla. */
+    private void setLanguage(String code) {
+        prefs.edit().putString("lang", code).apply();
+        I18n.set(this, "auto".equals(code) ? I18n.system() : code);
+        rebuild();
+    }
+
+    /** Primer paso del asistente: idioma (preseleccionado el del sistema). */
     private void wizard() {
-        new AlertDialog.Builder(this, dlg())
+        String cur = I18n.lang;
+        int sel = "en".equals(cur) ? 1 : "pt".equals(cur) ? 2 : 0;
+        wizardDlg = new android.app.AlertDialog.Builder(this, dlg())
+            .setTitle("Idioma · Language · Idioma")
+            .setSingleChoiceItems(I18n.NAMES, sel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface d, int w) {
+                    d.dismiss();
+                    setLanguage(I18n.CODES[w]);
+                    wizardWelcome();
+                }
+            })
+            .setCancelable(false)
+            .show();
+    }
+    private android.app.Dialog wizardDlg;
+
+    private void wizardWelcome() {
+        new TB(this, dlg())
             .setTitle("Bienvenido a StradaOS")
             .setMessage("Vamos a dejar el launcher a tu gusto: tu nombre, tu vehículo, el color y la foto. Toma menos de un minuto y lo puedes cambiar después en el engranaje ⚙.")
             .setPositiveButton("Empezar", new DialogInterface.OnClickListener() {
@@ -1830,7 +1860,7 @@ public class Main extends Activity {
     private void reviewShortcuts(final Runnable next) {
         final String[] items = new String[REVIEW.length];
         for (int i = 0; i < REVIEW.length; i++) items[i] = REVIEW[i][1] + "\n    → " + shortcutLabel(REVIEW[i][0]);
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("¿Qué app abre cada botón?")
             .setItems(items, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, final int w) {
@@ -1853,7 +1883,7 @@ public class Main extends Activity {
         int pad = (int) (20 * s);
         wrap.setPadding(pad, pad / 2, pad, 0);
         wrap.addView(et);
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle(title)
             .setView(wrap)
             .setCancelable(false)
@@ -1867,7 +1897,7 @@ public class Main extends Activity {
     }
 
     private void chooseAccent(final Runnable next) {
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Color de acento")
             .setAdapter(new BaseAdapter() {
                 public int getCount() { return ACCENT_NAMES.length; }
@@ -1907,7 +1937,7 @@ public class Main extends Activity {
     private void photoMenu() {
         final boolean has = CarPhoto.load(this) != null;
         String[] opts = has ? new String[]{"Elegir otra foto", "Quitar la foto"} : new String[]{"Elegir foto"};
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Foto del vehículo")
             .setItems(opts, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int w) {
@@ -1918,7 +1948,7 @@ public class Main extends Activity {
     }
 
     private void pickPhoto() {
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("¿De dónde sacamos la foto?")
             .setMessage("Consejo: usa una foto del carro de lado o de frente con fondo liso (blanco, gris o cielo). El fondo se quita solo.")
             .setPositiveButton("Memoria / USB", new DialogInterface.OnClickListener() {
@@ -1968,7 +1998,7 @@ public class Main extends Activity {
                         final int n = Math.min(found.size(), 80);
                         String[] names = new String[n];
                         for (int i = 0; i < n; i++) names[i] = found.get(i).getName() + "  ·  " + found.get(i).getParentFile().getName();
-                        new AlertDialog.Builder(Main.this, dlg())
+                        new TB(Main.this, dlg())
                             .setTitle("Elige la foto")
                             .setItems(names, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface d, int w) {
@@ -2047,7 +2077,7 @@ public class Main extends Activity {
         String title = already ? "La foto ya trae fondo transparente"
                 : cut == null ? "No se detectó un fondo liso (se usará tal cual)"
                 : "Vista previa · nivel " + (strength + 1) + " de 4" + (strength >= 2 ? " (también quita el reflejo del piso)" : "");
-        AlertDialog.Builder b = new AlertDialog.Builder(this, dlg())
+        AlertDialog.Builder b = new TB(this, dlg())
             .setTitle(title)
             .setView(box)
             .setPositiveButton("Usar esta", new DialogInterface.OnClickListener() {
@@ -2087,7 +2117,7 @@ public class Main extends Activity {
             TextView t = tv(msg, 16, TEXT, false);
             t.setPadding(pad, 0, 0, 0);
             l.addView(t);
-            d = new AlertDialog.Builder(Main.this, dlg()).setView(l).setCancelable(false).create();
+            d = new TB(Main.this, dlg()).setView(l).setCancelable(false).create();
             d.show();
         }
         void dismiss() { try { d.dismiss(); } catch (Throwable ignored) { } }
@@ -2125,7 +2155,7 @@ public class Main extends Activity {
         if (launchSaved("carplay")) return;
         String p = nativeProjectionApp();
         if (p != null && launchPkg(p)) return;
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Apple CarPlay")
             .setMessage("CarPlay necesita un chip de autenticación de Apple dentro del equipo, así que no se puede activar solo con una app.\n\n• Si tu pantalla trae CarPlay integrado, deja presionado este botón y elige su app (ZLink, CarLink, TLink…).\n• Si no, puedes usar un adaptador CarPlay USB para pantallas Android (tipo Carlinkit/AutoKit): instala su app y este botón la abrirá.")
             .setPositiveButton("Entendido", null)
@@ -2175,7 +2205,7 @@ public class Main extends Activity {
         weatherBox.setVisibility(View.VISIBLE);
         weatherIc.setImageBitmap(asset("ic/" + Weather.icon(weatherNow.code, weatherNow.day) + ".png"));
         weatherTv.setText(Math.round(weatherNow.temp) + "°" + weatherNow.unit);
-        weatherCityTv.setText(weatherNow.city != null ? weatherNow.city : Weather.describe(weatherNow.code));
+        weatherCityTv.setText(weatherNow.city != null ? weatherNow.city : I18n.t(Weather.describe(weatherNow.code)));
     }
 
     // ───────────────────────── panel de ajustes ─────────────────────────
@@ -2277,7 +2307,7 @@ public class Main extends Activity {
     // ── piezas de diseño ──
 
     private LinearLayout section(LinearLayout body, String name) {
-        TextView h2 = tv(name.toUpperCase(ES), 11, MUTED, true);
+        TextView h2 = tv(I18n.t(name).toUpperCase(I18n.loc), 11, MUTED, true);
         h2.setPadding((int) (6 * s), (int) (10 * s), 0, (int) (8 * s));
         body.addView(h2);
         LinearLayout card = new LinearLayout(this);
@@ -2388,6 +2418,13 @@ public class Main extends Activity {
     }
 
     private void catLook(LinearLayout body) {
+        LinearLayout lg = section(body, "Idioma");
+        String lp = I18n.pref(prefs);
+        int lsel = "es".equals(lp) ? 1 : "en".equals(lp) ? 2 : "pt".equals(lp) ? 3 : 0;
+        segmented(lg, "Idioma", "Automático: el del sistema", new String[]{"Auto", "Español", "English", "Português"}, lsel, new IntCb() { public void on(int i) {
+            setLanguage(i == 0 ? "auto" : I18n.CODES[i - 1]);
+            showSettings(2);
+        }});
         LinearLayout c = section(body, "Tema");
         String t = prefs.getString("theme", "dark");
         segmented(c, "Modo", "Automático: claro de 6 a.m. a 6 p.m.", new String[]{"Oscuro", "Claro", "Automático"},
@@ -2491,7 +2528,7 @@ public class Main extends Activity {
             prefs.edit().putInt("map_bright", i).apply(); rebuild();
         }});
         row(m, "Diagnóstico del mapa", "Fuentes probadas y errores", null, new Runnable() { public void run() {
-            new AlertDialog.Builder(Main.this, dlg()).setTitle("Diagnóstico del mapa")
+            new TB(Main.this, dlg()).setTitle("Diagnóstico del mapa")
                 .setMessage(liveMap != null ? liveMap.diag() : "Mapa no disponible").setPositiveButton("OK", null).show();
         }});
         row(m, "Fuente del mapa (avanzado)", "URL propia con {z}/{x}/{y}", prefs.getString("map_url", "").length() > 0 ? "Personalizada" : "Automática",
@@ -2560,10 +2597,10 @@ public class Main extends Activity {
     /** Tabla de compatibilidad: qué función sirve desde qué Android o marca de pantalla, y cómo está aquí. */
     private void showCompat() {
         StringBuilder b = new StringBuilder();
-        b.append("Esta pantalla: Android ").append(android.os.Build.VERSION.RELEASE).append(" (API ").append(SDK).append(")")
+        b.append(I18n.t("Esta pantalla:")).append(" Android ").append(android.os.Build.VERSION.RELEASE).append(" (API ").append(SDK).append(")")
          .append(" · ").append(android.os.Build.MANUFACTURER).append(" ").append(android.os.Build.MODEL).append("\n");
         if (!android.os.Build.VERSION.RELEASE.startsWith(androidName(SDK).split(" ")[0]))
-            b.append("Ojo: la pantalla dice Android ").append(android.os.Build.VERSION.RELEASE).append(", pero por dentro es ").append(androidName(SDK)).append(".\n");
+            b.append(I18n.t("Ojo: la pantalla dice Android " + android.os.Build.VERSION.RELEASE + ", pero por dentro es " + androidName(SDK) + ".")).append("\n");
         b.append("\n");
         compatLine(b, "Inicio, mapa, clima, velocímetro", "Android 4.1+", true, null);
         compatLine(b, "Pista y carátula por Bluetooth", "Android 4.1+", true, clwBt ? "app Bluetooth de fábrica detectada" : "depende de la marca");
@@ -2576,12 +2613,12 @@ public class Main extends Activity {
         compatLine(b, "CarPlay", "Pantalla con CarPlay o adaptador USB", carPlayApp() != null, carPlayApp() != null ? labelOf(carPlayApp()) : "no detectado");
         compatLine(b, "Mapa con internet seguro (TLS 1.2)", "Android 4.1+ (StradaOS lo activa)", true, SDK < 20 ? "en Android 4.x solo algunos servidores de mapas responden" : null);
         compatLine(b, "Instalar actualizaciones desde la app", "Android 4.1+", true, SDK >= 26 ? "pide permiso «Instalar apps desconocidas»" : null);
-        new AlertDialog.Builder(this, dlg()).setTitle("Compatibilidad").setMessage(b.toString().trim()).setPositiveButton("OK", null).show();
+        new TB(this, dlg()).setTitle("Compatibilidad").setMessage(b.toString().trim()).setPositiveButton("OK", null).show();
     }
 
     private static void compatLine(StringBuilder b, String name, String needs, boolean ok, String note) {
-        b.append(ok ? "✓ " : "✗ ").append(name).append("\n     Requiere: ").append(needs);
-        if (note != null) b.append("\n     Aquí: ").append(note);
+        b.append(ok ? "✓ " : "✗ ").append(I18n.t(name)).append("\n     ").append(I18n.t("Requiere:")).append(" ").append(I18n.t(needs));
+        if (note != null) b.append("\n     ").append(I18n.t("Aquí:")).append(" ").append(I18n.t(note));
         b.append("\n\n");
     }
 
@@ -2600,7 +2637,7 @@ public class Main extends Activity {
         v.setPadding((int) (16 * s), (int) (8 * s), (int) (16 * s), (int) (8 * s));
         android.widget.ScrollView sv = new android.widget.ScrollView(this);
         sv.addView(v);
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Registro de fallos")
             .setView(sv)
             .setPositiveButton("OK", null)
@@ -2628,7 +2665,7 @@ public class Main extends Activity {
             fd ? "Opcional: las descargas de GitHub no pasan por la revisión de la tienda" : "Al abrir StradaOS con internet, una vez al día",
             prefs.getBoolean("auto_update", !fd), new IntCb() { public void on(final int i) {
                 if (i == 1 && fd) {
-                    new AlertDialog.Builder(Main.this, dlg()).setTitle("Actualizaciones desde GitHub")
+                    new TB(Main.this, dlg()).setTitle("Actualizaciones desde GitHub")
                         .setMessage("Instalaste StradaOS desde " + Updates.storeName(Main.this) + ". Si activas esto, StradaOS revisará una vez al día las versiones publicadas en github.com/" + Updates.OWNER + "/" + Updates.REPO + " y te ofrecerá descargarlas desde ahí.\n\nEsas descargas no pasan por la revisión de la tienda. Puede que GitHub tenga una versión un poco antes que la tienda.")
                         .setPositiveButton("Activar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
                             prefs.edit().putBoolean("auto_update", true).apply(); showSettings(8); } })
@@ -2701,7 +2738,7 @@ public class Main extends Activity {
                         if (manual || !r.version.equals(prefs.getString("upd_skip", ""))) updateDialog(r);
                     } else if (manual) {
                         if (err != null) linkDialog("No se pudo comprobar", "Esta pantalla no logró conectarse con GitHub (" + shortNetErr(err) + "). Puedes revisar las versiones desde tu celular:", Updates.RELEASES_URL);
-                        else new AlertDialog.Builder(Main.this, dlg()).setTitle("Tienes la última versión (" + Updates.currentVersion(Main.this) + ")")
+                        else new TB(Main.this, dlg()).setTitle("Tienes la última versión (" + Updates.currentVersion(Main.this) + ")")
                             .setMessage("Fuentes consultadas:\n" + Updates.lastReport).setPositiveButton("OK", null).show();
                     }
                 }});
@@ -2729,13 +2766,13 @@ public class Main extends Activity {
         notes.setPadding(0, (int) (10 * s), 0, (int) (10 * s));
         sc.addView(notes);
         box.addView(sc, new LinearLayout.LayoutParams(-1, (int) (200 * s)));
-        AlertDialog.Builder b = new AlertDialog.Builder(this, dlg())
+        AlertDialog.Builder b = new TB(this, dlg())
             .setTitle("Nueva versión de StradaOS")
             .setView(box);
         if (Updates.fromFdroid(this) && !prefs.getBoolean("auto_update", false)) {
             // instalada desde una tienda: se actualiza por ahí; GitHub queda como opción explícita
-            v.setText("Tienes la " + Updates.currentVersion(this) + " · en GitHub: " + r.version
-                + "\nActualiza desde " + Updates.storeName(this) + " cuando llegue. Descargar de GitHub omite la revisión de la tienda.");
+            v.setText(I18n.t("Tienes la " + Updates.currentVersion(this) + " · en GitHub: " + r.version
+                + "\nActualiza desde " + Updates.storeName(this) + " cuando llegue. Descargar de GitHub omite la revisión de la tienda."));
             b.setPositiveButton("Entendido", null)
              .setNeutralButton("Ver en GitHub", new DialogInterface.OnClickListener() {
                  public void onClick(DialogInterface d, int w) { linkDialog("StradaOS " + r.version, "Descarga desde GitHub:", r.pageUrl); } })
@@ -2798,7 +2835,7 @@ public class Main extends Activity {
         m.setSingleLine(false);
         m.setGravity(Gravity.CENTER);
         box.addView(m);
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setView(box)
             .setPositiveButton("Dar una estrella", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int w) {
@@ -2843,7 +2880,7 @@ public class Main extends Activity {
         link.setSingleLine(false);
         col.addView(link);
         box.addView(col, new LinearLayout.LayoutParams(0, -2, 1f));
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle(title)
             .setView(box)
             .setPositiveButton("Abrir aquí", new DialogInterface.OnClickListener() {
@@ -2906,12 +2943,12 @@ public class Main extends Activity {
         String chosen = prefs.getString("conn_app", null);
         if (aaSaved != null) aaBtnTv.setText(labelOf(aaSaved));
         else if (chosen != null && installed(chosen)) aaBtnTv.setText(labelOf(chosen));
-        else if (connCandidates().size() > 1) aaBtnTv.setText("Toca para elegir");
+        else if (connCandidates().size() > 1) aaBtnTv.setText(I18n.t("Toca para elegir"));
         else if (nat != null) aaBtnTv.setText(labelOf(nat));
         else if (installed(PKG_HUR)) aaBtnTv.setText("Open Headunit · USB");
-        else aaBtnTv.setText("Toca para instalar");
+        else aaBtnTv.setText(I18n.t("Toca para instalar"));
         String cpApp = carPlayApp();
-        cpSubTv.setText(cpApp != null ? labelOf(cpApp) : "Pantalla o adaptador");
+        cpSubTv.setText(cpApp != null ? labelOf(cpApp) : I18n.t("Pantalla o adaptador"));
         updatePlayIcon();
     }
 
@@ -3068,7 +3105,7 @@ public class Main extends Activity {
             installFile(apk, "Open Headunit");
             return;
         }
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("Android Auto")
             .setMessage("Esta pantalla no trae Android Auto integrado.\n\nInstala la app gratuita «Open Headunit» (github.com/andreknieriem/headunit-revived): copia su APK en la memoria USB o en Download y vuelve a tocar el botón. Luego conecta el celular por cable USB.")
             .setPositiveButton("Entendido", null)
@@ -3101,7 +3138,7 @@ public class Main extends Activity {
         final List<String> items = new ArrayList<String>();
         for (String p : c) items.add(labelOf(p) + "\n" + connDescription(p));
         items.add("Otra app…");
-        new AlertDialog.Builder(this, dlg())
+        new TB(this, dlg())
             .setTitle("¿Cómo quieres conectar tu celular?")
             .setItems(items.toArray(new String[0]), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int w) {

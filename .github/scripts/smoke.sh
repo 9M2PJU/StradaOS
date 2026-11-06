@@ -53,6 +53,15 @@ go musica;         shot 09-elegir-musica
 back
 go cajon;          shot 10-todas-las-apps
 go inicio 4
+# idiomas: inicio y ajustes en inglés y portugués
+go idioma:en 6;    shot 12-en-inicio
+go ajustes:4;      shot 13-en-ajustes-accesos
+go elegir:3;       shot 14-en-elegir-app
+back
+go idioma:pt 6;    shot 15-pt-inicio
+go ajustes:2;      shot 16-pt-ajustes-apariencia
+go ajustes:8;      shot 17-pt-acerca
+go idioma:es 6
 # botón 3 cambiado a «Música» y botón 4 a una app con nombre propio
 go demo-barra 10;  shot 11-inicio-barra-cambiada
 go inicio 3

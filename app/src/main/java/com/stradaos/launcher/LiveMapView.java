@@ -218,7 +218,7 @@ public class LiveMapView extends View {
                 }
             }
             drawMarker(c, cx, cy);
-            String attr = provider == 5 ? "© Esri, HERE, Garmin, © OpenStreetMap" : provider == 4 ? "© OpenStreetMap, SRTM · © OpenTopoMap" : "© colaboradores de OpenStreetMap";
+            String attr = provider == 5 ? "© Esri, HERE, Garmin, © OpenStreetMap" : provider == 4 ? "© OpenStreetMap, SRTM · © OpenTopoMap" : I18n.t("© colaboradores de OpenStreetMap");
             c.drawText(attr, w - text.measureText(attr) - 10 * s, 14 * s, text);
         }
         c.restore();
