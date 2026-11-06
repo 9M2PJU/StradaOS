@@ -1,3 +1,7 @@
+AntiFeatures:
+  NonFreeNet:
+    en-US: May use Esri map tiles and BigDataCloud (city name) when free servers do not respond.
+    es: Puede usar mapas de Esri y BigDataCloud (nombre de la ciudad) cuando los servidores libres no responden.
 Categories:
   - Navigation
   - System
@@ -10,13 +14,10 @@ Donate: https://ko-fi.com/stradaos
 
 AutoName: StradaOS
 
-AntiFeatures:
-  NonFreeNet:
-    en-US: May use Esri map tiles and BigDataCloud (city name) when free servers do not respond.
-    es: Puede usar mapas de Esri y BigDataCloud (nombre de la ciudad) cuando los servidores libres no responden.
 
 RepoType: git
 Repo: https://github.com/lordnordic-debug/StradaOS.git
+Binaries: https://github.com/lordnordic-debug/StradaOS/releases/download/v%v/StradaOS-%v.apk
 
 Builds:
   - versionName: 2.10.1
@@ -25,6 +26,8 @@ Builds:
     subdir: app
     gradle:
       - yes
+
+AllowedAPKSigningKeys: 1b8baec0fdb9e79a03fc0ae2c77db1c3c4b1efaaf269242c8a204cb7fe605d99
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9.]+$
