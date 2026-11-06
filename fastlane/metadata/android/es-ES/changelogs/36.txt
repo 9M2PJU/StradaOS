@@ -1,0 +1,1 @@
+Nuevo registro de fallos en Ajustes → Acerca de y protección contra reconstrucciones sin fin en pantallas nuevas.

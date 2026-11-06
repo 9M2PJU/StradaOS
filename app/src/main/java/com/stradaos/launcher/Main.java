@@ -137,6 +137,8 @@ public class Main extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        Guard.install(this);
+        Guard.startWatchdog();
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().setBackgroundDrawable(new ColorDrawable(BG));
@@ -153,6 +155,7 @@ public class Main extends Activity {
                 if (w > 0 && hh > 0 && (w != builtW || hh != builtH)) {
                     builtW = w;
                     builtH = hh;
+                    sizeStorm(w, hh);
                     final int fw = w, fh = hh;
                     post(new Runnable() { public void run() { build(fw, fh); } });
                 }
@@ -361,6 +364,7 @@ public class Main extends Activity {
         h.removeCallbacks(btTicker);
         h.removeCallbacks(aaWait);
         try { if (mediaWatcher != null) mediaWatcher.stop(); } catch (Throwable ignored) { }
+        Guard.stopWatchdog();
         super.onDestroy();
     }
 
@@ -419,7 +423,27 @@ public class Main extends Activity {
         closeDrawer(); // es la pantalla de inicio: atrás no la cierra
     }
 
+    /**
+     * Protección: si el tamaño de la ventana cambia una y otra vez (barras del sistema que aparecen y desaparecen
+     * al pedir pantalla completa), StradaOS se reconstruiría sin parar. Tras 5 cambios en 6 s deja de pedir
+     * pantalla completa y lo anota en el registro de fallos.
+     */
+    private void sizeStorm(int w, int hh) {
+        long now = SystemClock.uptimeMillis();
+        if (now - stormStart > 6000) { stormStart = now; stormCount = 0; }
+        if (++stormCount >= 5 && !noImmersive) {
+            noImmersive = true;
+            Guard.log("La ventana cambió de tamaño " + stormCount + " veces en 6 s (último " + w + "x" + hh + "): se desactiva la pantalla completa.");
+            try { getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE); } catch (Throwable ignored) { }
+            try { getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN); } catch (Throwable ignored) { }
+        }
+    }
+    private long stormStart;
+    private int stormCount;
+    private boolean noImmersive;
+
     private void immersive() {
+        if (noImmersive) return;
         try {
             getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -2248,6 +2272,24 @@ public class Main extends Activity {
         return i >= 0 && i < n.length ? "Android " + n[i] : "API " + api;
     }
 
+    private void showGuardLog() {
+        String t = Guard.read(this);
+        if (t == null) { toast("No hay fallos registrados"); return; }
+        if (t.length() > 6000) t = "…" + t.substring(t.length() - 6000);
+        TextView v = tv(t, 12, TEXT, false);
+        v.setTextIsSelectable(true);
+        v.setPadding((int) (16 * s), (int) (8 * s), (int) (16 * s), (int) (8 * s));
+        android.widget.ScrollView sv = new android.widget.ScrollView(this);
+        sv.addView(v);
+        new AlertDialog.Builder(this, dlg())
+            .setTitle("Registro de fallos")
+            .setView(sv)
+            .setPositiveButton("OK", null)
+            .setNeutralButton("Borrar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                Guard.clear(Main.this); toast("Registro borrado"); if (settingsView != null) showSettings(8); } })
+            .show();
+    }
+
     private void catAbout(LinearLayout body) {
         LinearLayout c = section(body, "StradaOS");
         LinearLayout r = rowBase(c, "StradaOS · Auto Head Unit UI", "Gratis y de código abierto. Una nueva vida para las pantallas Android del carro.");
@@ -2257,6 +2299,8 @@ public class Main extends Activity {
         ((LinearLayout.LayoutParams) r.getChildAt(1).getLayoutParams()).leftMargin = (int) (14 * s);
         row(c, "Versión", null, Updates.currentVersion(this), null);
         row(c, "Android de la pantalla", "Real: " + androidName(SDK) + " · ver qué funciona aquí", android.os.Build.VERSION.RELEASE + " (API " + SDK + ")", new Runnable() { public void run() { showCompat(); } });
+        row(c, "Registro de fallos", "Cierres inesperados o bloqueos de StradaOS en esta pantalla", Guard.read(this) == null ? "Sin fallos" : "Ver",
+            new Runnable() { public void run() { showGuardLog(); } });
 
         LinearLayout u = section(body, "Actualizaciones");
         final boolean fd = Updates.fromFdroid(this);

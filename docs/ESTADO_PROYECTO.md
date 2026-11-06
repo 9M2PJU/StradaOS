@@ -1,6 +1,6 @@
 # Estado del proyecto StradaOS
 
-Última actualización: 2026-11-05 · Versión publicada: **2.9.6** (versionCode 35)
+Última actualización: 2026-11-05 · Versión publicada: **2.9.7** (versionCode 36)
 
 ## Publicado
 - Release v2.8.0 en GitHub, firmado con la llave de publicación (secretos de GitHub). La firma coincide con las versiones instaladas a mano, así que se instala encima sin perder la configuración.
@@ -9,6 +9,7 @@
 - Donaciones: Ko-fi activo (`ko-fi.com/stradaos`) en el README, `.github/FUNDING.yml` y el botón «Donar» de la app.
 
 ## Pendientes, en orden
+0. **URGENTE · Pantalla negra en TS10 Android 14 (David Felipe Cepeda, Facebook, 2026-11-05):** pantalla TS10 4+64G 2K (UIS7862S, Android 14, 2000x1200, firmware TS10S_20260709, `com.tw.car`). Con 2.9.5: instaló, hizo el asistente sin problema, al abrir «la configuración» la pantalla quedó en negro; desde ahí todas las apps abrían en negro (se veían en multitarea), el táctil no respondía en lo negro, el botón Inicio sí llevaba al launcher de fábrica, no podía desinstalar ni abrir el gestor de archivos. Se arregló reiniciando; después StradaOS no abrió y pudo desinstalar. Causa no encontrada revisando el código (accesibilidad limitada a Open Headunit, sin ventanas superpuestas, Ajustes → Tu vehículo es liviano). Hipótesis: (a) reconstrucción sin fin por cambios de tamaño con pantalla completa (barras del sistema TS10) → protección `sizeStorm` en 2.9.7; (b) presión de memoria/GPU; (c) «configuración» era el botón Ajustes del dock, que abre `Settings.ACTION_SETTINGS` del sistema. 2.9.7 agrega `Guard` (registro de cierres y bloqueos del hilo principal en Ajustes → Acerca de y `StradaDiag/fallos.txt`). Preguntar a David: ¿tocó el ⚙ de arriba (ajustes de StradaOS) o «Ajustes» de la barra de abajo?, ¿dejó StradaOS como launcher predeterminado?, ¿activó «Carátula de Android Auto» (accesibilidad) o acceso a notificaciones? Si se anima a probar 2.9.7, pedir foto del Registro de fallos.
 1. **GitHub Sponsors:** el perfil está listo y espera que soporte de GitHub corrija el nombre de facturación (ticket #4952223). Cuando lo aprueben y Andrés publique, activar `github: lordnordic-debug` en `.github/FUNDING.yml` y en la sección «Apoya el proyecto» del README.
 2. **Confirmar 2.9.6 al quitar el cable de Android Auto:** con música sonando por Android Auto, quitar el cable: en 2–4 s la etiqueta debe pasar a «BLUETOOTH», desaparecer la carátula de Android Auto y abrirse un instante «Audio Bluetooth» para que el sonido siga por Bluetooth. En *Diagnóstico del reproductor*: con cable «celular por USB en modo Android Auto: sí» y «Android Auto conectado (para StradaOS): sí»; sin cable, «no». (2.9.5 confirmada en el Picanto: sin titileo, ⏮ ⏯ ⏭ con Android Auto, cambio de canción sin pasar a Bluetooth, «Open Headunit corriendo: sí».)
 3. **2.9.3 confirmada en el Picanto (2026-11-05):** al encender se ve el inicio de StradaOS (Open Headunit se abre antes por configuración de Andrés, no es error), ▶ del inicio pasa de radio a Bluetooth y el paso «¿Qué app abre cada botón?» funciona. Queda por investigar: detectar el play del celular cuando la radio tiene el sonido (ver notas técnicas).
@@ -36,6 +37,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-05: v2.9.7 — registro de fallos (`Guard`) y protección contra reconstrucciones sin fin; FAQ «pantalla en negro». Reporte de pantalla negra en TS10 Android 14 (David).
 - 2026-11-05: v2.9.6 — al quitar el cable de Android Auto, la fuente pasa a Bluetooth y el sonido vuelve solo. Confirmadas en el Picanto 2.9.5 (controles y cambio de canción con Android Auto) y 2.9.3.
 - 2026-11-05: confirmado en el Picanto: con 2.9.5 la fuente ya no titila entre Android Auto y Bluetooth.
 - 2026-11-05: merge request a F-Droid abierto (!55924).

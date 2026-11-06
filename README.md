@@ -96,6 +96,15 @@ No. Apple exige un chip de autenticación dentro del equipo, así que no se pued
 Necesita internet (por ejemplo, el punto de acceso del celular). En Android 4.x algunos servidores de mapas rechazan la conexión segura, y StradaOS prueba varios automáticamente. Deja presionado el mapa para ver el diagnóstico.
 </details>
 
+<details><summary><b>La pantalla quedó en negro y no responde</b></summary>
+Es raro, pero si pasa, no se daña nada:
+<ol>
+<li><b>Reinicia la pantalla.</b> Mantén presionado el botón de encendido o el de reinicio (<b>RES</b>, con un clip), o apaga y enciende el carro. Si alcanzas a bajar la barra de notificaciones, ahí suele estar la opción de reiniciar.</li>
+<li>Si después del reinicio quieres quitar StradaOS: <b>Ajustes de Android → Aplicaciones → StradaOS → Desinstalar</b>. El launcher de fábrica vuelve solo.</li>
+<li>Si quieres ayudar a corregirlo: antes de desinstalar, abre <b>StradaOS → Ajustes → Acerca de → Registro de fallos</b> y comparte una foto en un issue o por Facebook, con el modelo de la pantalla y su versión de Android.</li>
+</ol>
+</details>
+
 <details><summary><b>Android Auto va lento</b></summary>
 Es el procesador de la pantalla. En Open Headunit baja la resolución a 480p, a 30 FPS y con códec H.264.
 </details>
