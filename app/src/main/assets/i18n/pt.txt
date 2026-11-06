@@ -407,3 +407,18 @@ Para pantallas que siempre arrancan en su menú de fábrica (Android 4 a 9)	Para
 ¿La música Bluetooth se corta o no aparece?	A música Bluetooth corta ou não aparece?
 Qué hacer en cada caso	O que fazer em cada caso
 • Se corta al salir de la app Bluetooth: sal con el botón Inicio (la casita), no con Atrás. Atrás cierra la app de fábrica y con ella la música.\n\n• No suena hasta abrir la app Bluetooth: activa «Abrir la app de música Bluetooth al conectar el celular» (aquí mismo). Abre la app un instante y vuelve al inicio.\n\n• La canción no aparece en el inicio (Android 5 o más nuevo): activa «Música de cualquier app» arriba y dale acceso a notificaciones a StradaOS.\n\n• Revisa en Ajustes → Accesos y apps que «Música Bluetooth» sea la app Bluetooth de tu pantalla.	• Corta ao sair do app Bluetooth: saia com o botão Início (a casinha), não com Voltar. Voltar fecha o app de fábrica e a música junto.\n\n• Não toca até abrir o app Bluetooth: ative “Abrir o app de música Bluetooth ao conectar o celular” (aqui mesmo). Ele abre o app por um instante e volta ao início.\n\n• A música não aparece no início (Android 5 ou mais novo): ative “Música de qualquer app” acima e dê acesso às notificações ao StradaOS.\n\n• Confira em Ajustes → Atalhos e apps se “Música Bluetooth” é o app Bluetooth da sua tela.
+Sin permiso	Sem permissão
+GPS apagado	GPS desligado
+Unidades	Unidades
+Automático: mph en EE. UU. y Reino Unido	Automático: mph nos EUA e no Reino Unido
+Permisos → Ubicación → Permitir	Permissões → Localização → Permitir
+Activa la ubicación para StradaOS en los ajustes de la pantalla	Ative a localização para o StradaOS nos ajustes da tela
+Activa la ubicación (GPS)	Ative a localização (GPS)
+Activa la ubicación (GPS) en los ajustes de la pantalla	Ative a localização (GPS) nos ajustes da tela
+Sin permiso de ubicación · toca aquí	Sem permissão de localização · toque aqui
+Ubicación apagada · toca aquí	Localização desligada · toque aqui
+Sin señal GPS · toca aquí	Sem sinal GPS · toque aqui
+Versión de prueba	Versão de teste
+Simular pantalla	Simular tela
+Para probar otros tamaños en una tablet o celular	Para testar outros tamanhos em um tablet ou celular
+Real	Real

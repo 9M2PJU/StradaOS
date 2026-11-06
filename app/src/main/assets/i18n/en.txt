@@ -407,3 +407,18 @@ Para pantallas que siempre arrancan en su menú de fábrica (Android 4 a 9)	For 
 ¿La música Bluetooth se corta o no aparece?	Bluetooth music cuts out or doesn't show?
 Qué hacer en cada caso	What to do in each case
 • Se corta al salir de la app Bluetooth: sal con el botón Inicio (la casita), no con Atrás. Atrás cierra la app de fábrica y con ella la música.\n\n• No suena hasta abrir la app Bluetooth: activa «Abrir la app de música Bluetooth al conectar el celular» (aquí mismo). Abre la app un instante y vuelve al inicio.\n\n• La canción no aparece en el inicio (Android 5 o más nuevo): activa «Música de cualquier app» arriba y dale acceso a notificaciones a StradaOS.\n\n• Revisa en Ajustes → Accesos y apps que «Música Bluetooth» sea la app Bluetooth de tu pantalla.	• It cuts out when you leave the Bluetooth app: leave with the Home button (the house), not Back. Back closes the factory app, and the music with it.\n\n• It doesn't play until you open the Bluetooth app: turn on “Open the Bluetooth music app when the phone connects” (right here). It opens the app for a moment and returns home.\n\n• The song doesn't show on the home screen (Android 5 or newer): turn on “Music from any app” above and give StradaOS notification access.\n\n• Check in Settings → Shortcuts & apps that “Bluetooth music” is your screen's Bluetooth app.
+Sin permiso	No permission
+GPS apagado	GPS off
+Unidades	Units
+Automático: mph en EE. UU. y Reino Unido	Automatic: mph in the US and UK
+Permisos → Ubicación → Permitir	Permissions → Location → Allow
+Activa la ubicación para StradaOS en los ajustes de la pantalla	Turn on location for StradaOS in the screen's settings
+Activa la ubicación (GPS)	Turn on location (GPS)
+Activa la ubicación (GPS) en los ajustes de la pantalla	Turn on location (GPS) in the screen's settings
+Sin permiso de ubicación · toca aquí	No location permission · tap here
+Ubicación apagada · toca aquí	Location off · tap here
+Sin señal GPS · toca aquí	No GPS signal · tap here
+Versión de prueba	Test version
+Simular pantalla	Simulate screen
+Para probar otros tamaños en una tablet o celular	To try other sizes on a tablet or phone
+Real	Real

@@ -100,6 +100,10 @@ public class Main extends Activity {
     private FrameLayout drawer;
     private float s = 1f;
     private int builtW, builtH;
+    /** Ancho extra (en unidades de 1024x600) en pantallas más anchas. */
+    private float ex;
+    static final int[] SIM_W = {0, 1024, 1280, 1920, 2000};
+    static final int[] SIM_H = {0, 600, 720, 720, 1200};
 
     private TextView weatherTv, weatherCityTv;
     private ImageView weatherIc;
@@ -129,7 +133,7 @@ public class Main extends Activity {
     private ImageView playIc;
 
     private LocationManager lm;
-    private long lastFix;
+    private long lastFix, lastFixAny, gpsStartAt;
     private boolean installing;
 
     // ───────────────────────── ciclo de vida ─────────────────────────
@@ -396,10 +400,11 @@ public class Main extends Activity {
 
     /** Android 6+: respuesta a la solicitud de permisos. */
     public void onRequestPermissionsResult(int req, String[] perms, int[] res) {
-        if (req != 77) return;
+        if (req != 77 && req != 78) return;
         stopGps();
         startGps();
         seedLastLocation();
+        updateMapTag();
     }
 
     @Override
@@ -449,6 +454,8 @@ public class Main extends Activity {
                 else if ("asistente".equals(v)) wizard();
                 else if (v.startsWith("idioma:")) setLanguage(v.substring(7));
                 else if ("fijar-inicio".equals(v)) makeDefaultHome();
+                else if (v.startsWith("sim:")) { prefs.edit().putInt("sim_screen", Integer.parseInt(v.substring(4))).apply(); rebuild(); }
+                else if ("diag-mapa".equals(v)) showMapDiag();
                 else if ("aviso-inicio".equals(v)) askDefaultHome(null);
                 else if ("demo-barra".equals(v) && !apps.isEmpty()) {
                     ResolveInfo r = apps.get(0);
@@ -557,6 +564,7 @@ public class Main extends Activity {
     private final Runnable ticker = new Runnable() {
         public void run() {
             if (lastFix > 0 && SystemClock.elapsedRealtime() - lastFix > 6000) setGps(false, 0);
+            else if (lastFix == 0) setGps(false, 0);
             if (++usbTick % 5 == 0) guardUsb();
             if (bt != null && bt.isConnected() && (++btPoll % 3 == 0 || curTitle == null)) bt.refresh();
             updatePlayIcon();
@@ -584,12 +592,30 @@ public class Main extends Activity {
     // ───────────────────────── construcción de la UI ─────────────────────────
 
     private void build(int W, int H) {
-        s = Math.min(W / 1024f, H / 600f);
         root.removeAllViews();
-        root.setBackgroundColor(BG);
-        getWindow().setBackgroundDrawable(new ColorDrawable(BG));
+        // versión de prueba: simular otra pantalla (p. ej. una ancha de 1920x720 en una tablet)
+        int sim = getPackageName().endsWith(".debug") ? prefs.getInt("sim_screen", 0) : 0;
+        if (sim > 0) {
+            float r = SIM_W[sim] / (float) SIM_H[sim];
+            int pw = 0, ph = 0;
+            if (W / (float) H > r) { pw = (int) ((W - H * r) / 2); W = (int) (H * r); }
+            else { ph = (int) ((H - W / r) / 2); H = (int) (W / r); }
+            root.setPadding(pw, ph, pw, ph);
+            root.setBackgroundColor(Color.BLACK);
+            View bg = new View(this);
+            bg.setBackgroundColor(BG);
+            root.addView(bg, new FrameLayout.LayoutParams(-1, -1));
+        } else {
+            root.setPadding(0, 0, 0, 0);
+            root.setBackgroundColor(BG);
+        }
+        s = Math.min(W / 1024f, H / 600f);
+        // pantallas más anchas que 1024x600 (p. ej. 12,3" 1920x720): el mapa del centro se queda con el espacio extra
+        ex = Math.max(0f, W / s - 1024f);
+        if (ex < 24) ex = 0;
+        getWindow().setBackgroundDrawable(new ColorDrawable(sim > 0 ? Color.BLACK : BG));
         board = new FrameLayout(this);
-        FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams((int) (1024 * s), (int) (600 * s));
+        FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams((int) ((1024 + ex) * s), (int) (600 * s));
         blp.gravity = Gravity.CENTER;
         root.addView(board, blp);
 
@@ -646,9 +672,9 @@ public class Main extends Activity {
         greetTv = tv("", 15, SOFT, false);
         greetTv.setPadding((int) (14 * s), 0, 0, 0);
         right.addView(greetTv);
-        place(board, right, 400, 14, 552, 32);
+        place(board, right, 400 + ex, 14, 552, 32);
         View gear = circleIcon("settings", 40, 22, CIRCLE);
-        place(board, gear, 964, 12, 40, 40);
+        place(board, gear, 964 + ex, 12, 40, 40);
         gear.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { openSettings(); }
         });
@@ -722,7 +748,7 @@ public class Main extends Activity {
         LinearLayout sv = new LinearLayout(this);
         sv.setBaselineAligned(true);
         speedTv = tv("0", 56, TEXT, true);
-        TextView kmh = tv("km/h", 15, MUTED, false);
+        TextView kmh = tv(useMph() ? "mph" : "km/h", 15, MUTED, false);
         kmh.setPadding((int) (8 * s), 0, 0, 0);
         sv.addView(speedTv);
         sv.addView(kmh);
@@ -732,7 +758,7 @@ public class Main extends Activity {
 
     private void buildAaCard() {
         FrameLayout card = new FrameLayout(this);
-        place(board, card, 328, 64, 420, 380);
+        place(board, card, 328, 64, 420 + ex, 380);
         // fondo decorativo mientras no hay GPS; encima, el mapa en vivo
         card.addView(new MapView(this, s, 20 * s), new FrameLayout.LayoutParams(-1, -1));
         if (!prefs.getBoolean("map_live", true)) { liveMap = null; seedLastLocation(); buildAaCardRest(card); return; }
@@ -744,9 +770,7 @@ public class Main extends Activity {
         });
         liveMap.setOnLongClickListener(new View.OnLongClickListener() {
             public boolean onLongClick(View v) {
-                new TB(Main.this, dlg())
-                    .setTitle("Diagnóstico del mapa").setMessage(liveMap.diag())
-                    .setPositiveButton("OK", null).show();
+                showMapDiag();
                 return true;
             }
         });
@@ -765,13 +789,16 @@ public class Main extends Activity {
         mapTagTv.setPadding((int) (8 * s), 0, 0, 0);
         tag.addView(mapTagTv);
         placeWrap(card, tag, 16, 16);
+        tag.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { fixGps(); }
+        });
 
         FrameLayout panel = new FrameLayout(this);
         panel.setBackground(round((CARD & 0x00FFFFFF) | 0xEB000000, 16));
-        place(card, panel, 12, 284, 396, 84);
+        place(card, panel, 12, 284, 396 + ex, 84);
 
         View navBtn = circleIcon("map", 52, 26, (CARD & 0x00FFFFFF) | 0xEB000000);
-        place(card, navBtn, 356, 220, 52, 52);
+        place(card, navBtn, 356 + ex, 220, 52, 52);
         navBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { openNavApp(); }
         });
@@ -781,10 +808,10 @@ public class Main extends Activity {
 
         View aa = projButton("navigation", "Android Auto", RED, true);
         aaBtnTv = (TextView) aa.getTag();
-        place(panel, aa, 10, 10, 184, 64);
+        place(panel, aa, 10, 10, 184 + ex / 2, 64);
         View cp = projButton("phone_iphone", "CarPlay", BTN, false);
         cpSubTv = (TextView) cp.getTag();
-        place(panel, cp, 202, 10, 184, 64);
+        place(panel, cp, 202 + ex / 2, 10, 184 + ex / 2, 64);
         aaSubTv = aaBtnTv;
 
         aa.setOnClickListener(new View.OnClickListener() {
@@ -845,17 +872,91 @@ public class Main extends Activity {
         updateMapTag();
     }
 
+    /** km/h o mph: lo elegido, o mph en EE. UU., Reino Unido, Liberia y Birmania. */
+    private boolean useMph() {
+        String u = prefs.getString("speed_unit", "auto");
+        if ("mph".equals(u)) return true;
+        if ("kmh".equals(u)) return false;
+        String c = java.util.Locale.getDefault().getCountry();
+        return "US".equals(c) || "GB".equals(c) || "LR".equals(c) || "MM".equals(c);
+    }
+
+    /** 0 = bien (o buscando señal), 1 = StradaOS sin permiso de ubicación, 2 = ubicación del equipo apagada. */
+    private int gpsState() {
+        try {
+            if (SDK >= 23 && checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return 1;
+        } catch (Throwable ignored) { }
+        try {
+            boolean gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean net = false;
+            try { net = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Throwable ignored) { }
+            if (!gps && !net) return 2;
+        } catch (Throwable ignored) { }
+        return 0;
+    }
+
+    /** Toca el letrero del mapa: pide el permiso o abre los ajustes de ubicación según la causa. */
+    private void fixGps() {
+        int st = gpsState();
+        if (st == 1) {
+            boolean asked = false;
+            if (!prefs.getBoolean("loc_asked", false)) {
+                try { asked = !Modern.ensurePermissions(this, 78); } catch (Throwable ignored) { }
+            }
+            if (!asked) {
+                try {
+                    startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    toast("Permisos → Ubicación → Permitir");
+                } catch (Throwable e) { toast("Activa la ubicación para StradaOS en los ajustes de la pantalla"); }
+            }
+            prefs.edit().putBoolean("loc_asked", true).apply();
+        } else if (st == 2) {
+            try {
+                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                toast("Activa la ubicación (GPS)");
+            } catch (Throwable e) { toast("Activa la ubicación (GPS) en los ajustes de la pantalla"); }
+        } else {
+            showMapDiag();
+        }
+    }
+
+    /** Diagnóstico del mapa con la causa del GPS arriba. */
+    private String mapDiag() {
+        int st = gpsState();
+        boolean gpsOn = false, netOn = false;
+        try { gpsOn = lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Throwable ignored) { }
+        try { netOn = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Throwable ignored) { }
+        boolean hasGps = false;
+        try { hasGps = lm.getProvider(LocationManager.GPS_PROVIDER) != null; } catch (Throwable ignored) { }
+        long ago = lastFixAny > 0 ? (SystemClock.elapsedRealtime() - lastFixAny) / 1000 : -1;
+        String head = "Permiso de ubicación: " + (st == 1 ? "NO (toca el letrero del mapa)" : "sí")
+            + "\nGPS del equipo: " + (!hasGps ? "no encontrado" : gpsOn ? "encendido" : "apagado")
+            + " · ubicación por red: " + (netOn ? "encendida" : "apagada")
+            + "\nÚltima señal: " + (ago < 0 ? "ninguna desde que abrió StradaOS" : ago < 120 ? "hace " + ago + " s" : "hace " + (ago / 60) + " min")
+            + (gpsStartAt > 0 ? "\nBuscando desde hace " + ((SystemClock.elapsedRealtime() - gpsStartAt) / 60000) + " min" : "");
+        return head + "\n\n" + (liveMap != null ? liveMap.diag() : "Mapa en vivo apagado");
+    }
+
+    private void showMapDiag() {
+        new TB(this, dlg()).setTitle("Diagnóstico del mapa").setMessage(mapDiag()).setPositiveButton("OK", null).show();
+    }
+
     private void updateMapTag() {
         if (mapTagTv == null) return;
         boolean live = lastFix > 0;
+        int st = gpsState();
         if (!prefs.getBoolean("map_live", true)) mapTagTv.setText(I18n.t("Mapa en vivo apagado"));
-        else if (liveMap == null || !liveMap.hasFix()) mapTagTv.setText(I18n.t("Buscando GPS…"));
+        else if (!live && st == 1) mapTagTv.setText(I18n.t("Sin permiso de ubicación · toca aquí"));
+        else if (!live && st == 2) mapTagTv.setText(I18n.t("Ubicación apagada · toca aquí"));
+        else if (liveMap == null || !liveMap.hasFix())
+            mapTagTv.setText(I18n.t(gpsStartAt > 0 && SystemClock.elapsedRealtime() - gpsStartAt > 180000 ? "Sin señal GPS · toca aquí" : "Buscando GPS…"));
         else if (liveMap.offline()) mapTagTv.setText(I18n.t(live ? "En vivo · sin internet" : "Última posición · sin internet"));
         else mapTagTv.setText(I18n.t(live ? "Mapa en vivo" : "Última posición conocida"));
     }
 
     private void buildAudioCard() {
-        FrameLayout card = card(760, 64, 248, 380, CARD);
+        FrameLayout card = card(760 + ex, 64, 248, 380, CARD);
         placeWrap(card, tv("AUDIO", 11, MUTED, true), 18, 14);
         sourceTv = tv("", 11, RED, true);
         sourceTv.setGravity(Gravity.RIGHT);
@@ -891,7 +992,7 @@ public class Main extends Activity {
     }
 
     private void buildWebCard() {
-        FrameLayout card = card(760, 260, 248, 184, CARD);
+        FrameLayout card = card(760 + ex, 260, 248, 184, CARD);
         FrameLayout ic = new FrameLayout(this);
         ic.setBackground(round(RED_DARK, 16));
         ImageView g = icon("public", 30);
@@ -987,7 +1088,7 @@ public class Main extends Activity {
             l.setGravity(Gravity.CENTER_HORIZONTAL);
             l.setPadding(0, (int) (8 * s), 0, 0);
             b.addView(l, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            place(board, b, 38 + 138 * i, 474, 120, 110);
+            place(board, b, 38 + (138 + ex / 6) * i, 474, 120, 110);
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) { runDock(idx); }
             });
@@ -1303,6 +1404,7 @@ public class Main extends Activity {
     private final LocationListener gpsListener = new LocationListener() {
         public void onLocationChanged(Location l) {
             lastFix = SystemClock.elapsedRealtime();
+            lastFixAny = lastFix;
             setGps(true, l.hasSpeed() ? l.getSpeed() * 3.6f : 0);
             feedMap(l);
         }
@@ -1320,6 +1422,7 @@ public class Main extends Activity {
     };
 
     private void startGps() {
+        if (gpsStartAt == 0) gpsStartAt = SystemClock.elapsedRealtime();
         try {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, gpsListener);
             try { lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, netListener); } catch (Throwable ignored) { }
@@ -1336,8 +1439,10 @@ public class Main extends Activity {
     private void setGps(boolean ok, float kmh) {
         if (speedTv == null) return;
         if (!ok) lastFix = 0;
-        speedTv.setText(ok ? String.valueOf(Math.round(kmh < 2 ? 0 : kmh)) : "--");
-        gpsTv.setText(ok ? "GPS" : I18n.t("Buscando GPS"));
+        float v = useMph() ? kmh * 0.621371f : kmh;
+        speedTv.setText(ok ? String.valueOf(Math.round(kmh < 2 ? 0 : v)) : "--");
+        int gs = ok ? 0 : gpsState();
+        gpsTv.setText(ok ? "GPS" : I18n.t(gs == 1 ? "Sin permiso" : gs == 2 ? "GPS apagado" : "Buscando GPS"));
         gpsDot.setBackground(round(ok ? 0xFF3DDC84 : MUTED, 4));
         updateMapTag();
     }
@@ -2464,6 +2569,12 @@ public class Main extends Activity {
             }});
         }
         r.addView(dots);
+        LinearLayout un = section(body, "Unidades");
+        String su = prefs.getString("speed_unit", "auto");
+        segmented(un, "Velocidad", "Automático: mph en EE. UU. y Reino Unido", new String[]{"Auto", "km/h", "mph"}, "kmh".equals(su) ? 1 : "mph".equals(su) ? 2 : 0,
+            new IntCb() { public void on(int i) {
+                prefs.edit().putString("speed_unit", i == 1 ? "kmh" : i == 2 ? "mph" : "auto").apply(); rebuild(); showSettings(2);
+            }});
         LinearLayout h = section(body, "Reloj");
         String ck = prefs.getString("clock", "auto");
         segmented(h, "Formato de hora", null, new String[]{"Auto", "12 h", "24 h"}, "12".equals(ck) ? 1 : "24".equals(ck) ? 2 : 0,
@@ -2545,7 +2656,7 @@ public class Main extends Activity {
         }});
         row(m, "Diagnóstico del mapa", "Fuentes probadas y errores", null, new Runnable() { public void run() {
             new TB(Main.this, dlg()).setTitle("Diagnóstico del mapa")
-                .setMessage(liveMap != null ? liveMap.diag() : "Mapa no disponible").setPositiveButton("OK", null).show();
+                .setMessage(mapDiag()).setPositiveButton("OK", null).show();
         }});
         row(m, "Fuente del mapa (avanzado)", "URL propia con {z}/{x}/{y}", prefs.getString("map_url", "").length() > 0 ? "Personalizada" : "Automática",
             edit("map_url", "URL de teselas {z}/{x}/{y} (vacío = automático)", ""));
@@ -2608,6 +2719,13 @@ public class Main extends Activity {
         toggle(hm, "Abrir StradaOS al encender", "Para pantallas que siempre arrancan en su menú de fábrica (Android 4 a 9)", prefs.getBoolean("boot_open", false), new IntCb() { public void on(int i) {
             prefs.edit().putBoolean("boot_open", i == 1).apply(); showSettings(7);
         }});
+        if (getPackageName().endsWith(".debug")) {
+            LinearLayout sm = section(body, "Versión de prueba");
+            segmented(sm, "Simular pantalla", "Para probar otros tamaños en una tablet o celular", new String[]{"Real", "1024×600", "1280×720", "1920×720", "2000×1200"},
+                prefs.getInt("sim_screen", 0), new IntCb() { public void on(int i) {
+                    prefs.edit().putInt("sim_screen", i).apply(); rebuild(); showSettings(7);
+                }});
+        }
         LinearLayout c = section(body, "Equipo");
         row(c, "Ajustes del equipo", "Los ajustes de la pantalla (los de la marca si los tiene)", null, new Runnable() { public void run() {
             openSystemSettings();

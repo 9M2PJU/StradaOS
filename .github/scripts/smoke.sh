@@ -60,6 +60,20 @@ go fijar-inicio 5; shot 19-elegir-inicio
 back; back
 go ajustes:7;      shot 20-ajustes-sistema
 go ajustes:5;      shot 21-ajustes-mapa-rendimiento
+# diagnóstico del mapa con la causa del GPS
+go diag-mapa;      shot 22-diag-mapa
+back
+# simulación de pantalla ancha (versión de prueba) y pantalla real ancha 1920x720
+go sim:3 6;        shot 23-sim-1920x720
+go sim:4 6;        shot 24-sim-2000x1200
+go sim:0 4
+if [ "$API" -ge 18 ]; then adb shell wm size 1920x720; adb shell wm density 240; else adb shell am display-size 1920x720; adb shell am display-density 240; fi
+sleep 5
+go inicio 8;       shot 25-ancha-1920x720-inicio
+go ajustes:2;      shot 26-ancha-1920x720-ajustes
+go inicio 3
+if [ "$API" -ge 18 ]; then adb shell wm size 1024x600; adb shell wm density 160; else adb shell am display-size 1024x600; adb shell am display-density 160; fi
+sleep 5
 # idiomas: inicio y ajustes en inglés y portugués
 go idioma:en 6;    shot 12-en-inicio
 go ajustes:4;      shot 13-en-ajustes-accesos
