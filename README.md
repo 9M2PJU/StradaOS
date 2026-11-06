@@ -76,6 +76,18 @@ Nació para revivir las radios chinas que dicen *«Android 6 o superior»* pero 
 
 ## ❓ Preguntas frecuentes
 
+<details><summary><b>Al encender sale el menú de fábrica, no StradaOS</b></summary>
+Hay que fijar StradaOS como pantalla de inicio una vez. Desde la 2.10.1 StradaOS te avisa: toca <b>«Fijar ahora»</b>, elige <b>StradaOS</b> y luego <b>«Siempre»</b>. También está en <b>Ajustes → Sistema → Pantalla de inicio</b>. Si tu pantalla siempre vuelve a su menú de fábrica al encender, activa ahí mismo <b>«Abrir StradaOS al encender»</b> (Android 4 a 9).
+</details>
+
+<details><summary><b>La música Bluetooth se corta cuando salgo de la app Bluetooth</b></summary>
+Sal de la app Bluetooth con el botón <b>Inicio</b> (la casita), no con Atrás: Atrás cierra la app de fábrica y con ella la música. Para ver la canción en el inicio en Android 5+, activa <b>Ajustes → Música → «Música de cualquier app»</b>. No hace falta USB: el cable solo se usa para Android Auto.
+</details>
+
+<details><summary><b>StradaOS va lento</b></summary>
+Apaga el mapa en vivo en <b>Ajustes → Mapa y clima → Rendimiento</b>. Si sigue lento, abre un issue con el modelo de tu pantalla y su versión de Android.
+</details>
+
 <details><summary><b>Mi pantalla dice Android 6, ¿por qué no instalan las apps?</b></summary>
 Muchas pantallas muestran un número de versión falso. Mira el Android real en <b>StradaOS → Ajustes → Acerca de</b> (el número de API). La API 17 equivale a Android 4.2.
 </details>

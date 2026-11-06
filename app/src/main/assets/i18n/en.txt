@@ -386,3 +386,24 @@ Llovizna	Drizzle
 Lluvia	Rain
 Nieve	Snow
 Tormenta	Storm
+Mapa en vivo apagado	Live map off
+Rendimiento	Performance
+Apágalo si la pantalla va lenta: queda un mapa de adorno y el velocímetro sigue funcionando	Turn it off if the screen is slow: a decorative map stays and the speedometer keeps working
+StradaOS aún no es tu pantalla de inicio	StradaOS isn't your home screen yet
+Por eso al encender el carro o al tocar Inicio aparece el menú de fábrica.\n\nToca «Fijar ahora», elige StradaOS y luego «Siempre».	That's why the factory menu shows up when you start the car or tap Home.\n\nTap “Set now”, choose StradaOS and then “Always”.
+Fijar ahora	Set now
+Ahora no	Not now
+No volver a preguntar	Don't ask again
+Elige StradaOS y toca «Siempre»	Choose StradaOS and tap “Always”
+Listo: StradaOS es tu pantalla de inicio	Done: StradaOS is your home screen
+Fijar StradaOS a mano	Set StradaOS manually
+Algunas pantallas no muestran la lista para elegir. Prueba así:\n\n1. Toca el botón Inicio (la casita) de la pantalla. Si pregunta qué app usar, elige StradaOS → Siempre.\n2. Si no pregunta: en los ajustes de la pantalla busca Aplicaciones → Aplicaciones predeterminadas → Pantalla de inicio (o «App de inicio») y elige StradaOS.\n3. En algunas marcas está en los ajustes de fábrica como «Launcher», «Interfaz» o «UI».\n\nSi tu pantalla siempre vuelve a su menú de fábrica al encender, activa «Abrir StradaOS al encender» en Ajustes → Sistema.	Some screens don't show the list to choose from. Try this:\n\n1. Tap the screen's Home button (the house). If it asks which app to use, choose StradaOS → Always.\n2. If it doesn't ask: in the screen's settings look for Apps → Default apps → Home app and choose StradaOS.\n3. On some brands it's in the factory settings as “Launcher”, “Interface” or “UI”.\n\nIf your screen always goes back to its factory menu when it starts, turn on “Open StradaOS at startup” in Settings → System.
+Pantalla de inicio	Home screen
+La que aparece al encender y al tocar Inicio	The one that shows at startup and when you tap Home
+StradaOS ✓	StradaOS ✓
+Otra · toca para cambiar	Another · tap to change
+Abrir StradaOS al encender	Open StradaOS at startup
+Para pantallas que siempre arrancan en su menú de fábrica (Android 4 a 9)	For screens that always start on their factory menu (Android 4 to 9)
+¿La música Bluetooth se corta o no aparece?	Bluetooth music cuts out or doesn't show?
+Qué hacer en cada caso	What to do in each case
+• Se corta al salir de la app Bluetooth: sal con el botón Inicio (la casita), no con Atrás. Atrás cierra la app de fábrica y con ella la música.\n\n• No suena hasta abrir la app Bluetooth: activa «Abrir la app de música Bluetooth al conectar el celular» (aquí mismo). Abre la app un instante y vuelve al inicio.\n\n• La canción no aparece en el inicio (Android 5 o más nuevo): activa «Música de cualquier app» arriba y dale acceso a notificaciones a StradaOS.\n\n• Revisa en Ajustes → Accesos y apps que «Música Bluetooth» sea la app Bluetooth de tu pantalla.	• It cuts out when you leave the Bluetooth app: leave with the Home button (the house), not Back. Back closes the factory app, and the music with it.\n\n• It doesn't play until you open the Bluetooth app: turn on “Open the Bluetooth music app when the phone connects” (right here). It opens the app for a moment and returns home.\n\n• The song doesn't show on the home screen (Android 5 or newer): turn on “Music from any app” above and give StradaOS notification access.\n\n• Check in Settings → Shortcuts & apps that “Bluetooth music” is your screen's Bluetooth app.

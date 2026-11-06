@@ -38,4 +38,13 @@ public class Modern {
         String s = Settings.Secure.getString(c.getContentResolver(), "enabled_notification_listeners");
         return s != null && s.contains(c.getPackageName());
     }
+
+    /** Android 10+: ventana del sistema «¿Usar StradaOS como app de inicio?». Devuelve false si no se pudo pedir. */
+    public static boolean requestHomeRole(Activity a, int req) {
+        if (android.os.Build.VERSION.SDK_INT < 29) return false;
+        android.app.role.RoleManager rm = a.getSystemService(android.app.role.RoleManager.class);
+        if (rm == null || !rm.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME)) return false;
+        a.startActivityForResult(rm.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME), req);
+        return true;
+    }
 }

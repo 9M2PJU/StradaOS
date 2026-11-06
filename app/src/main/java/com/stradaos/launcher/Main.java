@@ -375,6 +375,7 @@ public class Main extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (homeFixing && SDK < 29) h.postDelayed(new Runnable() { public void run() { homeResult(); } }, 700);
         immersive();
         if (SDK >= 23 && !askedPerms) {
             askedPerms = true;
@@ -433,7 +434,7 @@ public class Main extends Activity {
         final String v = i.getStringExtra("prueba");
         if (v == null) return;
         if ("saltar".equals(v)) {
-            prefs.edit().putBoolean("setup_done", true).apply();
+            prefs.edit().putBoolean("setup_done", true).putBoolean("home_never", true).apply();
             try { if (wizardDlg != null) wizardDlg.dismiss(); } catch (Throwable ignored) { }
         }
         h.postDelayed(new Runnable() { public void run() {
@@ -447,6 +448,8 @@ public class Main extends Activity {
                 else if ("musica".equals(v)) pickFor("music_app", "Música", null);
                 else if ("asistente".equals(v)) wizard();
                 else if (v.startsWith("idioma:")) setLanguage(v.substring(7));
+                else if ("fijar-inicio".equals(v)) makeDefaultHome();
+                else if ("aviso-inicio".equals(v)) askDefaultHome(null);
                 else if ("demo-barra".equals(v) && !apps.isEmpty()) {
                     ResolveInfo r = apps.get(0);
                     prefs.edit().putString("dock_2", "fn:music")
@@ -732,6 +735,7 @@ public class Main extends Activity {
         place(board, card, 328, 64, 420, 380);
         // fondo decorativo mientras no hay GPS; encima, el mapa en vivo
         card.addView(new MapView(this, s, 20 * s), new FrameLayout.LayoutParams(-1, -1));
+        if (!prefs.getBoolean("map_live", true)) { liveMap = null; seedLastLocation(); buildAaCardRest(card); return; }
         liveMap = new LiveMapView(this, s, 20 * s);
         card.addView(liveMap, new FrameLayout.LayoutParams(-1, -1));
         liveMap.setVisibility(View.INVISIBLE);
@@ -748,6 +752,10 @@ public class Main extends Activity {
         });
         seedLastLocation();
 
+        buildAaCardRest(card);
+    }
+
+    private void buildAaCardRest(FrameLayout card) {
         LinearLayout tag = new LinearLayout(this);
         tag.setGravity(Gravity.CENTER_VERTICAL);
         tag.setBackground(round((CARD & 0x00FFFFFF) | 0xE0000000, 12));
@@ -840,7 +848,8 @@ public class Main extends Activity {
     private void updateMapTag() {
         if (mapTagTv == null) return;
         boolean live = lastFix > 0;
-        if (liveMap == null || !liveMap.hasFix()) mapTagTv.setText(I18n.t("Buscando GPS…"));
+        if (!prefs.getBoolean("map_live", true)) mapTagTv.setText(I18n.t("Mapa en vivo apagado"));
+        else if (liveMap == null || !liveMap.hasFix()) mapTagTv.setText(I18n.t("Buscando GPS…"));
         else if (liveMap.offline()) mapTagTv.setText(I18n.t(live ? "En vivo · sin internet" : "Última posición · sin internet"));
         else mapTagTv.setText(I18n.t(live ? "Mapa en vivo" : "Última posición conocida"));
     }
@@ -1821,7 +1830,9 @@ public class Main extends Activity {
                     chooseAccent(new Runnable() { public void run() {
                         prefs.edit().putBoolean("setup_done", true).apply();
                         rebuild();
-                        reviewShortcuts(new Runnable() { public void run() { pickPhoto(); } });
+                        reviewShortcuts(new Runnable() { public void run() {
+                            if (!askDefaultHome(new Runnable() { public void run() { pickPhoto(); } })) pickPhoto();
+                        } });
                     }});
                     }});
                     }});
@@ -1970,6 +1981,7 @@ public class Main extends Activity {
     @Override
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
+        if (req == REQ_HOME) { homeResult(); return; }
         if (req != REQ_PHOTO || res != RESULT_OK || data == null || data.getData() == null) return;
         final Uri uri = data.getData();
         processPhoto(new CarPhoto.Opener() {
@@ -2520,6 +2532,10 @@ public class Main extends Activity {
         String manual = prefs.getString("city_manual", "");
         row(w, "Ciudad", "Vacío = automática por GPS", manual.length() > 0 ? manual : (weatherNow != null && weatherNow.city != null ? weatherNow.city + " (GPS)" : "Automática"),
             edit("city_manual", "Ciudad (vacío = automática por GPS)", ""));
+        LinearLayout ml = section(body, "Rendimiento");
+        toggle(ml, "Mapa en vivo", "Apágalo si la pantalla va lenta: queda un mapa de adorno y el velocímetro sigue funcionando", prefs.getBoolean("map_live", true), new IntCb() { public void on(int i) {
+            prefs.edit().putBoolean("map_live", i == 1).apply(); rebuild(); showSettings(5);
+        }});
         LinearLayout nv = section(body, "Navegación");
         row(nv, "App de navegación preferida", "Se abre con el botón del mapa (Waze, Maps, OsmAnd…)", autoLabel("nav_app", NAV_PKGS, "Toca para elegir"),
             new Runnable() { public void run() { pickFor("nav_app", "Navegación"); } });
@@ -2549,6 +2565,7 @@ public class Main extends Activity {
             }});
         row(c, "Diagnóstico del reproductor", "Fuente activa, lector de notificaciones y Bluetooth", null, new Runnable() { public void run() { showPlayerDiag(); } });
         LinearLayout b = section(body, "Audio Bluetooth");
+        row(b, "¿La música Bluetooth se corta o no aparece?", "Qué hacer en cada caso", null, new Runnable() { public void run() { btHelp(); } });
         toggle(b, "Volver al Bluetooth al desconectar Android Auto", "Al quitar el cable, abre un instante la app de música Bluetooth para que el sonido siga por Bluetooth",
             prefs.getBoolean("aa_off_bt", true), new IntCb() { public void on(int i) {
                 prefs.edit().putBoolean("aa_off_bt", i == 1).apply(); showSettings(6);
@@ -2583,6 +2600,14 @@ public class Main extends Activity {
     }
 
     private void catSystem(LinearLayout body) {
+        LinearLayout hm = section(body, "Pantalla de inicio");
+        final boolean def = isDefaultHome();
+        row(hm, "Pantalla de inicio", "La que aparece al encender y al tocar Inicio", def ? "StradaOS ✓" : "Otra · toca para cambiar", new Runnable() { public void run() {
+            if (isDefaultHome()) homeHelp(); else makeDefaultHome();
+        }});
+        toggle(hm, "Abrir StradaOS al encender", "Para pantallas que siempre arrancan en su menú de fábrica (Android 4 a 9)", prefs.getBoolean("boot_open", false), new IntCb() { public void on(int i) {
+            prefs.edit().putBoolean("boot_open", i == 1).apply(); showSettings(7);
+        }});
         LinearLayout c = section(body, "Equipo");
         row(c, "Ajustes del equipo", "Los ajustes de la pantalla (los de la marca si los tiene)", null, new Runnable() { public void run() {
             openSystemSettings();
@@ -2626,6 +2651,14 @@ public class Main extends Activity {
         String[] n = {"4.1", "4.2", "4.3", "4.4", "4.4W", "5.0", "5.1", "6.0", "7.0", "7.1", "8.0", "8.1", "9", "10", "11", "12", "12L", "13", "14", "15", "16", "17"};
         int i = api - 16;
         return i >= 0 && i < n.length ? "Android " + n[i] : "API " + api;
+    }
+
+    private void btHelp() {
+        new TB(this, dlg())
+            .setTitle("Música Bluetooth")
+            .setMessage("• Se corta al salir de la app Bluetooth: sal con el botón Inicio (la casita), no con Atrás. Atrás cierra la app de fábrica y con ella la música.\n\n• No suena hasta abrir la app Bluetooth: activa «Abrir la app de música Bluetooth al conectar el celular» (aquí mismo). Abre la app un instante y vuelve al inicio.\n\n• La canción no aparece en el inicio (Android 5 o más nuevo): activa «Música de cualquier app» arriba y dale acceso a notificaciones a StradaOS.\n\n• Revisa en Ajustes → Accesos y apps que «Música Bluetooth» sea la app Bluetooth de tu pantalla.")
+            .setPositiveButton("Entendido", null)
+            .show();
     }
 
     private void showGuardLog() {
@@ -2708,6 +2741,7 @@ public class Main extends Activity {
     /** Al volver al inicio: busca versión nueva (1 vez al día) o, si toca, el recuadro «¿Te gusta StradaOS?». */
     private void autoChecks() {
         if (!hasWindowFocus() || settingsView != null || drawer != null) return;
+        if (!homeAsked && prefs.getBoolean("setup_done", false) && !prefs.getBoolean("home_never", false) && askDefaultHome(null)) return;
         long now = System.currentTimeMillis();
         boolean auto = prefs.getBoolean("auto_update", !Updates.fromFdroid(this));
         if (getPackageName().endsWith(".debug")) auto = false;   // la versión de prueba no ofrece actualizar a la normal
@@ -3051,6 +3085,73 @@ public class Main extends Activity {
         } catch (Throwable e) {
             toast("No se pudieron abrir los ajustes");
         }
+    }
+
+    // ───────────────────────── pantalla de inicio predeterminada ─────────────────────────
+
+    static final int REQ_HOME = 77;
+    private boolean homeAsked, homeFixing;
+
+    /** true si StradaOS es la app que abre Android al encender y al tocar Inicio. */
+    private boolean isDefaultHome() {
+        try {
+            Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+            ResolveInfo r = getPackageManager().resolveActivity(i, PackageManager.MATCH_DEFAULT_ONLY);
+            return r != null && r.activityInfo != null && getPackageName().equals(r.activityInfo.packageName);
+        } catch (Throwable e) {
+            return true;
+        }
+    }
+
+    /** Aviso: StradaOS no es la pantalla de inicio (por eso al encender aparece el menú de fábrica). */
+    private boolean askDefaultHome(final Runnable after) {
+        if (isDefaultHome()) return false;
+        homeAsked = true;
+        new TB(this, dlg())
+            .setTitle("StradaOS aún no es tu pantalla de inicio")
+            .setMessage("Por eso al encender el carro o al tocar Inicio aparece el menú de fábrica.\n\nToca «Fijar ahora», elige StradaOS y luego «Siempre».")
+            .setPositiveButton("Fijar ahora", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) { makeDefaultHome(); if (after != null) after.run(); } })
+            .setNegativeButton("Ahora no", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) { if (after != null) after.run(); } })
+            .setNeutralButton("No volver a preguntar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                prefs.edit().putBoolean("home_never", true).apply(); if (after != null) after.run(); } })
+            .show();
+        return true;
+    }
+
+    /** Android 10+: ventana del sistema para elegir la app de inicio. Android 4–9: lista «¿Qué app usar?». */
+    private void makeDefaultHome() {
+        homeFixing = true;
+        if (SDK >= 29) {
+            try { if (Modern.requestHomeRole(this, REQ_HOME)) return; } catch (Throwable ignored) { }
+        }
+        toast("Elige StradaOS y toca «Siempre»");
+        PackageManager pm = getPackageManager();
+        ComponentName fake = new ComponentName(this, FakeHome.class);
+        try {
+            pm.setComponentEnabledSetting(fake, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (Throwable e) {
+            homeFixing = false;
+            homeHelp();
+        } finally {
+            try { pm.setComponentEnabledSetting(fake, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP); } catch (Throwable ignored) { }
+        }
+    }
+
+    /** Al volver de elegir: confirma o explica cómo hacerlo a mano. */
+    private void homeResult() {
+        if (!homeFixing) return;
+        homeFixing = false;
+        if (isDefaultHome()) toast("Listo: StradaOS es tu pantalla de inicio");
+        else homeHelp();
+    }
+
+    private void homeHelp() {
+        new TB(this, dlg())
+            .setTitle("Fijar StradaOS a mano")
+            .setMessage("Algunas pantallas no muestran la lista para elegir. Prueba así:\n\n1. Toca el botón Inicio (la casita) de la pantalla. Si pregunta qué app usar, elige StradaOS → Siempre.\n2. Si no pregunta: en los ajustes de la pantalla busca Aplicaciones → Aplicaciones predeterminadas → Pantalla de inicio (o «App de inicio») y elige StradaOS.\n3. En algunas marcas está en los ajustes de fábrica como «Launcher», «Interfaz» o «UI».\n\nSi tu pantalla siempre vuelve a su menú de fábrica al encender, activa «Abrir StradaOS al encender» en Ajustes → Sistema.")
+            .setPositiveButton("Entendido", null)
+            .show();
     }
 
     private void openSlot(int idx) {

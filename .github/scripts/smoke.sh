@@ -53,6 +53,13 @@ go musica;         shot 09-elegir-musica
 back
 go cajon;          shot 10-todas-las-apps
 go inicio 4
+# pantalla de inicio: aviso, lista o ventana del sistema para elegirla, y Ajustes → Sistema
+go aviso-inicio;   shot 18-aviso-inicio
+back
+go fijar-inicio 5; shot 19-elegir-inicio
+back; back
+go ajustes:7;      shot 20-ajustes-sistema
+go ajustes:5;      shot 21-ajustes-mapa-rendimiento
 # idiomas: inicio y ajustes en inglés y portugués
 go idioma:en 6;    shot 12-en-inicio
 go ajustes:4;      shot 13-en-ajustes-accesos
