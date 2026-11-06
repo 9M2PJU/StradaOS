@@ -16,8 +16,16 @@ else adb shell am display-size 1024x600; adb shell am display-density 160; fi
 sleep 5
 
 shot() {
-  adb shell screencap -p /sdcard/s.png
-  adb pull /sdcard/s.png "$OUT/$1.png" >/dev/null 2>&1
+  # screencap en /data/local/tmp (en Android 4.4–5 la /sdcard del emulador es de solo lectura). Si sale en blanco
+  # (pasa en emuladores de Android 4.1 con GPU por software), se usa la captura del propio emulador.
+  rm -f /tmp/shot.png; rm -rf /tmp/emushot; mkdir -p /tmp/emushot
+  adb shell screencap -p /data/local/tmp/s.png >/dev/null 2>&1 && adb pull /data/local/tmp/s.png /tmp/shot.png >/dev/null 2>&1
+  if [ ! -s /tmp/shot.png ] || [ "$(stat -c %s /tmp/shot.png)" -lt 15000 ]; then
+    adb emu screenrecord screenshot /tmp/emushot >/dev/null 2>&1; sleep 2
+    f=$(ls -t /tmp/emushot/*.png 2>/dev/null | head -1)
+    [ -n "$f" ] && cp "$f" /tmp/shot.png
+  fi
+  [ -s /tmp/shot.png ] && cp /tmp/shot.png "$OUT/$1.png"
 }
 go() {  # abre StradaOS con un valor de prueba y espera
   adb shell am start -n $ACT --es prueba "$1" >/dev/null

@@ -1041,12 +1041,18 @@ public class Main extends Activity {
     }
 
     private void pickDock(final int i, final Runnable after) {
-        final List<String[]> extra = new ArrayList<String[]>();
-        for (String[] f : DOCK_FNS) extra.add(new String[]{"fn:" + f[0], "★ " + f[1], f[2]});
-        pickApp("¿Qué abre el botón " + (i + 1) + "?", extra, null, new TargetCb() { public void on(String target) {
+        final TargetCb save = new TargetCb() { public void on(String target) {
             prefs.edit().putString("dock_" + i, target).remove("dock_" + i + "_name").apply();
             toast("Guardado: " + dockName(i));
             dockChanged(after);
+        }};
+        final List<String[]> extra = new ArrayList<String[]>();
+        extra.add(new String[]{"fns", "★  Funciones de StradaOS (Música, Navegación, Android Auto…)", "apps"});
+        pickApp("¿Qué abre el botón " + (i + 1) + "?", extra, null, true, new TargetCb() { public void on(String target) {
+            if (!"fns".equals(target)) { save.on(target); return; }
+            List<String[]> fns = new ArrayList<String[]>();
+            for (String[] f : DOCK_FNS) fns.add(new String[]{"fn:" + f[0], f[1], f[2]});
+            pickApp("Función del botón " + (i + 1), fns, null, false, save);
         }});
     }
 
@@ -1076,11 +1082,13 @@ public class Main extends Activity {
      * Lista para elegir una app, con su ícono. `extra`: opciones fijas arriba ({valor, texto, ícono}).
      * `pin`: paquetes que van primero (p. ej. apps de navegación). Devuelve "app:paquete/Actividad" o el valor extra.
      */
-    private void pickApp(String title, final List<String[]> extra, String[] pin, final TargetCb cb) {
+    private void pickApp(String title, final List<String[]> extra, String[] pin, boolean withApps, final TargetCb cb) {
         final PackageManager pm = getPackageManager();
         final List<ResolveInfo> list = new ArrayList<ResolveInfo>();
-        if (pin != null) for (String p : pin) for (ResolveInfo r : apps) if (r.activityInfo.packageName.equals(p)) list.add(r);
-        for (ResolveInfo r : apps) if (!list.contains(r)) list.add(r);
+        if (withApps) {
+            if (pin != null) for (String p : pin) for (ResolveInfo r : apps) if (r.activityInfo.packageName.equals(p)) list.add(r);
+            for (ResolveInfo r : apps) if (!list.contains(r)) list.add(r);
+        }
         final int nx = extra == null ? 0 : extra.size();
         final HashMap<Integer, Drawable> icons = new HashMap<Integer, Drawable>();
         BaseAdapter ad = new BaseAdapter() {
@@ -3030,7 +3038,7 @@ public class Main extends Activity {
         List<String[]> extra = new ArrayList<String[]>();
         extra.add(new String[]{"auto", "↺  Automático (por defecto)", "restart_alt"});
         String[] pin = "nav_app".equals(key) ? NAV_PKGS : "music_app".equals(key) ? MUSIC_PKGS : null;
-        pickApp("¿Qué app abre «" + name + "»?", extra, pin, new TargetCb() { public void on(String target) {
+        pickApp("¿Qué app abre «" + name + "»?", extra, pin, true, new TargetCb() { public void on(String target) {
             if ("auto".equals(target)) {
                 prefs.edit().remove(key).apply();
                 toast("Restablecido");

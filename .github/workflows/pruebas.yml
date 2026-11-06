@@ -45,7 +45,7 @@ jobs:
           - { api: 21, arch: x86 }
           - { api: 24, arch: x86 }
           - { api: 28, arch: x86 }
-          - { api: 30, arch: x86 }
+          - { api: 30, arch: x86_64 }
           - { api: 34, arch: x86_64 }
     steps:
       - uses: actions/checkout@v4
