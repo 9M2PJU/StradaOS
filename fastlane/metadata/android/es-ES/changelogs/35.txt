@@ -1,0 +1,1 @@
+Al quitar el cable de Android Auto, el reproductor pasa a Bluetooth y el sonido vuelve solo al Bluetooth (se puede apagar en Ajustes → Música).

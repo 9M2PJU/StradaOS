@@ -1,6 +1,6 @@
 # Estado del proyecto StradaOS
 
-Última actualización: 2026-11-05 · Versión publicada: **2.9.5** (versionCode 34)
+Última actualización: 2026-11-05 · Versión publicada: **2.9.6** (versionCode 35)
 
 ## Publicado
 - Release v2.8.0 en GitHub, firmado con la llave de publicación (secretos de GitHub). La firma coincide con las versiones instaladas a mano, así que se instala encima sin perder la configuración.
@@ -10,8 +10,8 @@
 
 ## Pendientes, en orden
 1. **GitHub Sponsors:** el perfil está listo y espera que soporte de GitHub corrija el nombre de facturación (ticket #4952223). Cuando lo aprueben y Andrés publique, activar `github: lordnordic-debug` en `.github/FUNDING.yml` y en la sección «Apoya el proyecto» del README.
-2. **Terminar de confirmar 2.9.5 con Android Auto:** confirmado en el Picanto (2026-11-05) que la etiqueta ya no titila. Falta: ⏮ ⏯ ⏭ del inicio con Android Auto (van por tecla multimedia, no por la app Bluetooth); al cambiar de canción no debe pasar a Bluetooth; *Diagnóstico del reproductor* debe decir «Open Headunit corriendo: sí»; al desconectar el cable, la siguiente canción debe mostrarse como Bluetooth.
-3. **Confirmar 2.9.3 en la pantalla de Andrés:** al encender, debe verse el inicio (no «Audio Bluetooth»); ▶ del inicio pasa de radio a Bluetooth; revisar el nuevo paso «¿Qué app abre cada botón?». Pendiente de investigar: detectar el play del celular cuando la radio tiene el sonido (ver notas técnicas); con la opción en prueba activada, mirar *Música → Diagnóstico del reproductor* para ver si llega el evento «el celular empezó a sonar».
+2. **Confirmar 2.9.6 al quitar el cable de Android Auto:** con música sonando por Android Auto, quitar el cable: en 2–4 s la etiqueta debe pasar a «BLUETOOTH», desaparecer la carátula de Android Auto y abrirse un instante «Audio Bluetooth» para que el sonido siga por Bluetooth. En *Diagnóstico del reproductor*: con cable «celular por USB en modo Android Auto: sí» y «Android Auto conectado (para StradaOS): sí»; sin cable, «no». (2.9.5 confirmada en el Picanto: sin titileo, ⏮ ⏯ ⏭ con Android Auto, cambio de canción sin pasar a Bluetooth, «Open Headunit corriendo: sí».)
+3. **2.9.3 confirmada en el Picanto (2026-11-05):** al encender se ve el inicio de StradaOS (Open Headunit se abre antes por configuración de Andrés, no es error), ▶ del inicio pasa de radio a Bluetooth y el paso «¿Qué app abre cada botón?» funciona. Queda por investigar: detectar el play del celular cuando la radio tiene el sonido (ver notas técnicas).
 4. **Bluetooth en otras marcas:** la 2.9.0 trae una opción en prueba (abrir la app BT al conectar y volver). Para soporte nativo de cada marca, pedir `StradaDiag` exportado **con el celular sonando** (incluye `bluetooth.txt` con los servicios activos) y su app BT (apk/odex).
 5. **App de música preferida:** opción en *Ajustes → Música* para elegir una app (Musicolet, Spotify…). Si no suena nada y se toca ▶ en el inicio, StradaOS abre o arranca esa app (primero con tecla multimedia dirigida a su receptor; si no responde, abriéndola). Origen: comentario de Oscar Pizarro (Sonic 2015) en Facebook: Musicolet solo se controla después de abrirla; Moodmax no se controla desde el inicio (revisar si publica MediaSession; pedirle API y *Diagnóstico del reproductor*).
 6. **Accesos a pantallas internas:** en *Accesos y apps*, además de apps completas, permitir «Elegir pantalla interna…» (lista de actividades exportadas de una app, por ejemplo la Radio o la Música Bluetooth que viven dentro del launcher de fábrica). Origen: comentario de Giancarlo Maya en Facebook: su pantalla tiene radio y música Bluetooth dentro del launcher de fábrica. Pedirle modelo, API y `StradaDiag`.
@@ -25,6 +25,7 @@
 - Mapa con vista inclinada (3D) como opción en Ajustes. Antes hay que medir el rendimiento en pantallas lentas.
 
 ## Notas técnicas
+- Desconexión de Android Auto (2.9.6): Open Headunit sigue corriendo tras quitar el cable, así que `aaRunning()` ya no se basa solo en el proceso: exige el celular por USB en modo accesorio de Google (`UsbManager.getDeviceList`, VID 0x18D1, PID 0x2D00–0x2D05). Si nunca se vio por USB en la sesión (inalámbrico o equipo que no lista USB), usa una notificación de Open Headunit de hace menos de 15 s. `checkAaGone()` corre con `USB_DEVICE_DETACHED` (+1,5 s) y cada 2 s en `btTicker`: pone la fuente en Bluetooth, quita la carátula y abre un instante la app de música Bluetooth (`aa_off_bt`, activado por defecto) porque en Clinkway el sonido sigue a la última app de fuente al frente.
 - Android Auto + Bluetooth (2.9.5): con Open Headunit conectado, el celular sigue mandando la pista por AVRCP (Autochips) y por los avisos Clinkway `MEDIA_PLAY_STATE`/`MEDIA_PLAY_TIME_INFO`, estos últimos **sin título**. En 2.9.4 esos avisos sin título cambiaban `curSource` a «Bluetooth» y `applyAaNotif` lo volvía a «Android Auto» (titileo, y ⏯ iba a un destino al azar). Ahora `showTrack`: si la fuente es Android Auto y Open Headunit está corriendo (`aaRunning`, `getRunningAppProcesses` cada 3 s), Bluetooth solo aporta tiempo/estado; ignora `clear` y el `isPlaying` leído por `BtBridge.refresh` (`Track.polled`). Canción nueva por Bluetooth: espera 5 s (`aaWait`) a la notificación antes de pasar a Bluetooth.
 - Pruebas 2.9.2 en el Picanto (2026-11-05): (a) al instalar/encender con el celular sonando, el primer `poll` tomaba el estado inicial como flanco y abría «Audio Bluetooth», que a veces no volvía; corregido en 2.9.3 (`wasPlaying` empieza en null y 60 s de gracia). (b) Con la radio sonando, dar play en el celular NO dispara nada: probablemente `isPlaying()` (transacción 4) refleja el estado local del servicio, no el A2DP real, mientras la radio tiene el foco. (c) Tocar ▶ en StradaOS (`togglePlay`, transacción 1) sí pasa el sonido a Bluetooth y pausa la radio: es el método confiable en esta pantalla.
 - Actualizaciones: en Android 4.2 la API de GitHub y raw.githubusercontent suelen fallar (TLS); jsDelivr `@main` cachea horas y daba versiones viejas. Desde 2.9.2 la app consulta todas las fuentes y toma la mayor; `release.yml` purga jsDelivr tras actualizar `update.json`.
@@ -35,6 +36,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-05: v2.9.6 — al quitar el cable de Android Auto, la fuente pasa a Bluetooth y el sonido vuelve solo. Confirmadas en el Picanto 2.9.5 (controles y cambio de canción con Android Auto) y 2.9.3.
 - 2026-11-05: confirmado en el Picanto: con 2.9.5 la fuente ya no titila entre Android Auto y Bluetooth.
 - 2026-11-05: merge request a F-Droid abierto (!55924).
 - 2026-11-05: IzzyOnDroid rechazó StradaOS por su política de IA (escaneo y metadatos aprobados); siguiente: F-Droid.

@@ -180,6 +180,9 @@ public class Main extends Activity {
         try {
             registerReceiver(usbReceiver, new IntentFilter("android.hardware.usb.action.USB_DEVICE_ATTACHED"));
         } catch (Throwable ignored) { }
+        try {
+            registerReceiver(usbOffReceiver, new IntentFilter("android.hardware.usb.action.USB_DEVICE_DETACHED"));
+        } catch (Throwable ignored) { }
         nowPlaying = new NowPlaying(this, new NowPlaying.Listener() {
             public void onTrack(NowPlaying.Track t) { showTrack(t); }
         });
@@ -352,6 +355,7 @@ public class Main extends Activity {
         try { unregisterReceiver(timeReceiver); } catch (Exception ignored) { }
         try { nowPlaying.stop(); } catch (Throwable ignored) { }
         try { unregisterReceiver(usbReceiver); } catch (Throwable ignored) { }
+        try { unregisterReceiver(usbOffReceiver); } catch (Throwable ignored) { }
         try { bt.disconnect(); } catch (Throwable ignored) { }
         try { unregisterReceiver(btConnReceiver); } catch (Throwable ignored) { }
         h.removeCallbacks(btTicker);
@@ -475,6 +479,7 @@ public class Main extends Activity {
                 if (btAutoOn()) trackSource();
                 if (bt.isConnected()) bt.poll(btAutoOn());
             }
+            checkAaGone(false);
             h.postDelayed(this, 2000);
         }
     };
@@ -1138,15 +1143,69 @@ public class Main extends Activity {
         return Math.min(x.length(), y.length()) > 8 && (x.startsWith(y) || y.startsWith(x));
     }
 
-    /** Open Headunit está corriendo (Android Auto conectado o recién usado). Se revisa cada 3 s como máximo. */
+    /**
+     * Android Auto sigue conectado: Open Headunit corriendo y, además, el celular conectado por USB en modo
+     * Android Auto (o, si nunca se vio por USB, p. ej. inalámbrico, una notificación de Open Headunit reciente).
+     * Open Headunit sigue corriendo después de quitar el cable, así que el proceso solo no basta.
+     * Se revisa cada 3 s como máximo.
+     */
     private boolean aaRunning() {
         long now = SystemClock.elapsedRealtime();
         if (now - aaCheckedAt > 3000) {
             aaCheckedAt = now;
-            aaRunningCached = processRunning(PKG_HUR);
+            boolean alive = processRunning(PKG_HUR);
+            if (alive) {
+                int usb = aaUsbState();
+                if (usb == 1) aaUsbSeen = true;
+                else if (usb == 0) alive = !aaUsbSeen && NotifArt.lastAt > 0 && now - NotifArt.lastAt < 15000;
+            }
+            aaRunningCached = alive;
         }
         return aaRunningCached;
     }
+
+    /** 1 = hay un celular por USB en modo Android Auto (accesorio de Google), 0 = no hay, -1 = no se puede saber. */
+    private int aaUsbState() {
+        try {
+            android.hardware.usb.UsbManager um = (android.hardware.usb.UsbManager) getSystemService(USB_SERVICE);
+            if (um == null) return -1;
+            java.util.HashMap<String, android.hardware.usb.UsbDevice> list = um.getDeviceList();
+            if (list == null) return -1;
+            for (android.hardware.usb.UsbDevice d : list.values())
+                if (d.getVendorId() == 0x18D1 && d.getProductId() >= 0x2D00 && d.getProductId() <= 0x2D05) return 1;
+            return 0;
+        } catch (Throwable e) {
+            return -1;
+        }
+    }
+    private boolean aaUsbSeen;
+
+    /**
+     * Si Android Auto tenía la canción y se desconectó (se quitó el cable), la fuente pasa a Bluetooth y, si está
+     * activado, abre un instante la app de música Bluetooth para que el sonido vuelva al Bluetooth.
+     */
+    private void checkAaGone(boolean now) {
+        if (!"Android Auto".equals(curSource) || "rcc".equals(curOrigin)) return;
+        if (now) aaCheckedAt = 0;
+        if (aaRunning()) return;
+        BtBridge.log("Android Auto se desconectó");
+        aaWaitTitle = null;
+        h.removeCallbacks(aaWait);
+        curSource = "Bluetooth";
+        curArt = null;
+        renderTrack();
+        if (bt != null && bt.isConnected()) bt.refresh();
+        if (prefs.getBoolean("aa_off_bt", true) && (clwBt || btMusicApp() != null)) {
+            btRouted = false;
+            openBtAudioApp(false);
+        }
+    }
+
+    private final BroadcastReceiver usbOffReceiver = new BroadcastReceiver() {
+        public void onReceive(Context c, Intent i) {
+            h.postDelayed(new Runnable() { public void run() { checkAaGone(true); } }, 1500);
+        }
+    };
     private long aaCheckedAt;
     private boolean aaRunningCached;
     private String aaWaitTitle;
@@ -1193,6 +1252,8 @@ public class Main extends Activity {
                     : ((SystemClock.elapsedRealtime() - NotifArt.lastAt) / 1000) + " s, carátula "
                     + (NotifArt.lastArt != null ? "sí" : "no") + ", textos " + NotifArt.lastTexts)
                 + "\nOpen Headunit corriendo: " + (processRunning(PKG_HUR) ? "sí" : "no")
+                + " · celular por USB en modo Android Auto: " + (aaUsbState() == 1 ? "sí" : aaUsbState() == 0 ? "no" : "no se sabe")
+                + "\nAndroid Auto conectado (para StradaOS): " + (aaRunning() ? "sí" : "no")
                 + "\nApp Bluetooth conectada: " + (bt != null && bt.isConnected() ? "sí" : "no")
                 + "\nAudio Bluetooth automático: " + (clwBt ? (btAutoOn() ? "activado" : "desactivado") : "no aplica (otra marca)")
                 + (clwBt ? "" : "\nApp de música Bluetooth: " + (btMusicApp() != null ? btMusicApp().getPackageName() : "no encontrada")
@@ -2108,6 +2169,10 @@ public class Main extends Activity {
             }});
         row(c, "Diagnóstico del reproductor", "Fuente activa, lector de notificaciones y Bluetooth", null, new Runnable() { public void run() { showPlayerDiag(); } });
         LinearLayout b = section(body, "Audio Bluetooth");
+        toggle(b, "Volver al Bluetooth al desconectar Android Auto", "Al quitar el cable, abre un instante la app de música Bluetooth para que el sonido siga por Bluetooth",
+            prefs.getBoolean("aa_off_bt", true), new IntCb() { public void on(int i) {
+                prefs.edit().putBoolean("aa_off_bt", i == 1).apply(); showSettings(6);
+            }});
         if (clwBt) {
             row(b, "Escuchar el Bluetooth", "En esta pantalla, toca ▶ en el inicio: StradaOS pasa el sonido a Bluetooth (por ejemplo, si venías de la radio)", null, null);
             toggle(b, "Pasar a Bluetooth al dar play en el celular (en prueba)", "Abre un instante «Audio Bluetooth» y vuelve. En algunas pantallas no detecta el play del celular",
