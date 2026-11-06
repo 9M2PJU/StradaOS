@@ -1,6 +1,6 @@
 # Estado del proyecto StradaOS
 
-Última actualización: 2026-11-06 · Versión publicada: **2.11.0** (versionCode 40)
+Última actualización: 2026-11-06 · Versión publicada: **2.11.1** (versionCode 41)
 
 ## Publicado
 - Release v2.8.0 en GitHub, firmado con la llave de publicación (secretos de GitHub). La firma coincide con las versiones instaladas a mano, así que se instala encima sin perder la configuración.
@@ -49,6 +49,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-06: v2.11.1 — corrige el mapa en Android 9 (SSLHandshakeException); verificado en emuladores 4.1–14. Pendiente que Héctor confirme.
 - 2026-11-06: v2.11.0 — pantallas anchas, el mapa explica por qué no aparece, km/h o mph.
 - 2026-11-06: F-Droid cerró el MR !55924 por el punto 6 de calidad (menos de 3 meses de desarrollo). Reintentar desde 2027-02-04 con compilaciones reproducibles.
 - 2026-11-06: v2.10.1 — fijar StradaOS como inicio con un toque, abrir al encender, mapa en vivo opcional, ayuda Bluetooth; FAQ en página y README.

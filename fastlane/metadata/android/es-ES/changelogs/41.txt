@@ -1,0 +1,1 @@
+Corrige el mapa que no cargaba en pantallas con Android 9 (error de conexión segura); en Android 4 conecta con más servidores.

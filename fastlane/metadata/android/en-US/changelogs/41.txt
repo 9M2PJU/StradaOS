@@ -1,0 +1,1 @@
+Fixes the map not loading on Android 9 head units (secure connection error); on Android 4 it connects to more map servers.
