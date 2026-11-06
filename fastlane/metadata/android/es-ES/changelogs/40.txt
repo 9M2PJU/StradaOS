@@ -1,0 +1,1 @@
+Diseño para pantallas anchas (12,3"), el mapa explica por qué no aparece (permiso, ubicación apagada o sin señal) y velocidad en km/h o mph.

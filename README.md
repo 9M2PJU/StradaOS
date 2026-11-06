@@ -37,6 +37,8 @@ Nació para revivir las radios chinas que dicen *«Android 6 o superior»* pero 
 - 🧭 **Barra inferior a tu medida:** cada botón abre la app que quieras, con su ícono y su nombre, o una función (Radio, Bluetooth, Cámara, Música, Navegación, Android Auto…). Déjalo presionado para cambiarlo. La **cámara de reversa sigue funcionando**.
 - 🎧 **Apps preferidas:** tu app de música se abre al tocar el reproductor y tu app de navegación (Waze, Maps, OsmAnd…) con el botón del mapa.
 - 🌎 **Idiomas:** español, inglés y portugués (*Ajustes → Apariencia → Idioma*).
+- 📐 **Pantallas anchas** (12,3", 1920×720): el mapa aprovecha todo el ancho.
+- 🏁 **Velocidad en km/h o mph** (*Ajustes → Apariencia → Unidades*).
 - 🎨 **Modo oscuro, claro o automático** y 10 colores de acento.
 - ⚙️ **Ajustes** ordenados por categorías y asistente inicial.
 - 🔔 **Avisos de actualización** desde GitHub, con código QR para descargar desde el celular.

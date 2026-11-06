@@ -1,6 +1,6 @@
 # Estado del proyecto StradaOS
 
-Última actualización: 2026-11-06 · Versión publicada: **2.10.1** (versionCode 39)
+Última actualización: 2026-11-06 · Versión publicada: **2.11.0** (versionCode 40)
 
 ## Publicado
 - Release v2.8.0 en GitHub, firmado con la llave de publicación (secretos de GitHub). La firma coincide con las versiones instaladas a mano, así que se instala encima sin perder la configuración.
@@ -9,7 +9,7 @@
 - Donaciones: Ko-fi activo (`ko-fi.com/stradaos`) en el README, `.github/FUNDING.yml` y el botón «Donar» de la app.
 
 ## Pendientes, en orden
-- **En prueba (sin publicar, va a ser la 2.11.0):** diseño ancho (el mapa central toma el ancho extra; probado en emulador 1920x720), letrero del mapa con la causa del GPS (sin permiso / ubicación apagada / sin señal, tocable) y diagnóstico con permiso, GPS, red y última señal, velocidad en km/h o mph (Ajustes → Apariencia → Unidades; auto = mph en US/GB/LR/MM). Solo en la versión de prueba: Ajustes → Sistema → Simular pantalla (1024x600, 1280x720, 1920x720, 2000x1200). Andrés lo prueba en su Huawei MatePad 11.5 S (2800x1840, 3:2: más alta que una pantalla de carro, por eso usar la simulación 1920x720). Luego responder a Héctor, Reinaldo y Lionel y publicar.
+- **2.11.0 publicada (2026-11-06):** diseño ancho, causa del GPS en el letrero del mapa, km/h o mph. Probada por Andrés en su celular (sin permiso, GPS apagado, mph, diseño ancho por la proporción del celular, simulación 1920×720). Se respondió a Héctor, Reinaldo, Lionel y a quien pidió mph (en inglés): pendiente lo que contesten.
 - **Esperando respuesta · Héctor Vázquez (Facebook, 2026-11-06):** el mapa central no aparece ni con internet («sin ubicación · en vivo»); probó Google Maps, iGo, Waze y OsmAnd como navegador (no tiene que ver: el mapa central es de StradaOS y solo aparece con posición GPS). Se le pidió: permiso de Ubicación para StradaOS, GPS activado, probar al aire libre, foto del diagnóstico del mapa (dejar presionado el mapa), versión de Android y si Maps/Waze muestran su punto azul. Mejora propuesta y pendiente de visto bueno: que el diagnóstico y el letrero del mapa digan la causa (sin permiso de ubicación / GPS apagado / última señal).
 - **Pantallas anchas 12,3" (Lionel Durazo, Facebook, 2026-11-06):** hoy el lienzo 1024x600 se escala por la altura y queda centrado con márgenes a los lados (en 1920x720 sobran ~345 px por lado, del mismo color de fondo; la barra inferior sí va de lado a lado). Mejora pendiente: diseño ancho que estire las tarjetas (el mapa central gana el ancho extra) y reparta los botones de la barra. Se le pidió foto y resolución.
 - **2.10.0 publicada (2026-11-06):** barra inferior personalizable, apps preferidas de música/navegación e idiomas es/en/pt, probada por Andrés en el celular. Página con sección «Nuevo en la 2.10» (imágenes por idioma `img/barra-xx.webp`, `img/idioma-xx.webp`) y capturas 3–4 en fastlane. MR de F-Droid (!55924) actualizado a 2.10.0 (commit d38fe99, `UpdateCheckMode: Tags ^v[0-9.]+$`, finales de línea LF) el 2026-11-06; sigue esperando que un mantenedor lance el CI y revise.
@@ -48,6 +48,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-06: v2.11.0 — pantallas anchas, el mapa explica por qué no aparece, km/h o mph.
 - 2026-11-06: F-Droid cerró el MR !55924 por el punto 6 de calidad (menos de 3 meses de desarrollo). Reintentar desde 2027-02-04 con compilaciones reproducibles.
 - 2026-11-06: v2.10.1 — fijar StradaOS como inicio con un toque, abrir al encender, mapa en vivo opcional, ayuda Bluetooth; FAQ en página y README.
 - 2026-11-06: v2.10.0 — barra personalizable, apps preferidas, idiomas es/en/pt; página y README actualizados.

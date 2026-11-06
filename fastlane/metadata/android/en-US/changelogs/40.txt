@@ -1,0 +1,1 @@
+Layout for wide screens (12.3"), the map explains why it isn't showing (permission, location off or no signal) and speed in km/h or mph.
