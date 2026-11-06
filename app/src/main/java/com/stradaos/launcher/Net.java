@@ -70,7 +70,9 @@ public class Net {
             SSLContext ctx;
             try { ctx = SSLContext.getInstance("TLSv1.2"); } catch (Throwable e) { ctx = SSLContext.getInstance("TLS"); }
             ctx.init(null, new TrustManager[]{both}, null);
-            factory = new Tls12Factory(ctx.getSocketFactory());
+            // Android 5+ ya trae TLS 1.2 y buenos cifrados: solo se agregan las raíces. Tocar los cifrados ahí rompía
+            // el mapa en Android 9 (se colaba TLS_FALLBACK_SCSV y los servidores con TLS 1.3 cortaban el saludo).
+            factory = android.os.Build.VERSION.SDK_INT >= 21 ? ctx.getSocketFactory() : new Tls12Factory(ctx.getSocketFactory());
             initInfo = "TLS listo (" + ctx.getProtocol() + "), " + i + " raíces" + (bad > 0 ? ", " + bad + " omitidas" : "");
         } catch (Throwable e) {
             factory = null;
@@ -86,8 +88,18 @@ public class Net {
     }
 
     public static byte[] get(String url, int timeoutMs) throws Exception {
+        try {
+            return get(url, timeoutMs, factory);
+        } catch (javax.net.ssl.SSLException e) {
+            // si el saludo seguro falla con nuestra configuración, se reintenta con la del sistema
+            if (factory == null || !url.startsWith("https")) throw e;
+            return get(url, timeoutMs, null);
+        }
+    }
+
+    private static byte[] get(String url, int timeoutMs, SSLSocketFactory f) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
-        if (c instanceof HttpsURLConnection && factory != null) ((HttpsURLConnection) c).setSSLSocketFactory(factory);
+        if (c instanceof HttpsURLConnection && f != null) ((HttpsURLConnection) c).setSSLSocketFactory(f);
         c.setConnectTimeout(timeoutMs);
         c.setReadTimeout(timeoutMs);
         c.setRequestProperty("User-Agent", "StradaOS/2.1 (Android head unit launcher)");
@@ -113,8 +125,14 @@ public class Net {
         private Socket on(Socket s) { return on(s, null); }
         private Socket on(Socket s, String host) {
             if (s instanceof SSLSocket) {
-                try { // todos los cifrados que tenga el equipo (Android 4.x trae pocos activados)
-                    ((SSLSocket) s).setEnabledCipherSuites(((SSLSocket) s).getSupportedCipherSuites());
+                try { // Android 4.x trae pocos cifrados activados: se encienden los demás, menos los inseguros y las señales
+                    java.util.ArrayList<String> ok = new java.util.ArrayList<String>();
+                    for (String c : ((SSLSocket) s).getSupportedCipherSuites()) {
+                        if (c.contains("SCSV") || c.contains("_anon_") || c.contains("NULL") || c.contains("EXPORT")
+                                || c.contains("_RC4_") || c.contains("_DES_") || c.contains("_MD5")) continue;
+                        ok.add(c);
+                    }
+                    if (!ok.isEmpty()) ((SSLSocket) s).setEnabledCipherSuites(ok.toArray(new String[0]));
                 } catch (Throwable ignored) { }
                 if (host != null) {
                     try { s.getClass().getMethod("setHostname", String.class).invoke(s, host); } catch (Throwable ignored) { }   // SNI
