@@ -1,6 +1,6 @@
 {
-  "version": "2.9.6",
-  "notes": "## StradaOS 2.9.6 — Al quitar el cable de Android Auto, vuelve el Bluetooth\n\n### Corregido\n- **Al desconectar Android Auto, el reproductor ya no se queda en «Android Auto».** Open Headunit sigue abierto después de quitar el cable, así que ahora StradaOS mira si el celular sigue conectado por USB en modo Android Auto. Al quitar el cable, la etiqueta pasa a «Bluetooth» y se quita la carátula de Android Auto.\n- **El sonido vuelve solo al Bluetooth.** Al desconectar Android Auto, StradaOS abre un instante la app de música Bluetooth de la pantalla y regresa, para que el sonido siga por Bluetooth sin abrirla a mano. Se puede apagar en *Ajustes → Música → Volver al Bluetooth al desconectar Android Auto*.\n\n### Diagnóstico\n- *Diagnóstico del reproductor* muestra si el celular está conectado por USB en modo Android Auto y si StradaOS considera conectado Android Auto.\n",
-  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.6",
-  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.6/StradaOS-2.9.6.apk"
+  "version": "2.9.7",
+  "notes": "## StradaOS 2.9.7 — Registro de fallos y protección en pantallas nuevas\n\n### Nuevo\n- **Registro de fallos** en *Ajustes → Acerca de*: si StradaOS se cierra de forma inesperada o su pantalla deja de responder más de 8 s, queda anotado qué pasó (también en `StradaDiag/fallos.txt` cuando el equipo lo permite). Sirve para corregir fallos en pantallas que no tenemos para probar.\n\n### Protección\n- Si la ventana cambia de tamaño una y otra vez (barras del sistema que aparecen y desaparecen al pedir pantalla completa), StradaOS deja de pedir pantalla completa en vez de reconstruirse sin parar.\n\n### Ayuda\n- Preguntas frecuentes: qué hacer si la pantalla queda en negro (reiniciar y, si se quiere, desinstalar).\n",
+  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.9.7",
+  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.9.7/StradaOS-2.9.7.apk"
 }
