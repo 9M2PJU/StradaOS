@@ -6,7 +6,9 @@
 <li>Mapa en vivo de tu ciudad con tu posición.</li>
 <li>Botones de Android Auto y CarPlay: abre la app de proyección de tu pantalla o Open Headunit.</li>
 <li>Reproductor con carátula, título, artista y progreso de lo que suene por Bluetooth o Android Auto.</li>
-<li>Accesos a Radio, Bluetooth, Cámara, Navegador y Archivos de fábrica (la cámara de reversa sigue funcionando).</li>
+<li>Barra inferior a tu medida: cada botón abre la app que quieras (con su ícono y nombre) o una función como Radio, Cámara o Android Auto. La cámara de reversa sigue funcionando.</li>
+<li>Tu app de música y de navegación preferidas (Spotify, Waze, Maps, OsmAnd…).</li>
+<li>En español, inglés y portugués.</li>
 <li>Modo oscuro, claro o automático y 10 colores de acento.</li>
 <li>Avisos de actualización desde GitHub, con código QR para descargar desde el celular.</li>
 </ul>

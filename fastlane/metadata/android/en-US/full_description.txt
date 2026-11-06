@@ -6,8 +6,10 @@
 <li>Live map of your city with your position.</li>
 <li>Android Auto and CarPlay buttons: opens your unit's projection app or Open Headunit.</li>
 <li>Player with album art, title, artist and progress for Bluetooth or Android Auto audio.</li>
-<li>Shortcuts to the factory Radio, Bluetooth, Camera, Browser and File apps (the reverse camera keeps working).</li>
+<li>A bottom bar your way: each button opens any app you want (with its icon and name) or a function such as Radio, Camera or Android Auto. The reverse camera keeps working.</li>
+<li>Your preferred music and navigation apps (Spotify, Waze, Maps, OsmAnd…).</li>
+<li>In English, Spanish and Portuguese.</li>
 <li>Dark, light or automatic theme and 10 accent colors.</li>
 <li>Update notices from GitHub, with a QR code to download from your phone.</li>
 </ul>
-<p>Works on Android 4.1+. Free, no ads, open source (GPL-3.0). Interface in Spanish.</p>
+<p>Works on Android 4.1+. Free, no ads, open source (GPL-3.0).</p>
