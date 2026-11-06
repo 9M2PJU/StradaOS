@@ -2228,8 +2228,8 @@ public class Main extends Activity {
 
     private void catSystem(LinearLayout body) {
         LinearLayout c = section(body, "Equipo");
-        row(c, "Ajustes de Android", null, null, new Runnable() { public void run() {
-            startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        row(c, "Ajustes del equipo", "Los ajustes de la pantalla (los de la marca si los tiene)", null, new Runnable() { public void run() {
+            openSystemSettings();
         }});
         row(c, "Asistente de configuración inicial", "Nombre, vehículo, color y foto", null, new Runnable() { public void run() { closeSettings(); wizard(); } });
         LinearLayout k = section(body, "Compatibilidad");
@@ -2655,11 +2655,52 @@ public class Main extends Activity {
         }
     }
 
+    /**
+     * Ajustes del equipo. En pantallas con Android 10 o más nuevo, la marca suele traer su propia app de ajustes
+     * (la que muestra su launcher) y deja los Ajustes de Android ocultos y sin adaptar. Abrir esos Ajustes ocultos
+     * dejó en negro una TS10 con Android 14 (todas las apps y la cámara en negro hasta reiniciar), así que en esas
+     * pantallas se abre la app de ajustes de la marca; los Ajustes de Android solo si el launcher de fábrica los
+     * muestra. En Android 4–9 se mantiene como siempre.
+     */
+    private void openSystemSettings() {
+        PackageManager pm = getPackageManager();
+        ResolveInfo vendor = null;
+        int best = 0;
+        boolean aospVisible = false;
+        for (ResolveInfo r : apps) {
+            String pkg = r.activityInfo.packageName;
+            if ("com.android.settings".equals(pkg)) { aospVisible = true; continue; }
+            String l = String.valueOf(r.loadLabel(pm)).toLowerCase(ES).trim();
+            String pl = pkg.toLowerCase(ES);
+            if (pl.contains("bluetooth") || l.contains("bluetooth") || l.contains("wifi") || l.contains("wi-fi")) continue;
+            int score = 0;
+            if (l.equals("ajustes") || l.equals("configuración") || l.equals("configuracion") || l.equals("settings")
+                    || l.equals("setting") || l.equals("设置") || l.equals("car settings") || l.equals("carsetting")
+                    || l.equals("ajustes del coche") || l.equals("ajustes del vehículo") || l.equals("ajustes del carro")) score = 3;
+            else if (pl.contains("carsetting") || pl.contains("car.setting") || pl.endsWith(".settings") || pl.endsWith(".setting")) score = 2;
+            else if (l.startsWith("ajustes") || l.startsWith("configuraci") || l.contains("settings") || pl.contains("setting")) score = 1;
+            if (score > best) { best = score; vendor = r; }
+        }
+        if (SDK >= 29) {
+            if (vendor != null) { launch(vendor); return; }
+            if (!aospVisible) {
+                toast("Elige la app de ajustes de tu pantalla");
+                pickFor("settings", "Ajustes");
+                return;
+            }
+        }
+        try {
+            startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (Throwable e) {
+            toast("No se pudieron abrir los ajustes");
+        }
+    }
+
     private void openSlot(int idx) {
         String key = SLOTS[idx][0];
         if (launchSaved(key)) return;
         if ("settings".equals(key)) {
-            startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            openSystemSettings();
             return;
         }
         ResolveInfo r = find(SLOTS[idx][2], SLOTS[idx][3]);

@@ -1,0 +1,1 @@
+El botón Ajustes abre la app de ajustes de tu pantalla (en Android 10+ ya no abre los Ajustes de Android ocultos, que dejaban una TS10 en negro).

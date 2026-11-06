@@ -1,0 +1,1 @@
+The Settings button opens your head unit's own settings app (on Android 10+ it no longer opens the hidden Android Settings, which left a TS10 unit black).
