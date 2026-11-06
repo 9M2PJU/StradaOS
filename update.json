@@ -1,6 +1,6 @@
 {
-  "version": "2.10.1",
-  "notes": "## StradaOS 2.10.1 — Fijar StradaOS como inicio con un toque\n\n### Nuevo\n- **Si StradaOS no es tu pantalla de inicio, te avisa y lo arregla con un botón.** Toca «Fijar ahora», elige StradaOS y luego «Siempre». En Android 10 o más nuevo aparece la ventana del sistema «¿Usar StradaOS como app de inicio?». También se pregunta al final del asistente. Así deja de salir el menú de fábrica al encender o al tocar Inicio.\n- *Ajustes → Sistema → Pantalla de inicio*: muestra si StradaOS es el inicio, y la opción **«Abrir StradaOS al encender»** para pantallas que siempre arrancan en su menú de fábrica (Android 4 a 9).\n- *Ajustes → Mapa y clima → Rendimiento*: **apagar el mapa en vivo** en pantallas lentas (el velocímetro sigue funcionando).\n- *Ajustes → Música*: ayuda para cuando la **música Bluetooth se corta** al salir de su app o no aparece en el inicio.\n",
-  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.10.1",
-  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.10.1/StradaOS-2.10.1.apk"
+  "version": "2.11.0",
+  "notes": "## StradaOS 2.11.0 — Pantallas anchas, mapa que explica qué pasa y mph\n\n### Nuevo\n- **Diseño para pantallas anchas** (12,3\", 1920×720 y similares): el mapa del centro aprovecha todo el ancho, el audio queda a la derecha y los botones de abajo se reparten de lado a lado. Ya no quedan franjas vacías.\n- **El mapa dice por qué no aparece:** «Sin permiso de ubicación», «Ubicación apagada» o «Sin señal GPS». Toca el letrero y StradaOS te lleva a arreglarlo. El diagnóstico del mapa (déjalo presionado) muestra el permiso, el GPS y la última señal.\n- **Velocidad en km/h o mph:** *Ajustes → Apariencia → Unidades*. En «Auto» usa mph en EE. UU. y Reino Unido.\n",
+  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.11.0",
+  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.11.0/StradaOS-2.11.0.apk"
 }
