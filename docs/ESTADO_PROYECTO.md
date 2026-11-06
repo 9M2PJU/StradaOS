@@ -1,6 +1,6 @@
 # Estado del proyecto StradaOS
 
-Última actualización: 2026-11-06 · Versión publicada: **2.10.0** (versionCode 38)
+Última actualización: 2026-11-06 · Versión publicada: **2.10.1** (versionCode 39)
 
 ## Publicado
 - Release v2.8.0 en GitHub, firmado con la llave de publicación (secretos de GitHub). La firma coincide con las versiones instaladas a mano, así que se instala encima sin perder la configuración.
@@ -27,6 +27,8 @@
 - Mapa con vista inclinada (3D) como opción en Ajustes. Antes hay que medir el rendimiento en pantallas lentas.
 
 ## Notas técnicas
+- Pantalla de inicio (2.10.1): `isDefaultHome()` con `resolveActivity(HOME, MATCH_DEFAULT_ONLY)`. `makeDefaultHome()`: Android 10+ `RoleManager.ROLE_HOME` (`Modern.requestHomeRole`, REQ_HOME 77); Android 4–9 activa un instante `FakeHome` (actividad HOME desactivada) para que Android muestre la lista «¿Qué app usar?». Probado en emuladores 4.1, 7, 11 y 14. Se pregunta una vez por apertura (`autoChecks`) y al final del asistente; «No volver a preguntar» = `home_never`. No abre Ajustes del sistema (lección de la TS10). `BootReceiver` + `boot_open` abre StradaOS al encender (Android 10+ bloquea abrir actividades desde segundo plano). `map_live` = false no crea `LiveMapView`.
+- Respuestas típicas en Facebook: «no abre al encender / es una app» = no está fijado como inicio; «la música Bluetooth se corta al salir» = salen con Atrás en vez de Inicio; «va lento» = pantalla limitada → apagar mapa en vivo y pedir modelo/Android. No hace falta USB para Bluetooth.
 - Imágenes de la página, de fastlane y de Facebook: se generan con una plantilla HTML que reproduce el launcher (1024x600, mismos colores y medidas) y Playwright a escala 1,5 (página, .webp) o 2 (fastlane). Apps de ejemplo con íconos genéricos (sin logos de marcas) y ciudades de ejemplo (nunca la ubicación real de Andrés).
 - Idiomas de la app (`I18n.java`, `TB.java`, `assets/i18n/en.txt` y `pt.txt`): el código sigue en español y cada texto se traduce al mostrarse (`tv()`, `toast()`, ventanas `TB` en vez de `AlertDialog.Builder`, y los `setText` de textos fijos con `I18n.t`). Tabla «español<TAB>traducción»; patrones con `{}` para textos con datos (lo de adentro también se traduce). Texto nuevo = agregar su línea en en.txt y pt.txt (si falta, sale en español). Preferencia `lang` = auto/es/en/pt; instalaciones anteriores quedan en «es», nuevas en «auto» (idioma del sistema; si no es es/pt/en, inglés). Los diagnósticos técnicos (reproductor, mapa, registro de fallos) quedan en español. La etiqueta de accesibilidad usa `values-en`/`values-pt` (idioma del sistema).
 - Idiomas de la página (`site/i18n.js`): cada bloque de texto de `index.html` tiene `data-i18n="tN"` y su traducción en `U.en`/`U.pt`; atributos, título, metadatos y textos del JS con `I18N.T()` (mapa `A`). Elegido con ES · EN · PT del encabezado, se guarda en localStorage; por defecto el idioma del navegador; `?lang=en` fuerza uno. Texto nuevo en la página = ponerle `data-i18n` con una clave nueva y agregar su traducción.
@@ -43,6 +45,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-06: v2.10.1 — fijar StradaOS como inicio con un toque, abrir al encender, mapa en vivo opcional, ayuda Bluetooth; FAQ en página y README.
 - 2026-11-06: v2.10.0 — barra personalizable, apps preferidas, idiomas es/en/pt; página y README actualizados.
 - 2026-11-06: idiomas español, inglés y portugués en la app (en prueba) y en la página web (publicada).
 - 2026-11-06: barra inferior personalizable, apps preferidas de música/navegación, versión de prueba en el Release «prueba» y pruebas automáticas en emuladores API 16–34.

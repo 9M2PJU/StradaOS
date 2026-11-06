@@ -1,0 +1,1 @@
+Warns if StradaOS isn't your home screen and sets it with one tap; option to open StradaOS at startup, turn off the live map on slow screens, and Bluetooth music help.
