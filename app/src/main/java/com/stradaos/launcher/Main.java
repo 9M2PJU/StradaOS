@@ -2419,8 +2419,8 @@ public class Main extends Activity {
 
     private void catLook(LinearLayout body) {
         LinearLayout lg = section(body, "Idioma");
-        String lp = I18n.pref(prefs);
-        int lsel = "es".equals(lp) ? 1 : "en".equals(lp) ? 2 : "pt".equals(lp) ? 3 : 0;
+        String lpref = I18n.pref(prefs);
+        int lsel = "es".equals(lpref) ? 1 : "en".equals(lpref) ? 2 : "pt".equals(lpref) ? 3 : 0;
         segmented(lg, "Idioma", "Automático: el del sistema", new String[]{"Auto", "Español", "English", "Português"}, lsel, new IntCb() { public void on(int i) {
             setLanguage(i == 0 ? "auto" : I18n.CODES[i - 1]);
             showSettings(2);
