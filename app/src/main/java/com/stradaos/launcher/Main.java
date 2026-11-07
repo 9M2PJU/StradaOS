@@ -471,7 +471,7 @@ public class Main extends Activity {
                 }
                 else if ("aviso-aceite".equals(v)) {
                     prefs.edit().putFloat("odo_base_km", 45100).putFloat("odo_gps_m", 0).putFloat("oil_snooze_km", 0).apply();
-                    rebuild(); oilAlert();
+                    oilLater = false; rebuild(); oilAlert();
                 }
                 else if ("menu-aceite".equals(v)) oilMenu();
                 else if (v.startsWith("rumbo:")) {
@@ -941,9 +941,17 @@ public class Main extends Activity {
         float left = oilNextKm() - odoKm();
         String head = I18n.t("Kilometraje estimado") + ": ≈ " + fmtDist(odoKm()) + "\n"
             + I18n.t("Próximo cambio") + ": " + fmtDist(oilNextKm())
-            + " · " + (left > 0 ? I18n.t("Faltan " + fmtDist(left)) : I18n.t("¡Ya toca!"));
+            + "\n" + (left > 0 ? I18n.t("Faltan " + fmtDist(left)) : I18n.t("¡Ya toca!"));
+        LinearLayout ht = new LinearLayout(this);
+        ht.setOrientation(LinearLayout.VERTICAL);
+        int hp = (int) (22 * s);
+        ht.setPadding(hp, hp, hp, (int) (6 * s));
+        ht.addView(tv("Cambio de aceite", 19, TEXT, true));
+        TextView hs = tv(head, 14, MUTED, false);
+        hs.setPadding(0, (int) (6 * s), 0, 0);
+        ht.addView(hs);
         new TB(this, dlg())
-            .setTitle(I18n.t("Cambio de aceite") + "\n" + head)
+            .setCustomTitle(ht)
             .setItems(new String[]{"Ya hice el cambio de aceite", "Corregir el kilometraje actual", "Cambiar cada cuánto se hace", "Desactivar el recordatorio"},
                 new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
                     if (w == 0) oilDone();
@@ -1008,11 +1016,15 @@ public class Main extends Activity {
     }
 
     /** Aviso en el inicio cuando toca el cambio. «Aún no» lo vuelve a mostrar tras 100 km (60 mi). */
+    private android.app.Dialog oilDlg;
+    private static boolean oilLater;   // cerró el aviso sin elegir: se vuelve a mostrar la próxima vez que abra StradaOS
+
     private boolean oilAlert() {
+        if (oilLater || (oilDlg != null && oilDlg.isShowing())) return false;
         if (!oilOn() || !prefs.contains("odo_base_km")) return false;
         float now = odoKm();
         if (now < oilNextKm() || now < prefs.getFloat("oil_snooze_km", 0)) return false;
-        new TB(this, dlg())
+        oilDlg = new TB(this, dlg())
             .setTitle("Es hora del cambio de aceite")
             .setMessage(I18n.t("El kilometraje estimado es ≈ " + fmtDist(now) + " y ya toca el cambio de aceite (cada " + fmtDist(prefs.getFloat("oil_interval_km", 5000)) + ").")
                 + "\n\n" + I18n.t("¿Ya lo hiciste?"))
@@ -1020,7 +1032,7 @@ public class Main extends Activity {
             .setNegativeButton("Aún no", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
                 prefs.edit().putFloat("oil_snooze_km", odoKm() + (useMph() ? 60 / 0.621371f : 100)).apply();
             }})
-            .setCancelable(false)
+            .setOnCancelListener(new DialogInterface.OnCancelListener() { public void onCancel(DialogInterface d) { oilLater = true; } })
             .show();
         return true;
     }
