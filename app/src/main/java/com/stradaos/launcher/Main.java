@@ -948,6 +948,9 @@ public class Main extends Activity {
         ht.setPadding(hp, hp, hp, (int) (6 * s));
         ht.addView(tv("Cambio de aceite", 19, TEXT, true));
         TextView hs = tv(head, 14, MUTED, false);
+        hs.setSingleLine(false);
+        hs.setMaxLines(4);
+        hs.setLineSpacing(3 * s, 1f);
         hs.setPadding(0, (int) (6 * s), 0, 0);
         ht.addView(hs);
         new TB(this, dlg())
