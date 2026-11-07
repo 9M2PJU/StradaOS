@@ -9,7 +9,9 @@ import org.json.JSONObject;
 /**
  * Busca versiones nuevas en GitHub Releases.
  * Orden: API de GitHub → update.json del repositorio (raw) → update.json por jsDelivr (también http,
- * para pantallas con Android 4.x que no logran el cifrado de GitHub).
+ * para pantallas con Android 4.x que no logran el cifrado de GitHub; solo si ninguna fuente cifrada respondió).
+ * Seguridad: de las fuentes solo se toma el número de versión. El APK se descarga siempre de los Releases del
+ * repositorio y, antes de instalarlo, se comprueba que sea StradaOS firmado con la misma llave (Main.verifyApk).
  */
 public class Updates {
 
@@ -19,6 +21,8 @@ public class Updates {
     public static final String RELEASES_URL = REPO_URL + "/releases/latest";
     public static final String ISSUES_URL = REPO_URL + "/issues";
     public static final String DONATE_DEFAULT = REPO_URL + "#-apoya-el-proyecto";
+    /** Único lugar del que se descarga el APK (los Releases del repositorio). */
+    static final String APK_PREFIX = REPO_URL + "/releases/download/v";
 
     static final String[] JSON_URLS = {
         "https://raw.githubusercontent.com/" + OWNER + "/" + REPO + "/main/update.json",
@@ -51,7 +55,7 @@ public class Updates {
 
     public static String donateUrl(Context c) {
         String u = c.getSharedPreferences("launcher", 0).getString("donate_url", "");
-        return u.length() > 0 ? u : DONATE_DEFAULT;
+        return trustedDonate(u) ? u : DONATE_DEFAULT;
     }
 
     public static String currentVersion(Context c) {
@@ -93,11 +97,16 @@ public class Updates {
                 Release r = null;
                 StringBuilder rep = new StringBuilder();
                 String[] names = {"GitHub", "GitHub (raw)", "jsDelivr", "jsDelivr (http)"};
+                boolean secureOk = false;
                 for (int i = 0; i <= JSON_URLS.length; i++) {
+                    boolean plain = i > 0 && JSON_URLS[i - 1].startsWith("http:");
+                    // la fuente sin cifrar (para Android 4.x) solo se consulta si ninguna fuente segura respondió
+                    if (plain && secureOk) continue;
                     Release c = null;
                     try { c = i == 0 ? fromApi() : fromJson(ctx, JSON_URLS[i - 1]); }
                     catch (Throwable e) { lastError = names[i] + ": " + e; rep.append(names[i]).append(": ").append(shortErr(e)).append('\n'); }
                     if (c == null) continue;
+                    if (!plain) secureOk = true;
                     rep.append(names[i]).append(": ").append(c.version).append('\n');
                     if (r == null || compare(c.version, r.version) > 0) { r = c; r.source = names[i]; }
                     if (i == 0) break; // la API de GitHub siempre está al día
@@ -114,27 +123,41 @@ public class Updates {
     private static Release fromApi() throws Exception {
         JSONObject o = new JSONObject(new String(Net.get("https://api.github.com/repos/" + OWNER + "/" + REPO + "/releases/latest", 10000), "UTF-8"));
         Release r = new Release();
-        r.version = clean(o.getString("tag_name"));
+        r.version = safeVersion(o.getString("tag_name"));
         r.notes = o.optString("body", "");
-        r.pageUrl = o.optString("html_url", RELEASES_URL);
-        JSONArray a = o.optJSONArray("assets");
-        if (a != null) for (int i = 0; i < a.length(); i++) {
-            String u = a.getJSONObject(i).optString("browser_download_url", "");
-            if (u.endsWith(".apk")) { r.apkUrl = u; break; }
-        }
+        links(r);
         return r;
     }
 
     private static Release fromJson(Context c, String url) throws Exception {
         JSONObject o = new JSONObject(new String(Net.get(url, 10000), "UTF-8"));
         Release r = new Release();
-        r.version = clean(o.getString("version"));
+        r.version = safeVersion(o.getString("version"));
         r.notes = o.optString("notes", "");
-        r.pageUrl = o.optString("url", RELEASES_URL);
-        r.apkUrl = o.optString("apk", null);
+        // los enlaces no se toman del archivo: se arman siempre hacia los Releases del repositorio
+        links(r);
+        // el enlace de donación solo se acepta por una fuente cifrada y hacia sitios conocidos
         String d = o.optString("donate_url", "");
-        if (d.length() > 0) c.getSharedPreferences("launcher", 0).edit().putString("donate_url", d).apply();
+        if (url.startsWith("https://") && trustedDonate(d)) c.getSharedPreferences("launcher", 0).edit().putString("donate_url", d).apply();
         return r;
+    }
+
+    /** Solo números y puntos (p. ej. «2.11.1»); cualquier otra cosa se rechaza. */
+    static String safeVersion(String tag) throws Exception {
+        String v = clean(tag);
+        if (!v.matches("\\d{1,4}(\\.\\d{1,4}){0,3}")) throw new Exception("versión no válida");
+        return v;
+    }
+
+    /** Página y APK de la versión, siempre en github.com/lordnordic-debug/StradaOS. */
+    static void links(Release r) {
+        r.pageUrl = REPO_URL + "/releases/tag/v" + r.version;
+        r.apkUrl = APK_PREFIX + r.version + "/StradaOS-" + r.version + ".apk";
+    }
+
+    static boolean trustedDonate(String u) {
+        return u != null && (u.startsWith("https://ko-fi.com/") || u.startsWith("https://github.com/sponsors/")
+                || u.startsWith("https://www.paypal.com/") || u.startsWith(REPO_URL));
     }
 
     static String clean(String tag) {

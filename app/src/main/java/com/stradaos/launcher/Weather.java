@@ -31,11 +31,13 @@ public class Weather {
             public void run() {
                 SharedPreferences p = c.getSharedPreferences("launcher", 0);
                 boolean f = "F".equals(p.getString("temp_unit", "C"));
-                String q = String.format(Locale.US,
-                        "api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&current=temperature_2m,weather_code,is_day&timezone=auto%s",
-                        lat, lon, f ? "&temperature_unit=fahrenheit" : "");
                 Now n = null;
                 for (String scheme : new String[]{"https://", "http://"}) {
+                    // sin cifrar (solo si falla https, en Android 4.x) se envía la posición redondeada a ~10 km
+                    boolean plain = scheme.startsWith("http:");
+                    String q = String.format(Locale.US,
+                            "api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&current=temperature_2m,weather_code,is_day&timezone=auto%s",
+                            coord(lat, plain), coord(lon, plain), f ? "&temperature_unit=fahrenheit" : "");
                     try {
                         JSONObject cur = new JSONObject(new String(Net.get(scheme + q, 10000), "UTF-8")).getJSONObject("current");
                         n = new Now();
@@ -53,6 +55,11 @@ public class Weather {
                 l.onWeather(n, null);
             }
         }).start();
+    }
+
+    /** Coordenada para la URL: 4 decimales por https; 1 decimal (~10 km) si la conexión va sin cifrar. */
+    static String coord(double v, boolean plain) {
+        return String.format(Locale.US, plain ? "%.1f" : "%.4f", v);
     }
 
     /** Ciudad: la escrita por el usuario, la guardada para esa zona, Geocoder o BigDataCloud. */
@@ -73,9 +80,11 @@ public class Weather {
             }
         } catch (Throwable ignored) { }
         if (name == null) {
-            String q = String.format(Locale.US,
-                    "api.bigdatacloud.net/data/reverse-geocode-client?latitude=%.4f&longitude=%.4f&localityLanguage=%s", lat, lon, I18n.lang);
             for (String scheme : new String[]{"https://", "http://"}) {
+                boolean plain = scheme.startsWith("http:");
+                String q = String.format(Locale.US,
+                        "api.bigdatacloud.net/data/reverse-geocode-client?latitude=%s&longitude=%s&localityLanguage=%s",
+                        coord(lat, plain), coord(lon, plain), I18n.lang);
                 try {
                     JSONObject o = new JSONObject(new String(Net.get(scheme + q, 8000), "UTF-8"));
                     name = o.optString("city", "");

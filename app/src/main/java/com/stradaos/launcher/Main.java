@@ -456,6 +456,12 @@ public class Main extends Activity {
                 else if ("fijar-inicio".equals(v)) makeDefaultHome();
                 else if (v.startsWith("sim:")) { prefs.edit().putInt("sim_screen", Integer.parseInt(v.substring(4))).apply(); rebuild(); }
                 else if ("diag-mapa".equals(v)) showMapDiag();
+                else if ("verificar-apk".equals(v)) {
+                    boolean own = verifyApk(new File(getPackageCodePath()));
+                    boolean other = false;
+                    try { other = verifyApk(new File(getPackageManager().getApplicationInfo("com.android.settings", 0).sourceDir)); } catch (Throwable ignored) { }
+                    Guard.log("PRUEBA verificar-apk: propio=" + own + " otro=" + other);
+                }
                 else if ("aviso-inicio".equals(v)) askDefaultHome(null);
                 else if ("demo-barra".equals(v) && !apps.isEmpty()) {
                     ResolveInfo r = apps.get(0);
@@ -2951,6 +2957,7 @@ public class Main extends Activity {
         new Thread(new Runnable() { public void run() {
             File out = null;
             try {
+                if (r.apkUrl == null || !r.apkUrl.startsWith(Updates.APK_PREFIX)) throw new Exception("origen no permitido");
                 byte[] data = Net.get(r.apkUrl, 60000);
                 File dir = getExternalFilesDir(null);
                 if (dir == null) dir = getFilesDir();
@@ -2960,6 +2967,11 @@ public class Main extends Activity {
                 os.write(data);
                 os.close();
                 out.setReadable(true, false);
+                if (!verifyApk(out)) {
+                    Guard.log("Actualización rechazada: el APK descargado no es StradaOS firmado con la misma llave.");
+                    out.delete();
+                    out = null;
+                }
             } catch (Throwable e) { out = null; }
             final File f = out;
             runOnUiThread(new Runnable() { public void run() {
@@ -3462,6 +3474,29 @@ public class Main extends Activity {
                 });
             }
         }).start();
+    }
+
+    /**
+     * true si el APK es StradaOS (mismo paquete) y, cuando el equipo deja leer la firma, está firmado con la misma
+     * llave que la app instalada. Si la firma no se puede leer, Android igual exige la misma llave para actualizar
+     * un paquete ya instalado, así que basta con que el paquete coincida.
+     */
+    boolean verifyApk(File f) {
+        try {
+            PackageManager pm = getPackageManager();
+            android.content.pm.PackageInfo a = pm.getPackageArchiveInfo(f.getAbsolutePath(), PackageManager.GET_SIGNATURES);
+            if (a == null || !getPackageName().equals(a.packageName)) return false;
+            if (a.signatures == null || a.signatures.length == 0) return true;
+            android.content.pm.PackageInfo me = pm.getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+            if (me.signatures == null || me.signatures.length == 0) return true;
+            java.util.HashSet<String> mine = new java.util.HashSet<String>();
+            for (android.content.pm.Signature sg : me.signatures) mine.add(sg.toCharsString());
+            java.util.HashSet<String> theirs = new java.util.HashSet<String>();
+            for (android.content.pm.Signature sg : a.signatures) theirs.add(sg.toCharsString());
+            return mine.equals(theirs);
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     private void installFile(File f, String name) {

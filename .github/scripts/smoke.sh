@@ -74,6 +74,7 @@ go ajustes:2;      shot 26-ancha-1920x720-ajustes
 go inicio 3
 if [ "$API" -ge 18 ]; then adb shell wm size 1024x600; adb shell wm density 160; else adb shell am display-size 1024x600; adb shell am display-density 160; fi
 sleep 5
+go verificar-apk 4
 # idiomas: inicio y ajustes en inglés y portugués
 go idioma:en 6;    shot 12-en-inicio
 go ajustes:4;      shot 13-en-ajustes-accesos
@@ -94,6 +95,9 @@ grep -E "FATAL EXCEPTION|ANR in com.stradaos" -A 30 "$OUT/logcat.txt" > "$OUT/CI
 if grep -q "com.stradaos" "$OUT/CIERRES.txt"; then
   echo "::error::API $API: StradaOS se cerró o se trabó (ver CIERRES.txt)"
   exit 1
+fi
+if ! grep -q "PRUEBA verificar-apk: propio=true otro=false" "$OUT/fallos.txt"; then
+  echo "::error::API $API: la verificación del APK no dio el resultado esperado"; grep "verificar-apk" "$OUT/fallos.txt"; exit 1
 fi
 rm -f "$OUT/CIERRES.txt"
 echo "API $API: sin cierres"
