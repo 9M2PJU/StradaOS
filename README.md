@@ -26,7 +26,7 @@ Nació para revivir las radios chinas que dicen *«Android 6 o superior»* pero 
 ## ✨ Funciones
 
 - 🚗 **Tu vehículo:** nombre, etiqueta y foto. Al subir la foto, StradaOS **le quita el fondo** y la ajusta al recuadro (con vista previa y 4 niveles, incluido quitar el reflejo del piso).
-- 🗺️ **Mapa en vivo** de tu ciudad con tu posición y rumbo (OpenStreetMap). Se guarda en el equipo para verlo sin señal por donde ya pasaste.
+- 🗺️ **Mapa en vivo** de tu ciudad con tu posición y rumbo (OpenStreetMap), con el norte arriba o girando según tu dirección. Se guarda en el equipo para verlo sin señal por donde ya pasaste.
 - 📲 **Android Auto y CarPlay**, cada uno con su botón:
   - Si tu pantalla trae Android Auto/CarPlay (ZLink, CarLink, TLink, AutoKit…), los abre directamente.
   - Si no, Android Auto funciona con [Open Headunit](https://github.com/andreknieriem/headunit-revived) por cable USB.
@@ -34,9 +34,10 @@ Nació para revivir las radios chinas que dicen *«Android 6 o superior»* pero 
 - 🎵 **Reproductor** con carátula, título, artista, tiempo y progreso de lo que suene por **Bluetooth** o **Android Auto**, con controles.
 - 🌤️ **Clima** de tu ciudad (°C / °F).
 - ⏱️ **Velocímetro** por GPS, reloj y saludo personalizado.
+- 🛢️ **Recordatorio de cambio de aceite** al lado de la velocidad: escribes el kilometraje del tablero una vez, StradaOS suma lo que recorres con el GPS y te avisa cuando toca (en km o millas).
 - 🧭 **Barra inferior a tu medida:** cada botón abre la app que quieras, con su ícono y su nombre, o una función (Radio, Bluetooth, Cámara, Música, Navegación, Android Auto…). Déjalo presionado para cambiarlo. La **cámara de reversa sigue funcionando**.
 - 🎧 **Apps preferidas:** tu app de música se abre al tocar el reproductor y tu app de navegación (Waze, Maps, OsmAnd…) con el botón del mapa.
-- 🌎 **Idiomas:** español, inglés y portugués (*Ajustes → Apariencia → Idioma*).
+- 🌎 **Idiomas:** español, inglés, portugués, italiano y alemán (*Ajustes → Apariencia → Idioma*).
 - 📐 **Pantallas anchas** (12,3", 1920×720): el mapa aprovecha todo el ancho.
 - 🏁 **Velocidad en km/h o mph** (*Ajustes → Apariencia → Unidades*).
 - 🎨 **Modo oscuro, claro o automático** y 10 colores de acento.
@@ -129,7 +130,7 @@ Es el procesador de la pantalla. En Open Headunit baja la resolución a 480p, a 
 
 ## 🔒 Privacidad
 
-StradaOS no tiene cuentas, anuncios ni analíticas. Tu ubicación se usa solo en el equipo para el mapa, el velocímetro y el clima. Lee los detalles en [PRIVACY.md](PRIVACY.md).
+StradaOS no tiene cuentas, anuncios ni analíticas. Tu ubicación se usa solo en el equipo para el mapa, el velocímetro, el clima y el recordatorio de aceite. Lee los detalles en [PRIVACY.md](PRIVACY.md).
 
 ## 🤝 Contribuir
 
@@ -176,7 +177,7 @@ StradaOS se publica bajo la [GNU GPL v3.0](LICENSE). Usa o se apoya en:
 
 **StradaOS** is a free, open-source launcher for Android car head units. It replaces the generic factory menu with a modern home screen without flashing or modifying the system. It was built for Chinese units that claim "Android 6+" but really run Android 4.x, and it also works on modern units.
 
-Features include a vehicle card with automatic background removal, a live map, Android Auto and CarPlay buttons (they open your unit's projection app, or [Open Headunit](https://github.com/andreknieriem/headunit-revived)), a media card with album art for Bluetooth and Android Auto, a fully customizable bottom bar (any app or function on each button), preferred music and navigation apps, weather, a GPS speedometer, dark/light themes and update notices. Minimum Android 4.1. The interface is available in **English, Spanish and Portuguese** (Settings → Appearance → Language). Website in all three languages: https://lordnordic-debug.github.io/StradaOS/?lang=en. License: GPL-3.0.
+Features include a vehicle card with automatic background removal, a live map, Android Auto and CarPlay buttons (they open your unit's projection app, or [Open Headunit](https://github.com/andreknieriem/headunit-revived)), a media card with album art for Bluetooth and Android Auto, a fully customizable bottom bar (any app or function on each button), preferred music and navigation apps, weather, a GPS speedometer, an oil change reminder, dark/light themes and update notices. Minimum Android 4.1. The interface is available in **English, Spanish, Portuguese, Italian and German** (Settings → Appearance → Language). Website in English, Spanish and Portuguese: https://lordnordic-debug.github.io/StradaOS/?lang=en. License: GPL-3.0.
 
 **Português:** o **StradaOS** é um launcher grátis e de código aberto para centrais Android de carro, com mapa ao vivo, Android Auto, música com capa, barra inferior personalizável e interface em português (Ajustes → Aparência → Idioma). Funciona a partir do Android 4.1. Site em português: https://lordnordic-debug.github.io/StradaOS/?lang=pt
 </details>

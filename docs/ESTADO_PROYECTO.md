@@ -1,6 +1,6 @@
 # Estado del proyecto StradaOS
 
-Última actualización: 2026-11-06 · Versión publicada: **2.11.1** (versionCode 41)
+Última actualización: 2026-11-07 · Versión publicada: **2.12.0** (versionCode 42)
 
 ## Publicado
 - Release v2.8.0 en GitHub, firmado con la llave de publicación (secretos de GitHub). La firma coincide con las versiones instaladas a mano, así que se instala encima sin perder la configuración.
@@ -9,6 +9,7 @@
 - Donaciones: Ko-fi activo (`ko-fi.com/stradaos`) en el README, `.github/FUNDING.yml` y el botón «Donar» de la app.
 
 ## Pendientes, en orden
+- **2.12.0 publicada (2026-11-07):** recordatorio de cambio de aceite (odómetro estimado: base escrita por el usuario + distancia GPS en `odo_gps_m`; prefs `oil_on`, `odo_base_km`, `oil_last_km`, `oil_interval_km`, `oil_snooze_km`, todo en km; listener `odoListener` aparte, solo con el recordatorio activo), mapa según la dirección (`map_heading`, `LiveMapView.headingUp`), italiano y alemán (`it.txt`, `de.txt`, `values-it`, `values-de`), y la corrección de seguridad de actualizaciones (907fac8). Probada por Andrés en su celular (km, mph, aviso, menú, rotación del mapa, it/de). Pendiente: si dygerydoo autoriza, darle crédito por el reporte de seguridad.
 - **2.11.0 publicada (2026-11-06):** diseño ancho, causa del GPS en el letrero del mapa, km/h o mph. Probada por Andrés en su celular (sin permiso, GPS apagado, mph, diseño ancho por la proporción del celular, simulación 1920×720). Se respondió a Héctor, Reinaldo, Lionel y a quien pidió mph (en inglés): pendiente lo que contesten.
 - **Esperando respuesta · Héctor Vázquez (Facebook, 2026-11-06):** el mapa central no aparece ni con internet («sin ubicación · en vivo»); probó Google Maps, iGo, Waze y OsmAnd como navegador (no tiene que ver: el mapa central es de StradaOS y solo aparece con posición GPS). Se le pidió: permiso de Ubicación para StradaOS, GPS activado, probar al aire libre, foto del diagnóstico del mapa (dejar presionado el mapa), versión de Android y si Maps/Waze muestran su punto azul. Mejora propuesta y pendiente de visto bueno: que el diagnóstico y el letrero del mapa digan la causa (sin permiso de ubicación / GPS apagado / última señal).
 - **Pantallas anchas 12,3" (Lionel Durazo, Facebook, 2026-11-06):** hoy el lienzo 1024x600 se escala por la altura y queda centrado con márgenes a los lados (en 1920x720 sobran ~345 px por lado, del mismo color de fondo; la barra inferior sí va de lado a lado). Mejora pendiente: diseño ancho que estire las tarjetas (el mapa central gana el ancho extra) y reparta los botones de la barra. Se le pidió foto y resolución.
@@ -50,6 +51,7 @@
 - Página: en navegadores internos (Facebook, Instagram, Messenger, TikTok…) muestra una barra y, al tocar Descargar, instrucciones con «Abrir en Chrome» (intent de Android) y copiar enlace. Para probarla en un navegador normal se agrega `?iab=1` a la URL.
 
 ## Historial
+- 2026-11-07: v2.12.0 — recordatorio de cambio de aceite, mapa según la dirección, italiano y alemán, actualizaciones verificadas (firma y origen) antes de instalar.
 - 2026-11-06: v2.11.1 — corrige el mapa en Android 9 (SSLHandshakeException); verificado en emuladores 4.1–14. Pendiente que Héctor confirme.
 - 2026-11-06: v2.11.0 — pantallas anchas, el mapa explica por qué no aparece, km/h o mph.
 - 2026-11-06: F-Droid cerró el MR !55924 por el punto 6 de calidad (menos de 3 meses de desarrollo). Reintentar desde 2027-02-04 con compilaciones reproducibles.

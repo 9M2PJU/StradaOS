@@ -6,7 +6,7 @@ StradaOS **no tiene cuentas, anuncios, rastreadores ni analíticas**, y no enví
 
 | Dato | Para qué | ¿Sale del equipo? |
 |---|---|---|
-| Ubicación (GPS) | Velocímetro, mapa y clima | Para el mapa, los servidores de mapas reciben qué zona descargar, como en cualquier mapa web. Para el clima, la latitud y longitud aproximadas se envían a [Open-Meteo](https://open-meteo.com) y, si el equipo no sabe el nombre de la ciudad, a [BigDataCloud](https://www.bigdatacloud.com). |
+| Ubicación (GPS) | Velocímetro, mapa, clima y, si lo activas, el recordatorio de cambio de aceite (solo se guarda en el equipo la distancia recorrida, no los lugares) | Para el mapa, los servidores de mapas reciben qué zona descargar, como en cualquier mapa web. Para el clima, la latitud y longitud aproximadas se envían a [Open-Meteo](https://open-meteo.com) y, si el equipo no sabe el nombre de la ciudad, a [BigDataCloud](https://www.bigdatacloud.com). |
 | Pista en reproducción | Mostrar la canción en el reproductor | No. Se lee del sistema y de la notificación de Open Headunit solo en el equipo. |
 | Foto del vehículo | Mostrarla en la pantalla de inicio | No. Se procesa y se guarda en el equipo. |
 | Lista de apps instaladas | Accesos directos y cajón de apps | No. |

@@ -8,7 +8,7 @@
 <li>Reproductor con carátula, título, artista y progreso de lo que suene por Bluetooth o Android Auto.</li>
 <li>Barra inferior a tu medida: cada botón abre la app que quieras (con su ícono y nombre) o una función como Radio, Cámara o Android Auto. La cámara de reversa sigue funcionando.</li>
 <li>Tu app de música y de navegación preferidas (Spotify, Waze, Maps, OsmAnd…).</li>
-<li>En español, inglés y portugués.</li>
+<li>En español, inglés, portugués, italiano y alemán.</li>
 <li>Modo oscuro, claro o automático y 10 colores de acento.</li>
 <li>Avisos de actualización desde GitHub, con código QR para descargar desde el celular.</li>
 </ul>

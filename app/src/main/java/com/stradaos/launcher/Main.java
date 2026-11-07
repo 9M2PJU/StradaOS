@@ -919,7 +919,7 @@ public class Main extends Activity {
         float left = oilNextKm() - odoKm();
         float interval = Math.max(1, prefs.getFloat("oil_interval_km", 5000));
         oilBarBg.setVisibility(View.VISIBLE);
-        if (left <= 0) {
+        if (Math.round(toUnit(left)) <= 0) {          // también si falta menos de medio km (no mostrar «0 km»)
             oilValTv.setText(I18n.t("¡Cambiar!"));
             oilValTv.setTextColor(RED);
         } else {
@@ -941,7 +941,7 @@ public class Main extends Activity {
         float left = oilNextKm() - odoKm();
         String head = I18n.t("Kilometraje estimado") + ": ≈ " + fmtDist(odoKm()) + "\n"
             + I18n.t("Próximo cambio") + ": " + fmtDist(oilNextKm())
-            + "\n" + (left > 0 ? I18n.t("Faltan " + fmtDist(left)) : I18n.t("¡Ya toca!"));
+            + "\n" + (Math.round(toUnit(left)) > 0 ? I18n.t("Faltan " + fmtDist(left)) : I18n.t("¡Ya toca!"));
         LinearLayout ht = new LinearLayout(this);
         ht.setOrientation(LinearLayout.VERTICAL);
         int hp = (int) (22 * s);

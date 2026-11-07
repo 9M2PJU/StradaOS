@@ -8,7 +8,7 @@
 <li>Player with album art, title, artist and progress for Bluetooth or Android Auto audio.</li>
 <li>A bottom bar your way: each button opens any app you want (with its icon and name) or a function such as Radio, Camera or Android Auto. The reverse camera keeps working.</li>
 <li>Your preferred music and navigation apps (Spotify, Waze, Maps, OsmAnd…).</li>
-<li>In English, Spanish and Portuguese.</li>
+<li>In English, Spanish, Portuguese, Italian and German.</li>
 <li>Dark, light or automatic theme and 10 accent colors.</li>
 <li>Update notices from GitHub, with a QR code to download from your phone.</li>
 </ul>
