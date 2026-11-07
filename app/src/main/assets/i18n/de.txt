@@ -1,0 +1,457 @@
+# StradaOS · traducción de. Formato: español<TAB>traducción. Ver I18n.java.
+Radio	Radio
+Cámara	Kamera
+Archivos	Dateien
+Ajustes	Einstellungen
+Música	Musik
+Navegación	Navigation
+Navegador	Browser
+Navegador web	Webbrowser
+Equipo	Autoradio
+Elige primero la app de música Bluetooth	Wähle zuerst die Bluetooth-Musik-App
+Música Bluetooth	Bluetooth-Musik
+No se pudo abrir la app	App konnte nicht geöffnet werden
+Mi app	Meine App
+Mi vehículo	Mein Fahrzeug
+Toca para poner la foto de tu vehículo	Tippen, um ein Foto deines Fahrzeugs hinzuzufügen
+Velocidad	Geschwindigkeit
+Diagnóstico del mapa	Kartendiagnose
+Buscando GPS…	GPS wird gesucht…
+Buscando GPS	GPS-Suche
+En vivo · sin internet	Live · offline
+Última posición · sin internet	Letzte Position · offline
+Mapa en vivo	Live-Karte
+Última posición conocida	Letzte bekannte Position
+Nada sonando	Keine Wiedergabe
+Radio, Bluetooth o USB	Radio, Bluetooth oder USB
+Internet desde la pantalla	Internet auf dem Bildschirm
+No se pudo abrir «{}». Déjalo presionado para elegir otra app.	„{}“ konnte nicht geöffnet werden. Gedrückt halten, um eine andere App zu wählen.
+Botón {} · {}	Taste {} · {}
+Cambiar app o función	App oder Funktion ändern
+Cambiar el nombre	Umbenennen
+Restablecer ({})	Zurücksetzen ({})
+Botón restablecido	Taste zurückgesetzt
+Cerrar	Schließen
+Cerrar  ✕	Schließen  ✕
+★  Funciones de StradaOS (Música, Navegación, Android Auto…)	★  StradaOS-Funktionen (Musik, Navigation, Android Auto…)
+¿Qué abre el botón {}?	Was öffnet Taste {}?
+Función del botón {}	Funktion von Taste {}
+Nombre del botón {} (vacío = el de la app)	Name von Taste {} (leer = Name der App)
+Guardar	Speichern
+Cancelar	Abbrechen
+Guardado: {}	Gespeichert: {}
+Elige tu app de música	Wähle deine Musik-App
+Elige tu app de navegación	Wähle deine Navigations-App
+Automático · {}	Automatisch · {}
+{}\n    → {}	{}\n    → {}
+Buenos días	Guten Morgen
+Buenas tardes	Guten Tag
+Buenas noches	Guten Abend
+Diagnóstico del reproductor	Player-Diagnose
+Accesibilidad	Bedienungshilfen
+Activa «Carátula de Android Auto» (StradaOS)	Aktiviere „Android-Auto-Albumcover“ (StradaOS)
+No se pudo abrir Accesibilidad	Bedienungshilfen konnten nicht geöffnet werden
+Activa «Pista actual de AA» en Open Headunit	Aktiviere „AA aktueller Titel“ in Open Headunit
+«Ninguna aplic. funciona con este accesorio USB»	„Keine installierten Apps funktionieren mit diesem USB-Zubehör“
+Ese aviso lo causa una app de espejo de fábrica (EasyConnection/CarbitLink) que toma el USB antes que la app que elegiste.\n\n1. Desconecta el celular.\n2. Ajustes → Aplicaciones → EasyConnection → «Borrar datos».\n3. Apaga y enciende el carro.\n4. En Open Headunit → USB, si tu celular aparece como «Ignorado», tócalo para permitirlo.	Diese Meldung verursacht eine werkseitige Spiegel-App (EasyConnection/CarbitLink), die den USB-Anschluss vor der gewählten App belegt.\n\n1. Trenne das Handy.\n2. Einstellungen → Apps → EasyConnection → „Daten löschen“.\n3. Schalte das Auto aus und wieder ein.\n4. Wenn dein Handy in Open Headunit → USB als „Ignoriert“ erscheint, tippe darauf, um es zuzulassen.
+Abrir EasyConnection	EasyConnection öffnen
+No hay apps de espejo instaladas	Keine Spiegel-Apps installiert
+Exportando… puede tardar un minuto	Export läuft… das kann eine Minute dauern
+Diagnóstico listo	Diagnose fertig
+Se guardó en:\n{}\n\nCopia la carpeta StradaDiag a una memoria USB y adjúntala en un «issue» del repositorio de StradaOS en GitHub.	Gespeichert unter:\n{}\n\nKopiere den Ordner StradaDiag auf einen USB-Stick und hänge ihn an ein „Issue“ im StradaOS-Repository auf GitHub an.
+12 horas	12 Stunden
+24 horas	24 Stunden
+Automático	Automatisch
+Automática	Automatisch
+Auto	Auto
+12 horas (a.m./p.m.)	12 Stunden (a.m./p.m.)
+Formato de hora	Uhrzeitformat
+Se aplicará al reiniciar StradaOS	Wird beim Neustart von StradaOS übernommen
+Rojo	Rot
+Naranja	Orange
+Amarillo	Gelb
+Verde	Grün
+Turquesa	Türkis
+Azul	Blau
+Morado	Lila
+Rosa	Rosa
+Plata	Silber
+Bienvenido a StradaOS	Willkommen bei StradaOS
+Vamos a dejar el launcher a tu gusto: tu nombre, tu vehículo, el color y la foto. Toma menos de un minuto y lo puedes cambiar después en el engranaje ⚙.	Richten wir den Launcher nach deinem Geschmack ein: dein Name, dein Fahrzeug, die Farbe und das Foto. Das dauert weniger als eine Minute und lässt sich später über das Zahnrad ⚙ ändern.
+Empezar	Los geht's
+¿Cómo te llamas?	Wie heißt du?
+Nombre del vehículo (ej.: Mazda 2, Spark GT)	Fahrzeugname (z. B. VW Golf, Opel Corsa)
+Etiqueta corta (versión o placa). Déjalo vacío si no quieres	Kurzes Etikett (Ausstattung oder Kennzeichen). Leer lassen, wenn du keins willst
+Después	Später
+No encontrada	Nicht gefunden
+¿Qué app abre cada botón?	Welche App öffnet jede Taste?
+Están bien	Passt so
+Siguiente	Weiter
+Color de acento	Akzentfarbe
+Elegir otra foto	Anderes Foto wählen
+Quitar la foto	Foto entfernen
+Elegir foto	Foto wählen
+Foto del vehículo	Fahrzeugfoto
+¿De dónde sacamos la foto?	Woher nehmen wir das Foto?
+Consejo: usa una foto del carro de lado o de frente con fondo liso (blanco, gris o cielo). El fondo se quita solo.	Tipp: Nimm ein Foto des Autos von der Seite oder von vorn vor einfarbigem Hintergrund (weiß, grau oder Himmel). Der Hintergrund wird automatisch entfernt.
+Memoria / USB	Speicher / USB
+Galería	Galerie
+Elige la foto	Wähle das Foto
+Buscando fotos…	Fotos werden gesucht…
+No encontré fotos (.jpg/.png). Cópialas a la memoria USB o a Download.	Keine Fotos gefunden (.jpg/.png). Kopiere sie auf den USB-Stick oder nach Download.
+Quitando el fondo…	Hintergrund wird entfernt…
+No se pudo abrir la imagen	Bild konnte nicht geöffnet werden
+No se pudo abrir la imagen: {}	Bild konnte nicht geöffnet werden: {}
+La foto ya trae fondo transparente	Das Foto hat bereits einen transparenten Hintergrund
+No se detectó un fondo liso (se usará tal cual)	Kein einfarbiger Hintergrund erkannt (wird unverändert verwendet)
+Vista previa · nivel {} de 4	Vorschau · Stufe {} von 4
+Vista previa · nivel {} de 4 (también quita el reflejo del piso)	Vorschau · Stufe {} von 4 (entfernt auch die Bodenspiegelung)
+Usar esta	Dieses verwenden
+Foto guardada	Foto gespeichert
+No se pudo guardar la foto	Foto konnte nicht gespeichert werden
+Quitar más fondo	Mehr Hintergrund entfernen
+Quitando más fondo…	Weiterer Hintergrund wird entfernt…
+No es una imagen válida	Kein gültiges Bild
+App elegida	Gewählte App
+CarPlay necesita un chip de autenticación de Apple dentro del equipo, así que no se puede activar solo con una app.\n\n• Si tu pantalla trae CarPlay integrado, deja presionado este botón y elige su app (ZLink, CarLink, TLink…).\n• Si no, puedes usar un adaptador CarPlay USB para pantallas Android (tipo Carlinkit/AutoKit): instala su app y este botón la abrirá.	CarPlay braucht einen Apple-Authentifizierungschip im Autoradio, daher lässt es sich nicht allein mit einer App aktivieren.\n\n• Wenn dein Bildschirm CarPlay eingebaut hat, halte diese Taste gedrückt und wähle seine App (ZLink, CarLink, TLink…).\n• Sonst kannst du einen USB-CarPlay-Adapter für Android-Bildschirme verwenden (Typ Carlinkit/AutoKit): Installiere seine App und diese Taste öffnet sie.
+Entendido	Verstanden
+Elegir app	App wählen
+Volver al inicio	Zurück zum Start
+Tu vehículo	Dein Fahrzeug
+Apariencia	Darstellung
+Conexión	Verbindung
+Accesos y apps	Verknüpfungen & Apps
+Mapa y clima	Karte & Wetter
+Sistema	System
+Acerca de	Info
+Datos	Daten
+Tu nombre	Dein Name
+Aparece en el saludo de la pantalla de inicio	Erscheint in der Begrüßung auf dem Startbildschirm
+Nombre del vehículo	Fahrzeugname
+Etiqueta	Etikett
+Versión o placa. Déjala vacía para ocultarla	Ausstattung oder Kennzeichen. Leer lassen, um es auszublenden
+Etiqueta (vacío para ocultarla)	Etikett (leer zum Ausblenden)
+Foto	Foto
+Se recorta y se le quita el fondo automáticamente	Wird automatisch zugeschnitten und freigestellt
+Configurada	Eingerichtet
+Sin foto	Kein Foto
+Idioma	Sprache
+Automático: el del sistema	Automatisch: Systemsprache
+Tema	Design
+Modo	Modus
+Automático: claro de 6 a.m. a 6 p.m.	Automatisch: hell von 6 bis 18 Uhr
+Oscuro	Dunkel
+Claro	Hell
+Color	Farbe
+Botones, anillo del reproductor, ruta y etiquetas	Tasten, Player-Ring, Route und Etiketten
+Reloj	Uhr
+Celular	Handy
+Cómo conectar el celular	So verbindest du das Handy
+La app que se abre al conectar por USB	Die App, die sich beim Verbinden per USB öffnet
+Preguntar	Fragen
+App de Android Auto	Android-Auto-App
+Botón naranja de la tarjeta central	Orange Taste der mittleren Karte
+App de CarPlay	CarPlay-App
+Requiere pantalla con CarPlay o un adaptador	Braucht einen Bildschirm mit CarPlay oder einen Adapter
+Ninguna	Keine
+Ninguno	Keiner
+Ayuda	Hilfe
+El celular dice «Ninguna aplic. funciona…»	Das Handy meldet „Keine installierten Apps funktionieren…“
+Cómo evitar que EasyConnection tome el USB	So verhinderst du, dass EasyConnection den USB-Anschluss belegt
+Barra inferior (déjalos presionados en el inicio para cambiarlos)	Untere Leiste (auf dem Startbildschirm gedrückt halten, um sie zu ändern)
+App: {}	App: {}
+Función: {}	Funktion: {}
+Apps preferidas	Bevorzugte Apps
+Se abre al tocar el reproductor	Öffnet sich beim Tippen auf den Player
+Toca para elegir	Tippen zum Wählen
+Se abre con el botón del mapa	Öffnet sich mit der Kartentaste
+Apps de cada función	App für jede Funktion
+La app que hace sonar el Bluetooth (se usa para pasar el sonido)	Die App, die Bluetooth-Audio abspielt (zum Umschalten des Tons)
+Revisar todos los botones	Alle Tasten prüfen
+Lista rápida de qué abre cada uno, como en el asistente	Kurze Liste, was jede öffnet, wie im Einrichtungsassistenten
+Restablecer	Zurücksetzen
+Restablecer accesos	Verknüpfungen zurücksetzen
+La barra vuelve a lo de siempre y se buscan las apps de fábrica	Die Leiste wird wie gewohnt und die Werks-Apps werden erneut gesucht
+Accesos restablecidos	Verknüpfungen zurückgesetzt
+Clima	Wetter
+Mostrar el clima	Wetter anzeigen
+Arriba, junto al saludo (necesita internet)	Oben, neben der Begrüßung (braucht Internet)
+Unidad	Einheit
+Ciudad	Stadt
+Vacío = automática por GPS	Leer = automatisch per GPS
+{} (GPS)	{} (GPS)
+Ciudad (vacío = automática por GPS)	Stadt (leer = automatisch per GPS)
+App de navegación preferida	Bevorzugte Navigations-App
+Se abre con el botón del mapa (Waze, Maps, OsmAnd…)	Öffnet sich mit der Kartentaste (Waze, Maps, OsmAnd…)
+Mapa	Karte
+Brillo del mapa	Kartenhelligkeit
+Solo en modo oscuro	Nur im Dunkelmodus
+Bajo	Niedrig
+Medio	Mittel
+Alto	Hoch
+Fuentes probadas y errores	Getestete Quellen und Fehler
+Mapa no disponible	Karte nicht verfügbar
+Fuente del mapa (avanzado)	Kartenquelle (erweitert)
+URL propia con {z}/{x}/{y}	Eigene URL mit {z}/{x}/{y}
+Personalizada	Benutzerdefiniert
+URL de teselas {z}/{x}/{y} (vacío = automático)	Kachel-URL {z}/{x}/{y} (leer = automatisch)
+© colaboradores de OpenStreetMap	© OpenStreetMap-Mitwirkende
+App de música	Musik-App
+App de música preferida	Bevorzugte Musik-App
+Se abre al tocar el reproductor del inicio	Öffnet sich beim Tippen auf den Player des Startbildschirms
+Pista en reproducción	Aktueller Titel
+Carátula de Android Auto	Android-Auto-Albumcover
+Lee la notificación de Open Headunit (accesibilidad)	Liest die Benachrichtigung von Open Headunit (Bedienungshilfen)
+Activada	An
+Desactivada	Aus
+Activado	An
+Desactivado	Aus
+Música de cualquier app	Musik aus jeder App
+Android 5+: acceso a notificaciones	Android 5+: Benachrichtigungszugriff
+No se pudo abrir el ajuste	Einstellung konnte nicht geöffnet werden
+Fuente activa, lector de notificaciones y Bluetooth	Aktive Quelle, Benachrichtigungsleser und Bluetooth
+Audio Bluetooth	Bluetooth-Audio
+Volver al Bluetooth al desconectar Android Auto	Zurück zu Bluetooth, wenn Android Auto getrennt wird
+Al quitar el cable, abre un instante la app de música Bluetooth para que el sonido siga por Bluetooth	Wenn das Kabel abgezogen wird, öffnet sich kurz die Bluetooth-Musik-App, damit der Ton über Bluetooth weiterläuft
+Escuchar el Bluetooth	Bluetooth hören
+En esta pantalla, toca ▶ en el inicio: StradaOS pasa el sonido a Bluetooth (por ejemplo, si venías de la radio)	Tippe auf diesem Bildschirm auf dem Startbildschirm auf ▶: StradaOS schaltet den Ton auf Bluetooth um (z. B. wenn du vom Radio kommst)
+Pasar a Bluetooth al dar play en el celular (en prueba)	Zu Bluetooth wechseln, wenn du am Handy auf Play drückst (Test)
+Abre un instante «Audio Bluetooth» y vuelve. En algunas pantallas no detecta el play del celular	Öffnet kurz „Bluetooth-Audio“ und kehrt zurück. Manche Bildschirme erkennen Play am Handy nicht
+Probar ahora	Jetzt testen
+Abre «Audio Bluetooth» un instante y vuelve al inicio	Öffnet kurz „Bluetooth-Audio“ und kehrt zum Startbildschirm zurück
+Abrir la app de música Bluetooth al conectar el celular	Bluetooth-Musik-App öffnen, wenn sich das Handy verbindet
+Para pantallas que solo dejan sonar el Bluetooth con su app abierta: la abre un momento y vuelve al inicio	Für Bildschirme, die Bluetooth nur mit geöffneter eigener App abspielen: öffnet sie kurz und kehrt zum Startbildschirm zurück
+App de música Bluetooth	Bluetooth-Musik-App
+La que hace sonar el Bluetooth en esta pantalla	Die App, die auf diesem Bildschirm Bluetooth abspielt
+Tiempo antes de volver al inicio	Zeit bis zur Rückkehr zum Startbildschirm
+Súbelo si el audio se corta al volver	Erhöhen, wenn der Ton beim Zurückkehren abbricht
+Abre la app de música Bluetooth y vuelve al inicio	Öffnet die Bluetooth-Musik-App und kehrt zum Startbildschirm zurück
+Avanzado	Erweitert
+Avisos extra de música	Zusätzliche Musik-Broadcasts
+Nombres de avisos (broadcast) de otros equipos	Broadcast-Namen anderer Autoradios
+Configurados	Eingerichtet
+Acciones de aviso extra (separadas por coma)	Zusätzliche Broadcast-Aktionen (durch Komma getrennt)
+Ajustes del equipo	Einstellungen des Autoradios
+Los ajustes de la pantalla (los de la marca si los tiene)	Die Einstellungen des Bildschirms (die des Herstellers, falls vorhanden)
+Asistente de configuración inicial	Einrichtungsassistent
+Nombre, vehículo, color y foto	Name, Fahrzeug, Farbe und Foto
+Compatibilidad	Kompatibilität
+Qué funciona en esta pantalla	Was auf diesem Bildschirm funktioniert
+Cada función, desde qué Android sirve y su estado aquí	Jede Funktion, ab welcher Android-Version sie geht und ihr Status hier
+Soporte	Support
+Exportar diagnóstico	Diagnose exportieren
+Guarda información de las apps de audio en la memoria interna	Speichert Informationen über die Audio-Apps im internen Speicher
+Esta pantalla:	Dieser Bildschirm:
+Ojo: la pantalla dice Android {}, pero por dentro es {}.	Achtung: Der Bildschirm zeigt Android {}, intern ist es aber {}.
+Requiere:	Benötigt:
+Aquí:	Hier:
+Inicio, mapa, clima, velocímetro	Start, Karte, Wetter, Tacho
+Pista y carátula por Bluetooth	Titel und Albumcover über Bluetooth
+app Bluetooth de fábrica detectada	werkseitige Bluetooth-App erkannt
+depende de la marca	hängt vom Hersteller ab
+Botón ▶ del inicio pasa el sonido a Bluetooth	Die ▶-Taste auf dem Startbildschirm schaltet den Ton auf Bluetooth
+Pantallas Clinkway / Autochips	Clinkway- / Autochips-Bildschirme
+funciona aunque vengas de la radio	funktioniert auch, wenn du vom Radio kommst
+en otras marcas: «Abrir la app de música Bluetooth al conectar»	bei anderen Marken: „Bluetooth-Musik-App öffnen, wenn sich das Handy verbindet“
+activado	an
+activada	an
+desactivado; en algunas pantallas no detecta el play del celular	aus; manche Bildschirme erkennen Play am Handy nicht
+Carátula de Android Auto (Open Headunit)	Android-Auto-Albumcover (Open Headunit)
+Android 4.1+ · accesibilidad	Android 4.1+ · Bedienungshilfen
+falta activar la accesibilidad	Bedienungshilfen noch nicht aktiviert
+Música de cualquier app (Spotify, YouTube…)	Musik aus jeder App (Spotify, YouTube…)
+falta dar acceso a notificaciones	Benachrichtigungszugriff noch nicht erteilt
+no disponible en {}	nicht verfügbar unter {}
+Android Auto con Open Headunit	Android Auto mit Open Headunit
+Android 4.1+ · cable USB	Android 4.1+ · USB-Kabel
+Open Headunit instalado	Open Headunit installiert
+falta instalar Open Headunit	Open Headunit noch nicht installiert
+Android Auto / CarPlay de la pantalla	Eigenes Android Auto / CarPlay des Bildschirms
+Si la pantalla lo trae	Falls der Bildschirm es hat
+no detectado	nicht erkannt
+Pantalla con CarPlay o adaptador USB	Bildschirm mit CarPlay oder USB-Adapter
+Mapa con internet seguro (TLS 1.2)	Karte mit sicherem Internet (TLS 1.2)
+Android 4.1+ (StradaOS lo activa)	Android 4.1+ (StradaOS aktiviert es)
+en Android 4.x solo algunos servidores de mapas responden	unter Android 4.x antworten nur einige Kartenserver
+Instalar actualizaciones desde la app	Updates aus der App installieren
+pide permiso «Instalar apps desconocidas»	fragt nach der Berechtigung „Unbekannte Apps installieren“
+No hay fallos registrados	Keine Abstürze protokolliert
+Registro de fallos	Absturzprotokoll
+Borrar	Löschen
+Registro borrado	Protokoll gelöscht
+Gratis y de código abierto. Una nueva vida para las pantallas Android del carro.	Kostenlos und Open Source. Ein neues Leben für Android-Autobildschirme.
+Versión	Version
+Android de la pantalla	Android des Bildschirms
+Real: {} · ver qué funciona aquí	Tatsächlich: {} · sehen, was hier funktioniert
+Cierres inesperados o bloqueos de StradaOS en esta pantalla	Unerwartete Abstürze oder Hänger von StradaOS auf diesem Bildschirm
+Sin fallos	Keine Abstürze
+Ver	Ansehen
+Actualizaciones	Updates
+Instalado desde {}	Installiert über {}
+Las actualizaciones llegan por esa app	Updates kommen über diese App
+Avisar también de versiones en GitHub	Auch über Versionen auf GitHub informieren
+Comprobar actualizaciones automáticamente	Automatisch nach Updates suchen
+Opcional: las descargas de GitHub no pasan por la revisión de la tienda	Optional: Downloads von GitHub durchlaufen nicht die Prüfung des Stores
+Al abrir StradaOS con internet, una vez al día	Beim Öffnen von StradaOS mit Internet, einmal am Tag
+Actualizaciones desde GitHub	Updates von GitHub
+Instalaste StradaOS desde {}. Si activas esto, StradaOS revisará una vez al día las versiones publicadas en github.com/{} y te ofrecerá descargarlas desde ahí.\n\nEsas descargas no pasan por la revisión de la tienda. Puede que GitHub tenga una versión un poco antes que la tienda.	Du hast StradaOS über {} installiert. Wenn du das aktivierst, prüft StradaOS einmal am Tag die auf github.com/{} veröffentlichten Versionen und bietet dir an, sie von dort herunterzuladen.\n\nDiese Downloads durchlaufen nicht die Prüfung des Stores. GitHub hat eine Version eventuell etwas früher als der Store.
+Activar	Aktivieren
+Canal de actualizaciones	Update-Kanal
+Buscar actualizaciones	Nach Updates suchen
+Aún no se ha comprobado	Noch nicht geprüft
+Última comprobación: {}	Zuletzt geprüft: {}
+Comunidad	Community
+Dar una estrella en GitHub	Auf GitHub einen Stern geben
+Ayuda a que más personas encuentren StradaOS	Hilft mehr Leuten, StradaOS zu finden
+Dar una estrella ⭐	Einen Stern geben ⭐
+Abre el repositorio y toca «Star». ¡Gracias!	Öffne das Repository und tippe auf „Star“. Danke!
+Donar	Spenden
+Si StradaOS revivió tu pantalla, invítame un café	Wenn StradaOS deinem Bildschirm neues Leben gegeben hat, spendier mir einen Kaffee
+Apoya el proyecto ☕	Unterstütze das Projekt ☕
+StradaOS es gratis. Las donaciones ayudan a mantenerlo y a probarlo en más pantallas.	StradaOS ist kostenlos. Spenden helfen, es zu pflegen und auf mehr Bildschirmen zu testen.
+Reportar un problema o sugerir algo	Problem melden oder etwas vorschlagen
+Crea un «issue» en GitHub (adjunta el diagnóstico)	Erstelle ein „Issue“ auf GitHub (hänge die Diagnose an)
+Reportar un problema	Problem melden
+Cuenta tu modelo de pantalla y su versión de Android. Puedes adjuntar la carpeta StradaDiag (Sistema → Exportar diagnóstico).	Nenne dein Bildschirmmodell und seine Android-Version. Du kannst den Ordner StradaDiag anhängen (System → Diagnose exportieren).
+Código fuente	Quellcode
+Licencia GPL-3.0	GPL-3.0-Lizenz
+Créditos y licencias	Danksagungen & Lizenzen
+Licencia	Lizenz
+Mapas	Karten
+© colaboradores de OpenStreetMap, OpenTopoMap, Esri	© OpenStreetMap-Mitwirkende, OpenTopoMap, Esri
+Open Headunit (GPL-3.0) · Android Auto es marca de Google	Open Headunit (GPL-3.0) · Android Auto ist eine Marke von Google
+Códigos QR	QR-Codes
+Íconos	Symbole
+Certificados raíz	Stammzertifikate
+Buscando actualizaciones…	Suche nach Updates…
+No se pudo comprobar	Prüfung nicht möglich
+Esta pantalla no logró conectarse con GitHub ({}). Puedes revisar las versiones desde tu celular:	Dieser Bildschirm konnte keine Verbindung zu GitHub herstellen ({}). Du kannst die Versionen auf deinem Handy prüfen:
+Tienes la última versión ({})	Du hast die neueste Version ({})
+Fuentes consultadas:\n{}	Abgefragte Quellen:\n{}
+cifrado no compatible	inkompatible Verschlüsselung
+sin internet	kein Internet
+sin internet / DNS	kein Internet / DNS
+tiempo agotado	Zeitüberschreitung
+error de red	Netzwerkfehler
+tu tienda de apps	dein App-Store
+Tienes la {} · nueva: {}	Du hast {} · neu: {}
+Mejoras y correcciones.	Verbesserungen und Fehlerbehebungen.
+Nueva versión de StradaOS	Neue StradaOS-Version
+Tienes la {} · en GitHub: {}\nActualiza desde {} cuando llegue. Descargar de GitHub omite la revisión de la tienda.	Du hast {} · auf GitHub: {}\nAktualisiere über {}, sobald sie dort ist. Der Download von GitHub umgeht die Prüfung des Stores.
+Ver en GitHub	Auf GitHub ansehen
+Descarga desde GitHub:	Download von GitHub:
+Descargar e instalar	Herunterladen und installieren
+Descarga la nueva versión desde:	Lade die neue Version herunter von:
+Omitir esta versión	Diese Version überspringen
+Más tarde	Später
+Descargando StradaOS {}…	StradaOS {} wird heruntergeladen…
+Descárgala desde tu celular	Lade sie auf dem Handy herunter
+Esta pantalla no pudo descargar el archivo. Escanea el código, descarga el APK y pásalo por USB.	Dieser Bildschirm konnte die Datei nicht herunterladen. Scanne den Code, lade die APK herunter und kopiere sie per USB.
+¿Disfrutando StradaOS?	Gefällt dir StradaOS?
+Si te gusta usar StradaOS, dale una estrella en GitHub. Y si revivió tu pantalla, considera invitarme un café ☕	Wenn du StradaOS gern nutzt, gib ihm einen Stern auf GitHub. Und wenn es deinem Bildschirm neues Leben gegeben hat, spendier mir doch einen Kaffee ☕
+Dar una estrella	Stern geben
+StradaOS es gratis. Las donaciones ayudan a mantenerlo.	StradaOS ist kostenlos. Spenden helfen, es zu pflegen.
+Escanéalo con la cámara de tu celular o entra a:	Scanne ihn mit der Handykamera oder öffne:
+Abrir aquí	Hier öffnen
+No hay navegador disponible	Kein Browser verfügbar
+Open Headunit · USB	Open Headunit · USB
+Toca para instalar	Zum Installieren tippen
+Pantalla o adaptador	Bildschirm oder Adapter
+Elige la app de ajustes de tu pantalla	Wähle die Einstellungs-App deines Bildschirms
+No se pudieron abrir los ajustes	Einstellungen konnten nicht geöffnet werden
+No encontré la app de {}. Elígela de la lista.	Die App für {} wurde nicht gefunden. Wähle sie aus der Liste.
+↺  Automático (por defecto)	↺  Automatisch (Standard)
+¿Qué app abre «{}»?	Welche App öffnet „{}“?
+Restablecido	Zurückgesetzt
+Esta pantalla no trae Android Auto integrado.\n\nInstala la app gratuita «Open Headunit» (github.com/andreknieriem/headunit-revived): copia su APK en la memoria USB o en Download y vuelve a tocar el botón. Luego conecta el celular por cable USB.	Dieser Bildschirm hat kein eingebautes Android Auto.\n\nInstalliere die kostenlose App „Open Headunit“ (github.com/andreknieriem/headunit-revived): Kopiere ihre APK auf den USB-Stick oder nach Download und tippe erneut auf die Taste. Verbinde dann das Handy per USB-Kabel.
+Android Auto por cable USB (necesita la app Android Auto en el celular)	Android Auto per USB-Kabel (braucht die Android-Auto-App auf dem Handy)
+Espejo de pantalla (necesita la app CarbitLink en el celular)	Bildschirmspiegelung (braucht die CarbitLink-App auf dem Handy)
+Android Auto / CarPlay integrados en la pantalla	Im Bildschirm eingebautes Android Auto / CarPlay
+Otra app…	Andere App…
+¿Cómo quieres conectar tu celular?	Wie möchtest du dein Handy verbinden?
+Conexión: {}. Cámbiala dejando presionado el botón.	Verbindung: {}. Zum Ändern die Taste gedrückt halten.
+el navegador	den Browser
+«{}» necesita un Android más nuevo que el de esta pantalla. Abro el navegador de fábrica.	„{}“ braucht ein neueres Android als das dieses Bildschirms. Ich öffne den Werksbrowser.
+No encontré un navegador. Déjalo presionado para elegir uno.	Kein Browser gefunden. Gedrückt halten, um einen zu wählen.
+Permite «Instalar apps desconocidas» para StradaOS y vuelve a tocar.	Erlaube „Unbekannte Apps installieren“ für StradaOS und tippe erneut.
+Activa «Orígenes desconocidos» y vuelve a tocar.	Aktiviere „Unbekannte Herkunft“ und tippe erneut.
+No se pudo preparar {}	{} konnte nicht vorbereitet werden
+No se pudo abrir el instalador para {}	Installationsprogramm für {} konnte nicht geöffnet werden
+Aplicaciones  ·  Android {} (API {})	Apps  ·  Android {} (API {})
+Despejado	Klar
+Parcialmente nublado	Teilweise bewölkt
+Nublado	Bewölkt
+Niebla	Nebel
+Llovizna	Nieselregen
+Lluvia	Regen
+Nieve	Schnee
+Tormenta	Gewitter
+Mapa en vivo apagado	Live-Karte aus
+Rendimiento	Leistung
+Apágalo si la pantalla va lenta: queda un mapa de adorno y el velocímetro sigue funcionando	Schalte sie aus, wenn der Bildschirm langsam ist: Eine Deko-Karte bleibt und der Tacho funktioniert weiter
+StradaOS aún no es tu pantalla de inicio	StradaOS ist noch nicht dein Startbildschirm
+Por eso al encender el carro o al tocar Inicio aparece el menú de fábrica.\n\nToca «Fijar ahora», elige StradaOS y luego «Siempre».	Deshalb erscheint beim Starten des Autos oder beim Tippen auf Home das Werksmenü.\n\nTippe auf „Jetzt festlegen“, wähle StradaOS und dann „Immer“.
+Fijar ahora	Jetzt festlegen
+Ahora no	Nicht jetzt
+No volver a preguntar	Nicht mehr fragen
+Elige StradaOS y toca «Siempre»	Wähle StradaOS und tippe auf „Immer“
+Listo: StradaOS es tu pantalla de inicio	Fertig: StradaOS ist dein Startbildschirm
+Fijar StradaOS a mano	StradaOS manuell festlegen
+Algunas pantallas no muestran la lista para elegir. Prueba así:\n\n1. Toca el botón Inicio (la casita) de la pantalla. Si pregunta qué app usar, elige StradaOS → Siempre.\n2. Si no pregunta: en los ajustes de la pantalla busca Aplicaciones → Aplicaciones predeterminadas → Pantalla de inicio (o «App de inicio») y elige StradaOS.\n3. En algunas marcas está en los ajustes de fábrica como «Launcher», «Interfaz» o «UI».\n\nSi tu pantalla siempre vuelve a su menú de fábrica al encender, activa «Abrir StradaOS al encender» en Ajustes → Sistema.	Manche Bildschirme zeigen keine Auswahlliste. Versuch es so:\n\n1. Tippe auf die Home-Taste (das Häuschen) des Bildschirms. Wenn gefragt wird, welche App verwendet werden soll, wähle StradaOS → Immer.\n2. Wenn nicht gefragt wird: Suche in den Einstellungen des Bildschirms Apps → Standard-Apps → Startbildschirm-App und wähle StradaOS.\n3. Bei manchen Marken steht es in den Werkseinstellungen als „Launcher“, „Oberfläche“ oder „UI“.\n\nWenn dein Bildschirm beim Einschalten immer ins Werksmenü zurückkehrt, aktiviere „StradaOS beim Einschalten öffnen“ unter Einstellungen → System.
+Pantalla de inicio	Startbildschirm
+La que aparece al encender y al tocar Inicio	Der, der beim Einschalten und beim Tippen auf Home erscheint
+StradaOS ✓	StradaOS ✓
+Otra · toca para cambiar	Anderer · tippen zum Ändern
+Abrir StradaOS al encender	StradaOS beim Einschalten öffnen
+Para pantallas que siempre arrancan en su menú de fábrica (Android 4 a 9)	Für Bildschirme, die immer im Werksmenü starten (Android 4 bis 9)
+¿La música Bluetooth se corta o no aparece?	Bluetooth-Musik bricht ab oder wird nicht angezeigt?
+Qué hacer en cada caso	Was in jedem Fall zu tun ist
+• Se corta al salir de la app Bluetooth: sal con el botón Inicio (la casita), no con Atrás. Atrás cierra la app de fábrica y con ella la música.\n\n• No suena hasta abrir la app Bluetooth: activa «Abrir la app de música Bluetooth al conectar el celular» (aquí mismo). Abre la app un instante y vuelve al inicio.\n\n• La canción no aparece en el inicio (Android 5 o más nuevo): activa «Música de cualquier app» arriba y dale acceso a notificaciones a StradaOS.\n\n• Revisa en Ajustes → Accesos y apps que «Música Bluetooth» sea la app Bluetooth de tu pantalla.	• Sie bricht ab, wenn du die Bluetooth-App verlässt: Verlasse sie mit der Home-Taste (das Häuschen), nicht mit Zurück. Zurück schließt die Werks-App und damit die Musik.\n\n• Sie spielt erst, wenn du die Bluetooth-App öffnest: Aktiviere „Bluetooth-Musik-App öffnen, wenn sich das Handy verbindet“ (gleich hier). Die App öffnet sich kurz und es geht zurück zum Startbildschirm.\n\n• Der Titel erscheint nicht auf dem Startbildschirm (Android 5 oder neuer): Aktiviere oben „Musik aus jeder App“ und gib StradaOS Benachrichtigungszugriff.\n\n• Prüfe unter Einstellungen → Verknüpfungen & Apps, dass „Bluetooth-Musik“ die Bluetooth-App deines Bildschirms ist.
+Sin permiso	Keine Berechtigung
+GPS apagado	GPS aus
+Unidades	Einheiten
+Automático: mph en EE. UU. y Reino Unido	Automatisch: mph in den USA und im Vereinigten Königreich
+Permisos → Ubicación → Permitir	Berechtigungen → Standort → Zulassen
+Activa la ubicación para StradaOS en los ajustes de la pantalla	Aktiviere den Standort für StradaOS in den Einstellungen des Bildschirms
+Activa la ubicación (GPS)	Standort (GPS) aktivieren
+Activa la ubicación (GPS) en los ajustes de la pantalla	Aktiviere den Standort (GPS) in den Einstellungen des Bildschirms
+Sin permiso de ubicación · toca aquí	Keine Standortberechtigung · hier tippen
+Ubicación apagada · toca aquí	Standort aus · hier tippen
+Sin señal GPS · toca aquí	Kein GPS-Signal · hier tippen
+Versión de prueba	Testversion
+Simular pantalla	Bildschirm simulieren
+Para probar otros tamaños en una tablet o celular	Um andere Größen auf einem Tablet oder Handy zu testen
+Real	Tatsächlich
+Aceite	Öl
+Configurar	Einrichten
+¡Cambiar!	Wechseln!
+Kilometraje estimado	Geschätzter Kilometerstand
+Próximo cambio	Nächster Wechsel
+Faltan {}	Noch {}
+¡Ya toca!	Jetzt fällig!
+Cambio de aceite	Ölwechsel
+Ya hice el cambio de aceite	Ölwechsel ist erledigt
+Corregir el kilometraje actual	Aktuellen Kilometerstand korrigieren
+Cambiar cada cuánto se hace	Intervall ändern
+Desactivar el recordatorio	Erinnerung ausschalten
+Recordatorio de cambio de aceite	Ölwechsel-Erinnerung
+StradaOS no puede leer el kilometraje del tablero del carro. Escríbelo una vez y StradaOS le irá sumando lo que recorras con el GPS, para avisarte cuando toque el cambio.\n\nDe vez en cuando puedes corregirlo con el valor real del tablero.	StradaOS kann den Kilometerstand des Autos nicht auslesen. Gib ihn einmal ein, und StradaOS addiert die per GPS gemessene Strecke, um dich an den Wechsel zu erinnern.\n\nAb und zu kannst du ihn mit dem echten Tacho-Wert korrigieren.
+¿A cuántos {} fue el último cambio de aceite?	Bei wie viel {} war der letzte Ölwechsel?
+Kilometraje actual del tablero	Aktueller Kilometerstand laut Tacho
+¿Cada cuántos {} cambias el aceite?	Alle wie viel {} wechselst du das Öl?
+Escribe un número válido	Gib eine gültige Zahl ein
+Kilometraje del tablero al hacer el cambio	Kilometerstand beim Wechsel
+Es hora del cambio de aceite	Zeit für einen Ölwechsel
+El kilometraje estimado es ≈ {} y ya toca el cambio de aceite (cada {}).	Der geschätzte Kilometerstand ist ≈ {}, der Ölwechsel ist fällig (alle {}).
+¿Ya lo hiciste?	Schon erledigt?
+Ya lo hice	Erledigt
+Aún no	Noch nicht
+Se muestra al lado de la velocidad y avisa cuando toca	Neben der Geschwindigkeit; meldet sich, wenn es Zeit ist
+Kilometraje actual	Aktueller Kilometerstand
+Estimado con el GPS. Corrígelo con el del tablero cuando quieras	Per GPS geschätzt. Jederzeit mit dem Tacho-Wert korrigierbar
+Cada cuánto	Intervall
+Orientación del mapa	Kartenausrichtung
+El mapa apunta	Karte zeigt
+Según tu dirección: gira con el carro mientras te mueves	Fahrtrichtung: dreht sich beim Fahren mit dem Auto
+Norte arriba	Norden oben
+Según tu dirección	Fahrtrichtung

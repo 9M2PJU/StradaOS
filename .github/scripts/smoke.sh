@@ -84,6 +84,26 @@ go idioma:pt 6;    shot 15-pt-inicio
 go ajustes:2;      shot 16-pt-ajustes-apariencia
 go ajustes:8;      shot 17-pt-acerca
 go idioma:es 6
+# italiano y alemán
+go idioma:it 6;    shot 27-it-inicio
+go ajustes:2;      shot 28-it-ajustes-apariencia
+go idioma:de 6;    shot 29-de-inicio
+go ajustes:5;      shot 30-de-ajustes-mapa
+go idioma:es 6
+# recordatorio de cambio de aceite (odómetro estimado con el GPS)
+go demo-aceite 8;  shot 31-aceite-inicio
+go odo-sim 4
+go menu-aceite 4;  shot 32-aceite-menu
+back
+go ajustes:1;      shot 33-aceite-ajustes
+go aviso-aceite 8; shot 34-aceite-aviso
+back
+go unidad:mph 8;   shot 35-aceite-mph
+go unidad:auto 6
+# mapa según la dirección
+go rumbo:1 10;     shot 36-mapa-rumbo
+go ajustes:5;      shot 37-ajustes-orientacion
+go rumbo:0 6
 # botón 3 cambiado a «Música» y botón 4 a una app con nombre propio
 go demo-barra 10;  shot 11-inicio-barra-cambiada
 go inicio 3
@@ -98,6 +118,9 @@ if grep -q "com.stradaos" "$OUT/CIERRES.txt"; then
 fi
 if ! grep -q "PRUEBA verificar-apk: propio=true otro=false" "$OUT/fallos.txt"; then
   echo "::error::API $API: la verificación del APK no dio el resultado esperado"; grep "verificar-apk" "$OUT/fallos.txt"; exit 1
+fi
+if ! grep -q "PRUEBA odo-sim: ok=true" "$OUT/fallos.txt"; then
+  echo "::error::API $API: el odómetro estimado no sumó bien la distancia"; grep "odo-sim" "$OUT/fallos.txt"; exit 1
 fi
 rm -f "$OUT/CIERRES.txt"
 echo "API $API: sin cierres"

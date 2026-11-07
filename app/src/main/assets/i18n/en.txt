@@ -422,3 +422,36 @@ Versión de prueba	Test version
 Simular pantalla	Simulate screen
 Para probar otros tamaños en una tablet o celular	To try other sizes on a tablet or phone
 Real	Real
+Aceite	Oil
+Configurar	Set up
+¡Cambiar!	Change it!
+Kilometraje estimado	Estimated odometer
+Próximo cambio	Next change
+Faltan {}	{} to go
+¡Ya toca!	It's due!
+Cambio de aceite	Oil change
+Ya hice el cambio de aceite	I've done the oil change
+Corregir el kilometraje actual	Correct the current odometer
+Cambiar cada cuánto se hace	Change how often it's done
+Desactivar el recordatorio	Turn off the reminder
+Recordatorio de cambio de aceite	Oil change reminder
+StradaOS no puede leer el kilometraje del tablero del carro. Escríbelo una vez y StradaOS le irá sumando lo que recorras con el GPS, para avisarte cuando toque el cambio.\n\nDe vez en cuando puedes corregirlo con el valor real del tablero.	StradaOS can't read the car's dashboard odometer. Enter it once and StradaOS will add the distance you drive using GPS, to remind you when the change is due.\n\nNow and then you can correct it with the real dashboard reading.
+¿A cuántos {} fue el último cambio de aceite?	Odometer at the last oil change ({})
+Kilometraje actual del tablero	Current dashboard odometer
+¿Cada cuántos {} cambias el aceite?	How many {} between oil changes?
+Escribe un número válido	Enter a valid number
+Kilometraje del tablero al hacer el cambio	Dashboard odometer at the change
+Es hora del cambio de aceite	Time for an oil change
+El kilometraje estimado es ≈ {} y ya toca el cambio de aceite (cada {}).	The estimated odometer is ≈ {} and the oil change is due (every {}).
+¿Ya lo hiciste?	Have you done it?
+Ya lo hice	Done
+Aún no	Not yet
+Se muestra al lado de la velocidad y avisa cuando toca	Shown next to the speed; alerts you when it's due
+Kilometraje actual	Current odometer
+Estimado con el GPS. Corrígelo con el del tablero cuando quieras	Estimated with GPS. Correct it with the dashboard reading anytime
+Cada cuánto	How often
+Orientación del mapa	Map orientation
+El mapa apunta	Map points
+Según tu dirección: gira con el carro mientras te mueves	Direction of travel: turns with the car while you drive
+Norte arriba	North up
+Según tu dirección	Direction of travel

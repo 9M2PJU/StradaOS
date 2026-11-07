@@ -422,3 +422,36 @@ Versión de prueba	Versão de teste
 Simular pantalla	Simular tela
 Para probar otros tamaños en una tablet o celular	Para testar outros tamanhos em um tablet ou celular
 Real	Real
+Aceite	Óleo
+Configurar	Configurar
+¡Cambiar!	Trocar!
+Kilometraje estimado	Quilometragem estimada
+Próximo cambio	Próxima troca
+Faltan {}	Faltam {}
+¡Ya toca!	Já está na hora!
+Cambio de aceite	Troca de óleo
+Ya hice el cambio de aceite	Já fiz a troca de óleo
+Corregir el kilometraje actual	Corrigir a quilometragem atual
+Cambiar cada cuánto se hace	Mudar a frequência da troca
+Desactivar el recordatorio	Desativar o lembrete
+Recordatorio de cambio de aceite	Lembrete de troca de óleo
+StradaOS no puede leer el kilometraje del tablero del carro. Escríbelo una vez y StradaOS le irá sumando lo que recorras con el GPS, para avisarte cuando toque el cambio.\n\nDe vez en cuando puedes corregirlo con el valor real del tablero.	O StradaOS não consegue ler a quilometragem do painel do carro. Digite-a uma vez e o StradaOS vai somando o que você rodar com o GPS, para avisar quando chegar a hora da troca.\n\nDe vez em quando você pode corrigi-la com o valor real do painel.
+¿A cuántos {} fue el último cambio de aceite?	Com quantos {} foi a última troca de óleo?
+Kilometraje actual del tablero	Quilometragem atual do painel
+¿Cada cuántos {} cambias el aceite?	A cada quantos {} você troca o óleo?
+Escribe un número válido	Digite um número válido
+Kilometraje del tablero al hacer el cambio	Quilometragem do painel na troca
+Es hora del cambio de aceite	Hora de trocar o óleo
+El kilometraje estimado es ≈ {} y ya toca el cambio de aceite (cada {}).	A quilometragem estimada é ≈ {} e já está na hora da troca de óleo (a cada {}).
+¿Ya lo hiciste?	Você já fez?
+Ya lo hice	Já fiz
+Aún no	Ainda não
+Se muestra al lado de la velocidad y avisa cuando toca	Aparece ao lado da velocidade e avisa quando chegar a hora
+Kilometraje actual	Quilometragem atual
+Estimado con el GPS. Corrígelo con el del tablero cuando quieras	Estimada pelo GPS. Corrija com a do painel quando quiser
+Cada cuánto	Frequência
+Orientación del mapa	Orientação do mapa
+El mapa apunta	O mapa aponta
+Según tu dirección: gira con el carro mientras te mueves	Conforme sua direção: gira com o carro enquanto você se move
+Norte arriba	Norte para cima
+Según tu dirección	Sua direção

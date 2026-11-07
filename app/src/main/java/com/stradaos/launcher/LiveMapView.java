@@ -170,6 +170,8 @@ public class LiveMapView extends View {
     }
 
     private boolean userZoom;
+    /** true: el mapa gira según la dirección del carro (arriba = hacia donde vas). false: norte arriba. */
+    static boolean headingUp;
 
     /** Toque: cambia el nivel de zoom (14→17). */
     public void cycleZoom() {
@@ -197,6 +199,15 @@ public class LiveMapView extends View {
             float cx = w / 2f, cy = h * 0.42f;                     // la posición queda arriba del panel inferior
             int tx0 = (int) Math.floor(fx - cx / ts) - 1, tx1 = (int) Math.floor(fx + (w - cx) / ts) + 1;
             int ty0 = (int) Math.floor(fy - cy / ts) - 1, ty1 = (int) Math.floor(fy + (h - cy) / ts) + 1;
+            boolean rot = headingUp && !Float.isNaN(bearing);
+            if (rot) {
+                // al girar hacen falta teselas en un círculo alrededor de la posición (hasta la esquina más lejana)
+                float rr = (float) Math.sqrt(Math.max(cx, w - cx) * Math.max(cx, w - cx) + Math.max(cy, h - cy) * Math.max(cy, h - cy)) / ts;
+                tx0 = (int) Math.floor(fx - rr); tx1 = (int) Math.floor(fx + rr);
+                ty0 = (int) Math.floor(fy - rr); ty1 = (int) Math.floor(fy + rr);
+                c.save();
+                c.rotate(-bearing, cx, cy);
+            }
             Rect dst = new Rect();
             for (int tx = tx0; tx <= tx1; tx++) {
                 for (int ty = ty0; ty <= ty1; ty++) {
@@ -217,18 +228,19 @@ public class LiveMapView extends View {
                     }
                 }
             }
-            drawMarker(c, cx, cy);
+            if (rot) c.restore();
+            drawMarker(c, cx, cy, rot);
             String attr = provider == 5 ? "© Esri, HERE, Garmin, © OpenStreetMap" : provider == 4 ? "© OpenStreetMap, SRTM · © OpenTopoMap" : I18n.t("© colaboradores de OpenStreetMap");
             c.drawText(attr, w - text.measureText(attr) - 10 * s, 14 * s, text);
         }
         c.restore();
     }
 
-    private void drawMarker(Canvas c, float x, float y) {
+    private void drawMarker(Canvas c, float x, float y, boolean rotated) {
         halo.setColor((Main.RED & 0x00FFFFFF) | 0x40000000);
         c.drawCircle(x, y, 22 * s, halo);
         c.save();
-        c.rotate(Float.isNaN(bearing) ? 0 : bearing, x, y);
+        c.rotate(rotated || Float.isNaN(bearing) ? 0 : bearing, x, y);
         tri.reset();
         tri.moveTo(x, y - 14 * s);
         tri.lineTo(x + 10 * s, y + 11 * s);

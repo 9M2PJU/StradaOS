@@ -148,6 +148,7 @@ public class Main extends Activity {
         getWindow().setBackgroundDrawable(new ColorDrawable(BG));
         prefs = getSharedPreferences("launcher", MODE_PRIVATE);
         I18n.init(this, prefs);
+        LiveMapView.headingUp = prefs.getBoolean("map_heading", false);
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (getPackageName().endsWith(".debug") && getIntent() != null && "saltar".equals(getIntent().getStringExtra("prueba")))
             prefs.edit().putBoolean("setup_done", true).apply();
@@ -177,6 +178,7 @@ public class Main extends Activity {
             if (ll != null) { wLat = ll.getLatitude(); wLon = ll.getLongitude(); }
         } catch (Throwable ignored) { }
         loadApps();
+        startOdo();
 
         IntentFilter f = new IntentFilter();
         f.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -372,6 +374,9 @@ public class Main extends Activity {
         h.removeCallbacks(btTicker);
         h.removeCallbacks(aaWait);
         try { if (mediaWatcher != null) mediaWatcher.stop(); } catch (Throwable ignored) { }
+        try { lm.removeUpdates(odoListener); } catch (Throwable ignored) { }
+        odoRunning = false;
+        if (odoPending > 0) prefs.edit().putFloat("odo_gps_m", prefs.getFloat("odo_gps_m", 0) + odoPending).apply();
         Guard.stopWatchdog();
         super.onDestroy();
     }
@@ -401,6 +406,9 @@ public class Main extends Activity {
     /** Android 6+: respuesta a la solicitud de permisos. */
     public void onRequestPermissionsResult(int req, String[] perms, int[] res) {
         if (req != 77 && req != 78) return;
+        try { lm.removeUpdates(odoListener); } catch (Throwable ignored) { }
+        odoRunning = false;
+        startOdo();
         stopGps();
         startGps();
         seedLastLocation();
@@ -456,6 +464,50 @@ public class Main extends Activity {
                 else if ("fijar-inicio".equals(v)) makeDefaultHome();
                 else if (v.startsWith("sim:")) { prefs.edit().putInt("sim_screen", Integer.parseInt(v.substring(4))).apply(); rebuild(); }
                 else if ("diag-mapa".equals(v)) showMapDiag();
+                else if ("demo-aceite".equals(v)) {
+                    prefs.edit().putBoolean("oil_on", true).putFloat("odo_base_km", 44200).putFloat("odo_gps_m", 0)
+                        .putFloat("oil_last_km", 40000).putFloat("oil_interval_km", 5000).putFloat("oil_snooze_km", 0).apply();
+                    rebuild();
+                }
+                else if ("aviso-aceite".equals(v)) {
+                    prefs.edit().putFloat("odo_base_km", 45100).putFloat("odo_gps_m", 0).putFloat("oil_snooze_km", 0).apply();
+                    rebuild(); oilAlert();
+                }
+                else if ("menu-aceite".equals(v)) oilMenu();
+                else if (v.startsWith("rumbo:")) {
+                    prefs.edit().putBoolean("map_heading", "1".equals(v.substring(6))).apply(); LiveMapView.headingUp = "1".equals(v.substring(6)); rebuild();
+                    h.postDelayed(new Runnable() { public void run() {
+                        if (liveMap == null) return;
+                        Location l = new Location(LocationManager.GPS_PROVIDER);
+                        l.setLatitude(4.6533); l.setLongitude(-74.0836); l.setBearing(45); l.setSpeed(12); l.setTime(System.currentTimeMillis());
+                        feedMap(l);
+                    }}, 1500);
+                }
+                else if (v.startsWith("unidad:")) { prefs.edit().putString("speed_unit", v.substring(7)).apply(); rebuild(); }
+                else if ("odo-sim".equals(v)) {
+                    // 300 posiciones a 25 m una de otra, una por segundo (90 km/h): deben sumar 7,5 km
+                    float before = odoKm();
+                    odoLast = null;
+                    long t0 = System.currentTimeMillis();
+                    float expect = 0;
+                    Location prev = null;
+                    for (int i = 0; i <= 300; i++) {
+                        Location l = new Location(LocationManager.GPS_PROVIDER);
+                        l.setLatitude(4.6 + i * 25 / 111320.0); l.setLongitude(-74.08); l.setTime(t0 + i * 1000L);
+                        odoStep(l);
+                        if (prev != null) expect += prev.distanceTo(l) / 1000f;
+                        prev = l;
+                    }
+                    // un salto imposible (50 km en 1 s) no debe sumarse
+                    Location j = new Location(LocationManager.GPS_PROVIDER);
+                    j.setLatitude(5.05); j.setLongitude(-74.08); j.setTime(t0 + 301000L);
+                    odoStep(j);
+                    prefs.edit().putFloat("odo_gps_m", prefs.getFloat("odo_gps_m", 0) + odoPending).apply();
+                    odoPending = 0;
+                    updateOilBadge();
+                    float got = odoKm() - before;
+                    Guard.log("PRUEBA odo-sim: ok=" + (Math.abs(got - expect) < 0.05f && expect > 7) + " sumo=" + got + " esperado=" + expect);
+                }
                 else if ("verificar-apk".equals(v)) {
                     boolean own = verifyApk(new File(getPackageCodePath()));
                     boolean other = false;
@@ -759,7 +811,243 @@ public class Main extends Activity {
         sv.addView(speedTv);
         sv.addView(kmh);
         placeWrap(box, sv, 16, 34);
+        buildOilBadge(box);
         setGps(false, 0);
+    }
+
+    // ───────────────────────── recordatorio de cambio de aceite ─────────────────────────
+    // StradaOS no puede leer el odómetro del tablero, así que lo estima: el usuario escribe el kilometraje una vez
+    // y StradaOS le suma la distancia recorrida que mide el GPS. Todo se guarda en km; se muestra en km o millas.
+
+    private TextView oilValTv;
+    private View oilBar, oilBarBg;
+    private Location odoLast;
+    private float odoPending;
+    private long odoSavedAt;
+
+    private float odoKm() { return prefs.getFloat("odo_base_km", 0) + prefs.getFloat("odo_gps_m", 0) / 1000f; }
+    private boolean oilOn() { return prefs.getBoolean("oil_on", false); }
+    private float oilNextKm() { return prefs.getFloat("oil_last_km", 0) + prefs.getFloat("oil_interval_km", 5000); }
+    private float toUnit(float km) { return useMph() ? km * 0.621371f : km; }
+    private float fromUnit(float v) { return useMph() ? v / 0.621371f : v; }
+    private String unit() { return useMph() ? "mi" : "km"; }
+    private String fmtDist(float km) {
+        return java.text.NumberFormat.getIntegerInstance(I18n.loc).format(Math.round(toUnit(km))) + " " + unit();
+    }
+
+    /** Distancia medida por el GPS (también con StradaOS detrás de otras apps). */
+    private final LocationListener odoListener = new LocationListener() {
+        public void onLocationChanged(Location l) {
+            try { odoStep(l); } catch (Throwable ignored) { }
+        }
+        public void onStatusChanged(String p, int st, Bundle e) { }
+        public void onProviderEnabled(String p) { }
+        public void onProviderDisabled(String p) { }
+    };
+
+    private void odoStep(Location l) {
+        if (!oilOn() || l == null) return;
+        if (l.hasAccuracy() && l.getAccuracy() > 40) return;
+        if (odoLast == null) { odoLast = l; return; }
+        float d = odoLast.distanceTo(l);
+        float dt = Math.max(1, (l.getTime() - odoLast.getTime()) / 1000f);
+        if (d < 20) return;                                 // ruido del GPS con el carro quieto
+        if (d / dt > 70) { odoLast = l; return; }           // salto imposible (> 250 km/h): se descarta
+        odoLast = l;
+        odoPending += d;
+        long now = SystemClock.elapsedRealtime();
+        if (odoPending >= 200 || now - odoSavedAt > 60000) {
+            prefs.edit().putFloat("odo_gps_m", prefs.getFloat("odo_gps_m", 0) + odoPending).apply();
+            odoPending = 0;
+            odoSavedAt = now;
+            updateOilBadge();
+        }
+    }
+
+    private boolean odoRunning;
+
+    /** Solo escucha el GPS en segundo plano si el recordatorio está activo. */
+    private void startOdo() {
+        boolean want = oilOn();
+        if (want == odoRunning) return;
+        try {
+            if (want) lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, odoListener);
+            else lm.removeUpdates(odoListener);
+            odoRunning = want;
+        } catch (Throwable ignored) { }
+        odoLast = null;
+    }
+
+    private void buildOilBadge(FrameLayout box) {
+        View sep = new View(this);
+        sep.setBackgroundColor(BTN);
+        place(box, sep, 166, 40, 1, 62);
+        LinearLayout col = new LinearLayout(this);
+        col.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout top = new LinearLayout(this);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        ImageView ic = icon("water_drop", 13);
+        ic.setAlpha(0.6f);
+        top.addView(ic, new LinearLayout.LayoutParams((int) (13 * s), (int) (13 * s)));
+        TextView t = tv("Aceite", 11, MUTED, false);
+        t.setPadding((int) (4 * s), 0, 0, 0);
+        top.addView(t);
+        col.addView(top);
+        oilValTv = tv("", 14, TEXT, true);
+        oilValTv.setPadding(0, (int) (5 * s), 0, (int) (6 * s));
+        col.addView(oilValTv);
+        FrameLayout bar = new FrameLayout(this);
+        oilBarBg = bar;
+        bar.setBackground(round(BTN, 2));
+        oilBar = new View(this);
+        bar.addView(oilBar, new FrameLayout.LayoutParams(0, -1));
+        col.addView(bar, new LinearLayout.LayoutParams(-1, (int) (4 * s)));
+        place(box, col, 176, 44, 88, 58);
+        col.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { oilMenu(); } });
+        updateOilBadge();
+    }
+
+    private void updateOilBadge() {
+        startOdo();
+        if (oilValTv == null) return;
+        if (!oilOn()) {
+            oilValTv.setText(I18n.t("Configurar"));
+            oilValTv.setTextColor(MUTED);
+            oilBarBg.setVisibility(View.INVISIBLE);
+            return;
+        }
+        float left = oilNextKm() - odoKm();
+        float interval = Math.max(1, prefs.getFloat("oil_interval_km", 5000));
+        oilBarBg.setVisibility(View.VISIBLE);
+        if (left <= 0) {
+            oilValTv.setText(I18n.t("¡Cambiar!"));
+            oilValTv.setTextColor(RED);
+        } else {
+            oilValTv.setText(fmtDist(left));
+            oilValTv.setTextColor(left < interval * 0.1f ? RED : TEXT);
+        }
+        final float used = Math.max(0, Math.min(1, 1 - left / interval));
+        oilBarBg.post(new Runnable() { public void run() {
+            ViewGroup.LayoutParams lp = oilBar.getLayoutParams();
+            lp.width = Math.max((int) (2 * s), (int) (oilBarBg.getWidth() * used));
+            oilBar.setLayoutParams(lp);
+            oilBar.setBackground(round(used >= 0.9f ? RED : 0xFF2DBE6C, 2));
+        }});
+    }
+
+    /** Toca el recuadro de aceite (o Ajustes → Tu vehículo). */
+    private void oilMenu() {
+        if (!oilOn()) { oilSetup(); return; }
+        float left = oilNextKm() - odoKm();
+        String head = I18n.t("Kilometraje estimado") + ": ≈ " + fmtDist(odoKm()) + "\n"
+            + I18n.t("Próximo cambio") + ": " + fmtDist(oilNextKm())
+            + " · " + (left > 0 ? I18n.t("Faltan " + fmtDist(left)) : I18n.t("¡Ya toca!"));
+        new TB(this, dlg())
+            .setTitle(I18n.t("Cambio de aceite") + "\n" + head)
+            .setItems(new String[]{"Ya hice el cambio de aceite", "Corregir el kilometraje actual", "Cambiar cada cuánto se hace", "Desactivar el recordatorio"},
+                new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                    if (w == 0) oilDone();
+                    else if (w == 1) askOdo(null);
+                    else if (w == 2) askInterval(null);
+                    else { prefs.edit().putBoolean("oil_on", false).apply(); updateOilBadge(); if (settingsView != null) showSettings(1); }
+                }})
+            .setNegativeButton("Cerrar", null)
+            .show();
+    }
+
+    /** Primera vez: kilometraje actual, cada cuánto y cuándo fue el último cambio. */
+    private void oilSetup() {
+        new TB(this, dlg())
+            .setTitle("Recordatorio de cambio de aceite")
+            .setMessage("StradaOS no puede leer el kilometraje del tablero del carro. Escríbelo una vez y StradaOS le irá sumando lo que recorras con el GPS, para avisarte cuando toque el cambio.\n\nDe vez en cuando puedes corregirlo con el valor real del tablero.")
+            .setPositiveButton("Empezar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                askOdo(new Runnable() { public void run() {
+                    askInterval(new Runnable() { public void run() {
+                        askNumber(I18n.t("¿A cuántos " + unit() + " fue el último cambio de aceite?"), toUnit(odoKm()), new NumCb() { public void on(float v) {
+                            prefs.edit().putFloat("oil_last_km", fromUnit(v)).putFloat("oil_snooze_km", 0).putBoolean("oil_on", true).apply();
+                            updateOilBadge();
+                            toast(I18n.t("Próximo cambio") + ": " + fmtDist(oilNextKm()));
+                            if (settingsView != null) showSettings(1);
+                        }});
+                    }});
+                }});
+            }})
+            .setNegativeButton("Cancelar", null)
+            .show();
+    }
+
+    private void askOdo(final Runnable next) {
+        askNumber(I18n.t("Kilometraje actual del tablero") + " (" + unit() + ")", prefs.contains("odo_base_km") ? toUnit(odoKm()) : -1, new NumCb() { public void on(float v) {
+            prefs.edit().putFloat("odo_base_km", fromUnit(v)).putFloat("odo_gps_m", 0).apply();
+            odoPending = 0;
+            updateOilBadge();
+            if (next != null) next.run(); else if (settingsView != null) showSettings(1);
+        }});
+    }
+
+    private void askInterval(final Runnable next) {
+        float def = prefs.contains("oil_interval_km") ? toUnit(prefs.getFloat("oil_interval_km", 5000)) : (useMph() ? 3000 : 5000);
+        askNumber(I18n.t("¿Cada cuántos " + unit() + " cambias el aceite?"), def, new NumCb() { public void on(float v) {
+            if (v < 100) { toast("Escribe un número válido"); return; }
+            prefs.edit().putFloat("oil_interval_km", fromUnit(v)).putFloat("oil_snooze_km", 0).apply();
+            updateOilBadge();
+            if (next != null) next.run(); else if (settingsView != null) showSettings(1);
+        }});
+    }
+
+    /** «Ya lo hice»: confirma el kilometraje real y reinicia el conteo. */
+    private void oilDone() {
+        askNumber(I18n.t("Kilometraje del tablero al hacer el cambio") + " (" + unit() + ")", toUnit(odoKm()), new NumCb() { public void on(float v) {
+            float km = fromUnit(v);
+            prefs.edit().putFloat("odo_base_km", km).putFloat("odo_gps_m", 0).putFloat("oil_last_km", km).putFloat("oil_snooze_km", 0).apply();
+            odoPending = 0;
+            updateOilBadge();
+            toast(I18n.t("Próximo cambio") + ": " + fmtDist(oilNextKm()));
+            if (settingsView != null) showSettings(1);
+        }});
+    }
+
+    /** Aviso en el inicio cuando toca el cambio. «Aún no» lo vuelve a mostrar tras 100 km (60 mi). */
+    private boolean oilAlert() {
+        if (!oilOn() || !prefs.contains("odo_base_km")) return false;
+        float now = odoKm();
+        if (now < oilNextKm() || now < prefs.getFloat("oil_snooze_km", 0)) return false;
+        new TB(this, dlg())
+            .setTitle("Es hora del cambio de aceite")
+            .setMessage(I18n.t("El kilometraje estimado es ≈ " + fmtDist(now) + " y ya toca el cambio de aceite (cada " + fmtDist(prefs.getFloat("oil_interval_km", 5000)) + ").")
+                + "\n\n" + I18n.t("¿Ya lo hiciste?"))
+            .setPositiveButton("Ya lo hice", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) { oilDone(); } })
+            .setNegativeButton("Aún no", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                prefs.edit().putFloat("oil_snooze_km", odoKm() + (useMph() ? 60 / 0.621371f : 100)).apply();
+            }})
+            .setCancelable(false)
+            .show();
+        return true;
+    }
+
+    interface NumCb { void on(float v); }
+
+    private void askNumber(String title, float def, final NumCb cb) {
+        final android.widget.EditText et = new android.widget.EditText(this);
+        et.setSingleLine(true);
+        et.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        if (def >= 0) { et.setText(String.valueOf(Math.round(def))); et.setSelection(et.getText().length()); }
+        FrameLayout wrap = new FrameLayout(this);
+        int pad = (int) (20 * s);
+        wrap.setPadding(pad, pad / 2, pad, 0);
+        wrap.addView(et);
+        new TB(this, dlg())
+            .setTitle(title)
+            .setView(wrap)
+            .setPositiveButton("Guardar", new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                try {
+                    float v = Float.parseFloat(et.getText().toString().replaceAll("[^0-9]", ""));
+                    if (v < 0 || v > 5000000) throw new NumberFormatException();
+                    cb.on(v);
+                } catch (Throwable e) { toast("Escribe un número válido"); }
+            }})
+            .setNegativeButton("Cancelar", null)
+            .show();
     }
 
     private void buildAaCard() {
@@ -1913,10 +2201,9 @@ public class Main extends Activity {
 
     /** Primer paso del asistente: idioma (preseleccionado el del sistema). */
     private void wizard() {
-        String cur = I18n.lang;
-        int sel = "en".equals(cur) ? 1 : "pt".equals(cur) ? 2 : 0;
+        int sel = Math.max(0, java.util.Arrays.asList(I18n.CODES).indexOf(I18n.lang));
         wizardDlg = new android.app.AlertDialog.Builder(this, dlg())
-            .setTitle("Idioma · Language · Idioma")
+            .setTitle("Idioma · Language · Lingua · Sprache")
             .setSingleChoiceItems(I18n.NAMES, sel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface d, int w) {
                     d.dismiss();
@@ -2538,15 +2825,36 @@ public class Main extends Activity {
         LinearLayout f = section(body, "Foto");
         row(f, "Foto del vehículo", "Se recorta y se le quita el fondo automáticamente", CarPhoto.load(this) != null ? "Configurada" : "Sin foto",
             new Runnable() { public void run() { photoMenu(); } });
+        LinearLayout o = section(body, "Cambio de aceite");
+        toggle(o, "Recordatorio de cambio de aceite", "Se muestra al lado de la velocidad y avisa cuando toca", oilOn(), new IntCb() { public void on(int i) {
+            if (i == 1 && !prefs.contains("odo_base_km")) { oilSetup(); return; }
+            prefs.edit().putBoolean("oil_on", i == 1).apply(); updateOilBadge(); showSettings(1);
+        }});
+        if (oilOn()) {
+            row(o, "Kilometraje actual", "Estimado con el GPS. Corrígelo con el del tablero cuando quieras", "≈ " + fmtDist(odoKm()), new Runnable() { public void run() { askOdo(null); } });
+            row(o, "Cada cuánto", null, fmtDist(prefs.getFloat("oil_interval_km", 5000)), new Runnable() { public void run() { askInterval(null); } });
+            row(o, "Próximo cambio", null, fmtDist(oilNextKm()), new Runnable() { public void run() { oilMenu(); } });
+            row(o, "Ya hice el cambio de aceite", null, null, new Runnable() { public void run() { oilDone(); } });
+        }
     }
 
     private void catLook(LinearLayout body) {
         LinearLayout lg = section(body, "Idioma");
         String lpref = I18n.pref(prefs);
-        int lsel = "es".equals(lpref) ? 1 : "en".equals(lpref) ? 2 : "pt".equals(lpref) ? 3 : 0;
-        segmented(lg, "Idioma", "Automático: el del sistema", new String[]{"Auto", "Español", "English", "Português"}, lsel, new IntCb() { public void on(int i) {
-            setLanguage(i == 0 ? "auto" : I18n.CODES[i - 1]);
-            showSettings(2);
+        int li = java.util.Arrays.asList(I18n.CODES).indexOf(lpref);
+        row(lg, "Idioma", "Automático: el del sistema", li >= 0 ? I18n.NAMES[li] : I18n.t("Automático"), new Runnable() { public void run() {
+            final String[] opts = new String[I18n.NAMES.length + 1];
+            opts[0] = I18n.t("Automático");
+            System.arraycopy(I18n.NAMES, 0, opts, 1, I18n.NAMES.length);
+            int sel = java.util.Arrays.asList(I18n.CODES).indexOf(I18n.pref(prefs)) + 1;
+            new android.app.AlertDialog.Builder(Main.this, dlg())
+                .setTitle(I18n.t("Idioma"))
+                .setSingleChoiceItems(opts, sel, new DialogInterface.OnClickListener() { public void onClick(DialogInterface d, int w) {
+                    d.dismiss();
+                    setLanguage(w == 0 ? "auto" : I18n.CODES[w - 1]);
+                    showSettings(2);
+                }})
+                .show();
         }});
         LinearLayout c = section(body, "Tema");
         String t = prefs.getString("theme", "dark");
@@ -2649,6 +2957,12 @@ public class Main extends Activity {
         String manual = prefs.getString("city_manual", "");
         row(w, "Ciudad", "Vacío = automática por GPS", manual.length() > 0 ? manual : (weatherNow != null && weatherNow.city != null ? weatherNow.city + " (GPS)" : "Automática"),
             edit("city_manual", "Ciudad (vacío = automática por GPS)", ""));
+        LinearLayout mo = section(body, "Orientación del mapa");
+        segmented(mo, "El mapa apunta", "Según tu dirección: gira con el carro mientras te mueves", new String[]{"Norte arriba", "Según tu dirección"},
+            prefs.getBoolean("map_heading", false) ? 1 : 0, new IntCb() { public void on(int i) {
+                prefs.edit().putBoolean("map_heading", i == 1).apply(); LiveMapView.headingUp = i == 1;
+                if (liveMap != null) liveMap.invalidate(); showSettings(5);
+            }});
         LinearLayout ml = section(body, "Rendimiento");
         toggle(ml, "Mapa en vivo", "Apágalo si la pantalla va lenta: queda un mapa de adorno y el velocímetro sigue funcionando", prefs.getBoolean("map_live", true), new IntCb() { public void on(int i) {
             prefs.edit().putBoolean("map_live", i == 1).apply(); rebuild(); showSettings(5);
@@ -2866,6 +3180,7 @@ public class Main extends Activity {
     private void autoChecks() {
         if (!hasWindowFocus() || settingsView != null || drawer != null) return;
         if (!homeAsked && prefs.getBoolean("setup_done", false) && !prefs.getBoolean("home_never", false) && askDefaultHome(null)) return;
+        if (oilAlert()) return;
         long now = System.currentTimeMillis();
         boolean auto = prefs.getBoolean("auto_update", !Updates.fromFdroid(this));
         if (getPackageName().endsWith(".debug")) auto = false;   // la versión de prueba no ofrece actualizar a la normal

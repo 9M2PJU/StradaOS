@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Idiomas de StradaOS (español, inglés, portugués). El código se escribe en español y cada texto se traduce al
+ * Idiomas de StradaOS (español, inglés, portugués, italiano, alemán). El código se escribe en español y cada texto se traduce al
  * mostrarse (tv(), toast(), ventanas TB, etc.) buscándolo en assets/i18n/LANG.txt.
  *
  * Formato del archivo: una línea por texto, «español<TAB>traducción». «\n» representa un salto de línea.
@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
  * tabla. En la traducción, {1}, {2}… permiten cambiar el orden. Si un texto no está en la tabla queda en español.
  */
 public class I18n {
-    static final String[] CODES = {"es", "en", "pt"};
-    static final String[] NAMES = {"Español", "English", "Português"};
+    static final String[] CODES = {"es", "en", "pt", "it", "de"};
+    static final String[] NAMES = {"Español", "English", "Português", "Italiano", "Deutsch"};
 
     static String lang = "es";
     static Locale loc = new Locale("es", "CO");
@@ -36,7 +36,7 @@ public class I18n {
         int lit;   // letras fijas: se prueban primero los patrones más específicos
     }
 
-    /** Idioma guardado («auto», «es», «en», «pt»). Instalaciones anteriores a los idiomas siguen en español. */
+    /** Idioma guardado («auto», «es», «en», «pt», «it», «de»). Instalaciones anteriores a los idiomas siguen en español. */
     static String pref(SharedPreferences p) {
         String v = p.getString("lang", null);
         if (v == null) {
@@ -46,10 +46,10 @@ public class I18n {
         return v;
     }
 
-    /** Idioma del sistema si es uno de los tres; si no, inglés. */
+    /** Idioma del sistema si es uno de los disponibles; si no, inglés. */
     static String system() {
         String l = Locale.getDefault().getLanguage();
-        if ("es".equals(l) || "pt".equals(l) || "en".equals(l)) return l;
+        for (String c : CODES) if (c.equals(l)) return l;
         return "en";
     }
 
@@ -61,7 +61,8 @@ public class I18n {
     static synchronized void set(Context c, String code) {
         if (code == null) code = "es";
         lang = code;
-        loc = "en".equals(code) ? Locale.US : "pt".equals(code) ? new Locale("pt", "BR") : new Locale("es", "CO");
+        loc = "en".equals(code) ? Locale.US : "pt".equals(code) ? new Locale("pt", "BR")
+            : "it".equals(code) ? Locale.ITALY : "de".equals(code) ? Locale.GERMANY : new Locale("es", "CO");
         map.clear();
         pats.clear();
         cache.clear();
@@ -165,6 +166,9 @@ public class I18n {
 
     /** Patrón de la fecha de la pantalla de inicio. */
     static String datePattern() {
-        return "en".equals(lang) ? "EEEE, MMMM d" : "EEEE, d 'de' MMMM";
+        if ("en".equals(lang)) return "EEEE, MMMM d";
+        if ("it".equals(lang)) return "EEEE d MMMM";
+        if ("de".equals(lang)) return "EEEE, d. MMMM";
+        return "EEEE, d 'de' MMMM";
     }
 }
