@@ -1,6 +1,6 @@
 {
-  "version": "2.11.1",
-  "notes": "## StradaOS 2.11.1 — El mapa vuelve a cargar en pantallas con Android 9\n\n### Corregido\n- **El mapa no cargaba en algunas pantallas con Android 9** (muchas dicen «Android 10 u 11»): todos los servidores de mapas fallaban con un error de conexión segura aunque el GPS y el internet funcionaran. Ahora StradaOS usa la conexión segura del propio sistema en Android 5 o más nuevo.\n- En Android 4 el mapa conecta con más servidores, así que carga más rápido.\n",
-  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.11.1",
-  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.11.1/StradaOS-2.11.1.apk"
+  "version": "2.12.0",
+  "notes": "## StradaOS 2.12.0 — Recordatorio de cambio de aceite, mapa según tu dirección, italiano y alemán\n\n### Nuevo\n- **Recordatorio de cambio de aceite**, al lado de la velocidad. Escribes una vez el kilometraje del tablero y cada cuánto cambias el aceite; StradaOS le suma lo que recorres con el GPS, muestra cuánto falta y te avisa cuando toca, con «Ya lo hice» (vuelve a empezar el conteo) o «Aún no» (te lo recuerda en 100 km). Funciona en km o millas y puedes corregir el kilometraje con el del tablero cuando quieras. Actívalo tocando el recuadro o en *Ajustes → Tu vehículo*.\n- **El mapa puede girar según tu dirección**: *Ajustes → Mapa y clima → Orientación del mapa*. «Norte arriba» sigue siendo lo predeterminado.\n- **Italiano y alemán**: ahora son 5 idiomas, que se eligen de una lista en *Ajustes → Apariencia → Idioma*.\n\n### Seguridad\n- Las actualizaciones descargadas desde la app ahora se verifican antes de instalarlas: solo se aceptan del repositorio oficial y con la misma firma de la versión instalada. Además se envían menos datos por conexiones sin cifrar.\n",
+  "url": "https://github.com/lordnordic-debug/StradaOS/releases/tag/v2.12.0",
+  "apk": "https://github.com/lordnordic-debug/StradaOS/releases/download/v2.12.0/StradaOS-2.12.0.apk"
 }
