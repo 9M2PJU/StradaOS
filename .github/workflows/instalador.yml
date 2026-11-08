@@ -3,6 +3,7 @@ name: Prueba del instalador de Android
 # Diagnóstico manual: copia los APK publicados a /sdcard/Download y los abre con el instalador del sistema
 # (como lo hace un explorador de archivos en la pantalla del carro). Deja en el registro el texto del diálogo
 # que aparece («Instalar», «Error de análisis», etc.) y lo que dice el PackageInstaller en logcat.
+# Solo API 23: en los emuladores API 19–22 /sdcard es de solo lectura y el archivo no llega (sale «Parse error»).
 on:
   workflow_dispatch:
     inputs:
@@ -20,7 +21,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { api: 22, arch: x86 }
           - { api: 23, arch: x86 }
     steps:
       - uses: actions/checkout@v4
