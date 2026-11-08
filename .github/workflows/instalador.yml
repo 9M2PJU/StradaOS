@@ -1,0 +1,53 @@
+name: Prueba del instalador de Android
+
+# Diagnóstico manual: copia los APK publicados a /sdcard/Download y los abre con el instalador del sistema
+# (como lo hace un explorador de archivos en la pantalla del carro). Deja en el registro el texto del diálogo
+# que aparece («Instalar», «Error de análisis», etc.) y lo que dice el PackageInstaller en logcat.
+on:
+  workflow_dispatch:
+    inputs:
+      versiones:
+        description: 'Versiones a probar (separadas por espacio; «prueba» = Release prueba)'
+        default: '2.12.0 2.11.1 prueba'
+
+permissions:
+  contents: read
+
+jobs:
+  instalador:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { api: 22, arch: x86 }
+          - { api: 23, arch: x86 }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p apks
+          for v in ${{ inputs.versiones }}; do
+            if [ "$v" = prueba ]; then
+              curl -fsSL -o apks/StradaOS-prueba.apk "https://github.com/${GITHUB_REPOSITORY}/releases/download/prueba/StradaOS-prueba.apk"
+            else
+              curl -fsSL -o "apks/StradaOS-$v.apk" "https://github.com/${GITHUB_REPOSITORY}/releases/download/v$v/StradaOS-$v.apk"
+            fi
+          done
+          ls -l apks
+      - name: Activar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Emulador Android API ${{ matrix.api }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: ${{ matrix.arch }}
+          target: default
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -skin 1024x600
+          emulator-boot-timeout: 900
+          script: bash .github/scripts/instalador.sh
